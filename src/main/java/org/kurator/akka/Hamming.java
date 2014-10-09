@@ -1,102 +1,127 @@
 package org.kurator.akka;
 
-import akka.actor.*;
+import static akka.pattern.Patterns.ask;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import scala.concurrent.Future;
+import scala.concurrent.duration.Duration;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.actor.UntypedActorFactory;
+import akka.util.Timeout;
+
 /* 
  * NOTE: This code was derived from akka.Hamming in the FilteredPush repository at
  * svn://svn.code.sf.net/p/filteredpush/svn/trunk/FP-Akka as of 07Oct2014. 
  */
+
 public class Hamming {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws TimeoutException, InterruptedException {
         Hamming wf = new Hamming();
         wf.run();
     }
 
-    private String enc = "UTF-8";
+    @SuppressWarnings("serial")
+	public void run() throws TimeoutException, InterruptedException {
 
-    public void run() {
-        long starttime = System.currentTimeMillis();
-
-        // Create an Akka system
-        ActorSystem system = ActorSystem.create("HammingWf");
-
-        final ActorRef txt1 = system.actorOf(new Props(new UntypedActorFactory() {
+        final ActorSystem system = ActorSystem.create("HammingWorkflow");
+        
+        final ActorRef oneShot = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                return new TextDisplay();
+                BroadcastActor a = new Oneshot();
+                a.addListener("filter");
+                return a;
             }
-        }), "txt1");
+        }), "oneshot");
 
-        final ActorRef ssal2 = system.actorOf(new Props(new UntypedActorFactory() {
-                    public UntypedActor create() {
-                StreamSorterAndLimiter s = new StreamSorterAndLimiter(2);
-                s.addListener("txt1");
-                s.addListener("mul5");
-                return s;
-            }
-        }), "ssal2");
-
-
-        final ActorRef ssal1 = system.actorOf(new Props(new UntypedActorFactory() {
+        final ActorRef filter = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                StreamSorterAndLimiter s = new StreamSorterAndLimiter(2);
-                s.addListener("ssal2");
-                s.addListener("mul3");
-                return s;
+            	BroadcastActor a = new Filter(30);
+                a.addListener("printStreamWriter");
+                a.addListener("multiplyByTwo");
+                a.addListener("multiplyByThree");
+                a.addListener("multiplyByFive");
+                return a;
             }
-        }), "ssal1");
+        }), "filter");
 
-        final ActorRef mul2 = system.actorOf(new Props(new UntypedActorFactory() {
+        final ActorRef multiplyByTwo = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                TimesActor ta2 = new TimesActor(2);
-                ta2.addListener("mul2");
-                ta2.addListener("ssal1");
-                return ta2;
+            	BroadcastActor a = new Multiplier(2);
+                a.addListener("mergeTwoThree");
+                return a;
             }
-        }), "mul2");
+        }), "multiplyByTwo");
 
-        final ActorRef mul3 = system.actorOf(new Props(new UntypedActorFactory() {
+        final ActorRef multiplyByThree = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                TimesActor ta3 = new TimesActor(3);
-                ta3.addListener("ssal1");
-                return ta3;
+            	BroadcastActor a = new Multiplier(3);
+                a.addListener("mergeTwoThree");
+                return a;
             }
-        }), "mul3");
+        }), "multiplyByThree");
 
-        final ActorRef mul5 = system.actorOf(new Props(new UntypedActorFactory() {
+        final ActorRef multiplyByFive = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                TimesActor ta5 = new TimesActor(5);
-                ta5.addListener("ssal2");
-                return ta5;
+            	BroadcastActor a = new Multiplier(5);
+                a.addListener("mergeTwoThreeFive");
+                return a;
             }
-        }), "mul5");
+        }), "multiplyByFive");
 
-        final ActorRef const2 = system.actorOf(new Props(new UntypedActorFactory() {
+
+        final ActorRef mergeTwoThree = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                return new ConstActor(1,mul2);
+            	BroadcastActor a = new IntegerStreamMerger(2);
+                a.addListener("mergeTwoThreeFive");
+                return a;
             }
-        }), "const2");
+        }), "mergeTwoThree");
 
-        final ActorRef const3 = system.actorOf(new Props(new UntypedActorFactory() {
+        final ActorRef mergeTwoThreeFive = system.actorOf(new Props(new UntypedActorFactory() {
+        	public UntypedActor create() {
+        		BroadcastActor a = new IntegerStreamMerger(2);
+                a.addListener("filter");
+                return a;
+            }
+        }), "mergeTwoThreeFive");
+
+        
+        final ActorRef printStreamWriter = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                return new ConstActor(1,mul3);
+                return new PrintStreamWriter(System.out);
             }
-        }), "const3");
+        }), "printStreamWriter");
 
-        final ActorRef const5 = system.actorOf(new Props(new UntypedActorFactory() {
+
+        final ActorRef director = system.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                return new ConstActor(1,mul5);
+                WorkflowDirector a = new WorkflowDirector(system);
+                a.monitor("oneshot");
+                a.monitor("filter");
+                a.monitor("printStreamWriter");
+                a.monitor("multiplyByTwo");
+                a.monitor("multiplyByThree");
+                a.monitor("multiplyByFive");                
+                a.monitor("mergeTwoThree");
+                a.monitor("mergeTwoThreeFive");
+                return a;
             }
-        }), "const5");
-
+        }), "monitor");
+        
+		final Duration timeoutDuration = Duration.create(500, TimeUnit.SECONDS);
+		final Timeout timeout = new Timeout(Duration.create(500, TimeUnit.SECONDS));
+        Future<Object> future = ask(director, new Initialize(), timeout);
+		future.ready(timeoutDuration, null);
+        
         // start the calculation
-        const2.tell(new Trigger(),system.lookupRoot());
-        const3.tell(new Trigger(),system.lookupRoot());
-        const5.tell(new Trigger(),system.lookupRoot());
-        system.awaitTermination();
-        long stoptime = System.currentTimeMillis();
-        System.err.printf("Runtime: %d ms",stoptime-starttime);
-    }
-
-    static class Curate {
+        oneShot.tell(new Integer(1),system.lookupRoot());
+                
+       system.awaitTermination();
     }
 }
