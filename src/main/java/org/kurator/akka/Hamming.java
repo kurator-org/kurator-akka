@@ -7,6 +7,7 @@ import java.util.concurrent.TimeoutException;
 
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
@@ -121,9 +122,9 @@ public class Hamming {
                     }
                 }), "monitor");
 
-        final Duration timeoutDuration = Duration.create(500, TimeUnit.SECONDS);
-        final Timeout timeout = new Timeout(Duration.create(500,
-                TimeUnit.SECONDS));
+        final FiniteDuration timeoutDuration = Duration.create(5,
+                TimeUnit.SECONDS);
+        final Timeout timeout = new Timeout(timeoutDuration);
         Future<Object> future = ask(director, new Initialize(), timeout);
         future.ready(timeoutDuration, null);
 
