@@ -2,6 +2,7 @@ package org.kurator.akka;
 
 import static akka.pattern.Patterns.ask;
 
+import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -23,9 +24,15 @@ import akka.util.Timeout;
 public class Hamming {
 
     private int maxHammingNumber;
+    private PrintStream outputStream;
+
+    public Hamming(int maxHammingNumber, PrintStream outputStream) {
+        this.maxHammingNumber = maxHammingNumber;
+        this.outputStream = outputStream;
+    }
 
     public Hamming(int maxHammingNumber) {
-        this.maxHammingNumber = maxHammingNumber;
+        this(maxHammingNumber, System.out);
     }
 
     @SuppressWarnings({ "serial", "unused" })
@@ -102,7 +109,7 @@ public class Hamming {
         final ActorRef printStreamWriter = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        return new PrintStreamWriter(System.out);
+                        return new PrintStreamWriter(outputStream);
                     }
                 }), "printStreamWriter");
 
