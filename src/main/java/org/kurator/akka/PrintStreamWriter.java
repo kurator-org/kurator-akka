@@ -5,9 +5,16 @@ import java.io.PrintStream;
 class PrintStreamWriter extends BroadcastActor {
 
     private PrintStream stream;
+    private String separator;
+    private boolean isFirst = true;
+
+    public PrintStreamWriter(PrintStream stream, String separator) {
+        this.stream = stream;
+        this.separator = separator;
+    }
 
     public PrintStreamWriter(PrintStream stream) {
-        this.stream = stream;
+        this(stream, System.lineSeparator());
     }
 
     @Override
@@ -18,7 +25,12 @@ class PrintStreamWriter extends BroadcastActor {
             broadcast(message);
             getContext().stop(getSelf());
         } else {
-            stream.println(message);
+            if (isFirst) {
+                isFirst = false;
+            } else {
+                stream.print(separator);
+            }
+            stream.print(message);
         }
     }
 }

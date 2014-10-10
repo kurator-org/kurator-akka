@@ -25,14 +25,17 @@ public class Hamming {
 
     private int maxHammingNumber;
     private PrintStream outputStream;
+    private String separator;
 
-    public Hamming(int maxHammingNumber, PrintStream outputStream) {
+    public Hamming(int maxHammingNumber, PrintStream outputStream,
+            String separator) {
         this.maxHammingNumber = maxHammingNumber;
         this.outputStream = outputStream;
+        this.separator = separator;
     }
 
     public Hamming(int maxHammingNumber) {
-        this(maxHammingNumber, System.out);
+        this(maxHammingNumber, System.out, System.lineSeparator());
     }
 
     @SuppressWarnings({ "serial", "unused" })
@@ -109,7 +112,7 @@ public class Hamming {
         final ActorRef printStreamWriter = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        return new PrintStreamWriter(outputStream);
+                        return new PrintStreamWriter(outputStream, separator);
                     }
                 }), "printStreamWriter");
 
