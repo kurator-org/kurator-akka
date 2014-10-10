@@ -22,10 +22,10 @@ import akka.util.Timeout;
 
 public class Hamming {
 
-    public static void main(String[] args) throws TimeoutException,
-            InterruptedException {
-        Hamming wf = new Hamming();
-        wf.run();
+    private int maxHammingNumber;
+
+    public Hamming(int maxHammingNumber) {
+        this.maxHammingNumber = maxHammingNumber;
     }
 
     @SuppressWarnings({ "serial", "unused" })
@@ -45,7 +45,7 @@ public class Hamming {
         final ActorRef filter = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new Filter(30);
+                        BroadcastActor a = new Filter(maxHammingNumber);
                         a.addListener("printStreamWriter");
                         a.addListener("multiplyByTwo");
                         a.addListener("multiplyByThree");
