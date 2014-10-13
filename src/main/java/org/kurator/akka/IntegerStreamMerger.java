@@ -1,87 +1,125 @@
 package org.kurator.akka;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.Set;
 
 import akka.actor.ActorRef;
 
 public class IntegerStreamMerger extends BroadcastActor {
 
     private int streamCount;
-    private Map<ActorRef, Queue<Integer>> inputQueues;
+    private Map<ActorRef, Queue<Object>> inputQueues;
     private Integer lastSent = Integer.MIN_VALUE;
 
     public IntegerStreamMerger(int streamCount) {
         this.streamCount = streamCount;
-        inputQueues = new HashMap<ActorRef, Queue<Integer>>();
+        inputQueues = new HashMap<ActorRef, Queue<Object>>();
     }
 
     @Override
     public void onReceive(Object message) {
+
         super.onReceive(message);
+
+        ActorRef sender = this.getSender();
+
         if (message instanceof Integer) {
 
             Integer inputValue = (Integer) message;
 
             // discard input value if not greater than the last value broadcast
-            if (inputValue <= lastSent)
+            if (inputValue <= lastSent) {
                 return;
+            }
 
             // store received value in message queue corresponding to sender
-            ActorRef sender = this.getSender();
-            addToQueue(sender, inputValue);
+            addToInputQueue(sender, message);
 
-            // fire if actor is ready
-            if (isReadyToFire())
-                fire();
         } else if (message instanceof EndOfStream) {
-            ActorRef sender = this.getSender();
-            inputQueues.remove(sender);
-            if (--streamCount == 0) {
-                broadcast(message);
-                getContext().stop(getSelf());
-            }
+
+            addToInputQueue(sender, message);
         }
+
+        // fire if actor is ready
+        fire();
     }
 
-    private void addToQueue(ActorRef sender, Integer value) {
-        Queue<Integer> q = inputQueues.get(sender);
+    private void addToInputQueue(ActorRef sender, Object message) {
+        Queue<Object> q = inputQueues.get(sender);
         if (q == null) {
-            q = new LinkedList<Integer>();
+            q = new LinkedList<Object>();
             inputQueues.put(sender, q);
         }
-        q.add(value);
+        q.add(message);
     }
 
     private boolean isReadyToFire() {
-        if (inputQueues.size() < streamCount)
+
+        if (inputQueues.size() < streamCount) {
             return false;
-        for (Queue<Integer> q : inputQueues.values()) {
+        }
+
+        for (Queue<Object> q : inputQueues.values()) {
             if (q.size() < 1)
                 return false;
         }
+
         return true;
     }
 
     private void fire() {
 
-        Integer minHead = Integer.MAX_VALUE;
+        while (isReadyToFire()) {
 
-        for (Queue<Integer> q : inputQueues.values()) {
-            Integer head = q.peek();
-            if (head < minHead)
-                minHead = head;
+            Set<Entry<ActorRef, Queue<Object>>> closingInputStreams = new HashSet<Entry<ActorRef, Queue<Object>>>();
+
+            for (Entry<ActorRef, Queue<Object>> entry : inputQueues.entrySet()) {
+                Queue<Object> queue = entry.getValue();
+                Object message = queue.peek();
+                if (message instanceof EndOfStream) {
+                    closingInputStreams.add(entry);
+                }
+            }
+
+            for (Entry<ActorRef, Queue<Object>> entry : closingInputStreams) {
+                ActorRef sender = entry.getKey();
+                inputQueues.remove(sender);
+                System.out.println("Closing stream for " + sender);
+                if (--streamCount == 0) {
+                    Queue<Object> queue = entry.getValue();
+                    EndOfStream endOfStreamMessage = (EndOfStream) queue.peek();
+                    broadcast(endOfStreamMessage);
+                    getContext().stop(getSelf());
+                    return;
+                }
+            }
+
+            Integer minHead = Integer.MAX_VALUE;
+
+            for (Queue<Object> q : inputQueues.values()) {
+                Integer head = (Integer) q.peek();
+                if (head < minHead) {
+                    minHead = head;
+                }
+            }
+
+            for (Queue<Object> q : inputQueues.values()) {
+                while (q.peek() == minHead)
+                    q.remove();
+            }
+
+            if (minHead > lastSent) {
+
+                lastSent = minHead;
+
+                System.out.println("Merge broadcasting " + minHead);
+                broadcast(minHead);
+            }
         }
-
-        for (Queue<Integer> q : inputQueues.values()) {
-            while (q.peek() == minHead)
-                q.remove();
-        }
-
-        lastSent = minHead;
-
-        broadcast(minHead);
     }
 }

@@ -17,6 +17,7 @@ public abstract class BroadcastActor extends UntypedActor {
 
     @Override
     public void onReceive(Object message) {
+
         if (message instanceof Initialize) {
             for (String name : listenerNames) {
                 ActorRef listener = getContext().system().actorFor(
