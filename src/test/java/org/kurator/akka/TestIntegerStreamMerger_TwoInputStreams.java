@@ -137,4 +137,82 @@ public class TestIntegerStreamMerger_TwoInputStreams extends TestCase {
         assertEquals("1, 2, 3, 4, 5", outputStream.toString());
     }
 
+    public void testIntegerStreamMerger_TwoStreams_DistinctValues_RoundRobin() {
+        repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(2), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
+        repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
+        repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
+        actorSystem.awaitTermination();
+        assertEquals("1, 2, 3, 4", outputStream.toString());
+    }
+
+    public void testIntegerStreamMerger_TwoStreams_DistinctValues_OneStreamFirst() {
+        repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(5), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(2), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(6), actorSystem.lookupRoot());
+        repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
+        repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
+        actorSystem.awaitTermination();
+        assertEquals("1, 2, 3, 4, 5, 6", outputStream.toString());
+    }
+
+    public void testIntegerStreamMerger_TwoStreams_IdenticalValues_RoundRobin() {
+        repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
+        repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
+        actorSystem.awaitTermination();
+        assertEquals("7", outputStream.toString());
+    }
+
+    public void testIntegerStreamMerger_TwoStreams_IdenticalValues_OneStreamFirst() {
+        repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
+        repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
+        repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
+        actorSystem.awaitTermination();
+        assertEquals("7", outputStream.toString());
+    }
+
+    public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_RoundRobin() {
+        repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(2), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(3), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(5), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(5), actorSystem.lookupRoot());
+        repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
+        repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
+        actorSystem.awaitTermination();
+        assertEquals("1, 2, 3, 4, 5", outputStream.toString());
+    }
+
+    public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_OneStreamFirst() {
+        repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
+        repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(3), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(5), actorSystem.lookupRoot());
+        repeaterB.tell(new Integer(5), actorSystem.lookupRoot());
+        repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
+        repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
+        actorSystem.awaitTermination();
+        assertEquals("1, 2, 3, 4, 5", outputStream.toString());
+    }
+
 }
