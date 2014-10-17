@@ -89,7 +89,6 @@ public class IntegerStreamMerger extends BroadcastActor {
             for (Entry<ActorRef, Queue<Object>> entry : closingInputStreams) {
                 ActorRef sender = entry.getKey();
                 inputQueues.remove(sender);
-                System.out.println("Closing stream for " + sender);
                 if (--streamCount == 0) {
                     Queue<Object> queue = entry.getValue();
                     EndOfStream endOfStreamMessage = (EndOfStream) queue.peek();
@@ -117,7 +116,6 @@ public class IntegerStreamMerger extends BroadcastActor {
 
                 lastSent = minHead;
 
-                System.out.println("Merge broadcasting " + minHead);
                 broadcast(minHead);
             }
         }
