@@ -41,24 +41,19 @@ public class TestIntegerStreamMerger_TwoInputStreams extends TestCase {
         repeaterA = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
                 BroadcastActor a = new Repeater();
-                a.addListener("merge");
                 return a;
             }
         }), "repeaterA");
 
         repeaterB = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                BroadcastActor a = new Repeater();
-                a.addListener("merge");
-                return a;
+                return new Repeater();
             }
         }), "repeaterB");
 
         merge = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                BroadcastActor a = new IntegerStreamMerger(2);
-                a.addListener("printer");
-                return a;
+                return new IntegerStreamMerger(2);
             }
         }), "merge");
 
@@ -71,11 +66,14 @@ public class TestIntegerStreamMerger_TwoInputStreams extends TestCase {
         final ActorRef director = actorSystem.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        WorkflowDirector a = new WorkflowDirector(actorSystem);
-                        a.monitor("repeaterA");
-                        a.monitor("repeaterB");
-                        a.monitor("merge");
-                        a.monitor("printer");
+                        Workflow a = new Workflow(actorSystem);
+                        a.actor("repeaterA");
+                        a.actor("repeaterB");
+                        a.actor("merge");
+                        a.actor("printer");
+                        a.connection("repeaterA", "merge");
+                        a.connection("repeaterB", "merge");
+                        a.connection("merge", "printer");
                         return a;
                     }
                 }), "monitor");

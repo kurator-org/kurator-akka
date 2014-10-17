@@ -16,11 +16,6 @@ import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 import akka.util.Timeout;
 
-/* 
- * NOTE: This code was derived from akka.Hamming in the FilteredPush repository at
- * svn://svn.code.sf.net/p/filteredpush/svn/trunk/FP-Akka as of 07Oct2014. 
- */
-
 public class Hamming {
 
     private int maxHammingNumber;
@@ -46,66 +41,49 @@ public class Hamming {
         final ActorRef oneShot = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new Oneshot();
-                        a.addListener("filter");
-                        return a;
+                        return new Oneshot();
                     }
                 }), "oneshot");
 
         final ActorRef filter = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new Filter(maxHammingNumber);
-                        a.addListener("printStreamWriter");
-                        a.addListener("multiplyByTwo");
-                        a.addListener("multiplyByThree");
-                        a.addListener("multiplyByFive");
-                        return a;
+                        return new Filter(maxHammingNumber);
                     }
                 }), "filter");
 
         final ActorRef multiplyByTwo = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new Multiplier(2);
-                        a.addListener("mergeTwoThree");
-                        return a;
+                        return new Multiplier(2);
                     }
                 }), "multiplyByTwo");
 
         final ActorRef multiplyByThree = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new Multiplier(3);
-                        a.addListener("mergeTwoThree");
-                        return a;
+                        return new Multiplier(3);
                     }
                 }), "multiplyByThree");
 
         final ActorRef multiplyByFive = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new Multiplier(5);
-                        a.addListener("mergeTwoThreeFive");
-                        return a;
+                        return new Multiplier(5);
                     }
                 }), "multiplyByFive");
 
         final ActorRef mergeTwoThree = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new IntegerStreamMerger(2);
-                        a.addListener("mergeTwoThreeFive");
-                        return a;
+                        return new IntegerStreamMerger(2);
                     }
                 }), "mergeTwoThree");
 
         final ActorRef mergeTwoThreeFive = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        BroadcastActor a = new IntegerStreamMerger(2);
-                        a.addListener("filter");
-                        return a;
+                        return new IntegerStreamMerger(2);
                     }
                 }), "mergeTwoThreeFive");
 
@@ -116,29 +94,42 @@ public class Hamming {
                     }
                 }), "printStreamWriter");
 
-        final ActorRef director = system.actorOf(new Props(
+        final ActorRef workflow = system.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        WorkflowDirector a = new WorkflowDirector(system);
-                        a.monitor("oneshot");
-                        a.monitor("filter");
-                        a.monitor("printStreamWriter");
-                        a.monitor("multiplyByTwo");
-                        a.monitor("multiplyByThree");
-                        a.monitor("multiplyByFive");
-                        a.monitor("mergeTwoThree");
-                        a.monitor("mergeTwoThreeFive");
+
+                        Workflow a = new Workflow(system);
+
+                        a.actor("oneshot");
+                        a.actor("filter");
+                        a.actor("printStreamWriter");
+                        a.actor("multiplyByTwo");
+                        a.actor("multiplyByThree");
+                        a.actor("multiplyByFive");
+                        a.actor("mergeTwoThree");
+                        a.actor("mergeTwoThreeFive");
+
+                        a.connection("oneshot", "filter");
+                        a.connection("filter", "printStreamWriter");
+                        a.connection("filter", "multiplyByTwo");
+                        a.connection("filter", "multiplyByThree");
+                        a.connection("filter", "multiplyByFive");
+                        a.connection("multiplyByTwo", "mergeTwoThree");
+                        a.connection("multiplyByThree", "mergeTwoThree");
+                        a.connection("multiplyByFive", "mergeTwoThreeFive");
+                        a.connection("mergeTwoThree", "mergeTwoThreeFive");
+                        a.connection("mergeTwoThreeFive", "filter");
+
                         return a;
                     }
-                }), "monitor");
+                }), "workflow");
 
-        final FiniteDuration timeoutDuration = Duration.create(5,
-                TimeUnit.SECONDS);
+        final FiniteDuration timeoutDuration = Duration.create(
+                Properties.TIMEOUT_SECONDS, TimeUnit.SECONDS);
         final Timeout timeout = new Timeout(timeoutDuration);
-        Future<Object> future = ask(director, new Initialize(), timeout);
+        Future<Object> future = ask(workflow, new Initialize(), timeout);
         future.ready(timeoutDuration, null);
 
-        // start the calculation
         oneShot.tell(new Integer(1), system.lookupRoot());
 
         system.awaitTermination();

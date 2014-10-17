@@ -39,17 +39,13 @@ public class TestIntegerStreamMerger_OneInputStream extends TestCase {
 
         repeater = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                BroadcastActor a = new Repeater();
-                a.addListener("merge");
-                return a;
+                return new Repeater();
             }
         }), "repeater");
 
         merge = actorSystem.actorOf(new Props(new UntypedActorFactory() {
             public UntypedActor create() {
-                BroadcastActor a = new IntegerStreamMerger(1);
-                a.addListener("printer");
-                return a;
+                return new IntegerStreamMerger(1);
             }
         }), "merge");
 
@@ -62,10 +58,12 @@ public class TestIntegerStreamMerger_OneInputStream extends TestCase {
         final ActorRef director = actorSystem.actorOf(new Props(
                 new UntypedActorFactory() {
                     public UntypedActor create() {
-                        WorkflowDirector a = new WorkflowDirector(actorSystem);
-                        a.monitor("repeater");
-                        a.monitor("merge");
-                        a.monitor("printer");
+                        Workflow a = new Workflow(actorSystem);
+                        a.actor("repeater");
+                        a.actor("merge");
+                        a.actor("printer");
+                        a.connection("repeater", "merge");
+                        a.connection("merge", "printer");
                         return a;
                     }
                 }), "monitor");

@@ -11,12 +11,12 @@ public abstract class BroadcastActor extends UntypedActor {
     final List<String> listenerNames = new LinkedList<String>();
     final List<ActorRef> listeners = new LinkedList<ActorRef>();
 
-    public void addListener(String listenerName) {
-        listenerNames.add(listenerName);
-    }
-
     @Override
     public void onReceive(Object message) {
+
+        if (message instanceof AddReceiver) {
+            listenerNames.add(((AddReceiver) message).get());
+        }
 
         if (message instanceof Initialize) {
             for (String name : listenerNames) {
