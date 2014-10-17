@@ -18,7 +18,7 @@ public abstract class BroadcastActor extends UntypedActor {
         }
 
         if (message instanceof Initialize) {
-            getSender().tell(message, getSelf());
+            getSender().tell(new Response(), getSelf());
         }
     }
 

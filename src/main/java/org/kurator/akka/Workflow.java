@@ -62,7 +62,7 @@ public class Workflow extends UntypedActor {
             responseFuture.ready(Constants.TIMEOUT_DURATION, null);
         }
 
-        getSender().tell(initialize, getSelf());
+        getSender().tell(new Response(), getSelf());
 
     }
 
