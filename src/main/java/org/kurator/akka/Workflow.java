@@ -5,74 +5,61 @@ import static akka.pattern.Patterns.ask;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import scala.concurrent.Future;
-import scala.concurrent.duration.Duration;
-import scala.concurrent.duration.FiniteDuration;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
-import akka.util.Timeout;
 
 public class Workflow extends UntypedActor {
 
     ActorSystem actorSystem;
-    Set<ActorRef> activeActors = new HashSet<ActorRef>();
+    Set<ActorRef> actors = new HashSet<ActorRef>();
 
-    final List<String> actorNames = new LinkedList<String>();
-    final Map<String, Set<String>> actorConnections = new HashMap<String, Set<String>>();
+    final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
     public Workflow(ActorSystem actorSystem) {
         this.actorSystem = actorSystem;
     }
 
-    public void actor(String actorName) {
-        actorNames.add(actorName);
+    public void actor(ActorRef actor) {
+        actors.add(actor);
+        getContext().watch(actor);
     }
 
-    public void connection(String sender, String receiver) {
-        Set<String> receivers = actorConnections.get(sender);
+    public void connection(ActorRef sender, ActorRef receiver) {
+        Set<ActorRef> receivers = actorConnections.get(sender);
         if (receivers == null) {
-            receivers = new HashSet<String>();
+            receivers = new HashSet<ActorRef>();
             actorConnections.put(sender, receivers);
         }
         receivers.add(receiver);
     }
 
-    private void createWorkflowGraph() throws TimeoutException,
-            InterruptedException {
+    private void elaborate() throws TimeoutException, InterruptedException {
 
-        final FiniteDuration timeoutDuration = Duration.create(
-                Properties.TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        final Timeout timeout = new Timeout(timeoutDuration);
-        final ArrayList<Future<Object>> futures = new ArrayList<Future<Object>>();
-
-        Initialize initialize = new Initialize();
-
-        for (String name : actorNames) {
-            ActorRef actor = getContext().system().actorFor("/user/" + name);
-            activeActors.add(actor);
-            getContext().watch(actor);
-
-            Set<String> receivers = actorConnections.get(name);
-            if (receivers != null) {
-                for (String receiver : receivers) {
-                    actor.tell(new AddReceiver(receiver), getSelf());
-                }
+        // inform each actor in workflow of its receivers
+        for (Map.Entry<ActorRef, Set<ActorRef>> e : actorConnections.entrySet()) {
+            ActorRef sender = e.getKey();
+            for (ActorRef receiver : e.getValue()) {
+                sender.tell(new AddReceiver(receiver), getSelf());
             }
-
-            futures.add(ask(actor, initialize, timeout));
         }
 
-        for (Future<Object> future : futures) {
-            future.ready(timeoutDuration, null);
+        // send an initialize message to each actor
+        final ArrayList<Future<Object>> responseFutures = new ArrayList<Future<Object>>();
+        Initialize initialize = new Initialize();
+        for (ActorRef a : actors) {
+            responseFutures.add(ask(a, initialize, Constants.TIMEOUT));
+        }
+
+        // wait for response for initialization for each actor
+        for (Future<Object> responseFuture : responseFutures) {
+            responseFuture.ready(Constants.TIMEOUT_DURATION, null);
         }
 
         getSender().tell(initialize, getSelf());
@@ -83,15 +70,15 @@ public class Workflow extends UntypedActor {
     public void onReceive(Object message) throws Exception {
 
         if (message instanceof Initialize) {
-            createWorkflowGraph();
+            elaborate();
             return;
         }
 
         if (message instanceof Terminated) {
             Terminated t = (Terminated) message;
             ActorRef terminatedActor = t.actor();
-            activeActors.remove(terminatedActor);
-            if (activeActors.size() == 0) {
+            actors.remove(terminatedActor);
+            if (actors.size() == 0) {
                 getContext().stop(getSelf());
                 actorSystem.shutdown();
             }

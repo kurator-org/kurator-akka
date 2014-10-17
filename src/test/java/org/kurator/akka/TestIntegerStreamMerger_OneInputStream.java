@@ -59,11 +59,11 @@ public class TestIntegerStreamMerger_OneInputStream extends TestCase {
                 new UntypedActorFactory() {
                     public UntypedActor create() {
                         Workflow a = new Workflow(actorSystem);
-                        a.actor("repeater");
-                        a.actor("merge");
-                        a.actor("printer");
-                        a.connection("repeater", "merge");
-                        a.connection("merge", "printer");
+                        a.actor(repeater);
+                        a.actor(merge);
+                        a.actor(printer);
+                        a.connection(repeater, merge);
+                        a.connection(merge, printer);
                         return a;
                     }
                 }), "monitor");

@@ -1,14 +1,16 @@
 package org.kurator.akka;
 
+import akka.actor.ActorRef;
+
 public class AddReceiver {
 
-    private final String receiverName;
+    private final ActorRef receiver;
 
-    public AddReceiver(String receiverName) {
-        this.receiverName = receiverName;
+    public AddReceiver(ActorRef receiver) {
+        this.receiver = receiver;
     }
 
-    public String get() {
-        return receiverName;
+    public ActorRef get() {
+        return receiver;
     }
 }
