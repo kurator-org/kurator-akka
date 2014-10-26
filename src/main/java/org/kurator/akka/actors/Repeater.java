@@ -1,8 +1,10 @@
-package org.kurator.akka;
+package org.kurator.akka.actors;
+
+import org.kurator.akka.messages.EndOfStream;
 
 public class Repeater extends BroadcastActor {
 
-    boolean eosSent = false;
+    private boolean eosSent = false;
 
     @Override
     public void onReceive(Object message) {

@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
+import org.kurator.akka.messages.Initialize;
+import org.kurator.akka.messages.Response;
+
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -19,16 +22,27 @@ public class Workflow extends UntypedActor {
 
     ActorSystem actorSystem;
     Set<ActorRef> actors = new HashSet<ActorRef>();
+    ActorRef inputActor;
 
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
     public Workflow(ActorSystem actorSystem) {
         this.actorSystem = actorSystem;
     }
+    
+    public void setInput(ActorRef inputActor) {
+        this.inputActor = inputActor;
+    }
 
-    public void actor(ActorRef actor) {
+    private void actor(ActorRef actor) {
         actors.add(actor);
         getContext().watch(actor);
+    }
+
+    public void setActors(Set<ActorRef> actors) {
+        for (ActorRef actor : actors) {
+            actor(actor);
+        }
     }
 
     public void connection(ActorRef sender, ActorRef receiver) {
@@ -41,14 +55,6 @@ public class Workflow extends UntypedActor {
     }
 
     private void elaborate() throws TimeoutException, InterruptedException {
-
-        // inform each actor in workflow of its receivers
-        for (Map.Entry<ActorRef, Set<ActorRef>> e : actorConnections.entrySet()) {
-            ActorRef sender = e.getKey();
-            for (ActorRef receiver : e.getValue()) {
-                sender.tell(new AddReceiver(receiver), getSelf());
-            }
-        }
 
         // send an initialize message to each actor
         final ArrayList<Future<Object>> responseFutures = new ArrayList<Future<Object>>();
@@ -82,6 +88,11 @@ public class Workflow extends UntypedActor {
                 getContext().stop(getSelf());
                 actorSystem.shutdown();
             }
+            return;
+        }
+        
+        if (inputActor != null) {
+            inputActor.tell(message, getSelf());
         }
     }
 }

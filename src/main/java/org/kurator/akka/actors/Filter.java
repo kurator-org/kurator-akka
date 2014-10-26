@@ -1,14 +1,13 @@
-package org.kurator.akka;
+package org.kurator.akka.actors;
+
+import org.kurator.akka.messages.EndOfStream;
 
 public class Filter extends BroadcastActor {
 
-    int max;
-    boolean eosSent = false;
+    public int max = 1;
+    public boolean sendEosOnExceed = true;
 
-    public Filter(Integer max) {
-        super();
-        this.max = max;
-    }
+    private boolean eosSent = false;
 
     @Override
     public void onReceive(Object message) {
@@ -28,7 +27,7 @@ public class Filter extends BroadcastActor {
             Integer value = (Integer) message;
             if (value <= max) {
                 broadcast(value);
-            } else {
+            } else if (sendEosOnExceed) {
                 eosSent = true;
                 broadcast(new EndOfStream());
             }

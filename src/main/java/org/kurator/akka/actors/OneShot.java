@@ -1,6 +1,7 @@
-package org.kurator.akka;
+package org.kurator.akka.actors;
 
-public class Oneshot extends BroadcastActor {
+
+public class OneShot extends BroadcastActor {
 
     @Override
     public void onReceive(Object message) {

@@ -7,8 +7,8 @@ import scala.concurrent.duration.FiniteDuration;
 import akka.util.Timeout;
 
 public class Constants {
-    static final int TIMEOUT_SECONDS = 5000;
-    static final FiniteDuration TIMEOUT_DURATION = Duration.create(
+    public static final int TIMEOUT_SECONDS = 5000;
+    public static final FiniteDuration TIMEOUT_DURATION = Duration.create(
             Constants.TIMEOUT_SECONDS, TimeUnit.SECONDS);
-    static final Timeout TIMEOUT = new Timeout(TIMEOUT_DURATION);
+    public static final Timeout TIMEOUT = new Timeout(TIMEOUT_DURATION);
 }

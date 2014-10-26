@@ -1,22 +1,17 @@
-package org.kurator.akka;
+package org.kurator.akka.actors;
 
 import java.io.PrintStream;
 
-class PrintStreamWriter extends BroadcastActor {
+import org.kurator.akka.messages.EndOfStream;
+import org.kurator.akka.messages.Initialize;
 
-    private PrintStream stream;
-    private String separator;
+public class PrintStreamWriter extends BroadcastActor {
+
+    public PrintStream stream = System.out;
+    public String separator = System.lineSeparator();
+    
     private boolean isFirst = true;
-
-    public PrintStreamWriter(PrintStream stream, String separator) {
-        this.stream = stream;
-        this.separator = separator;
-    }
-
-    public PrintStreamWriter(PrintStream stream) {
-        this(stream, System.lineSeparator());
-    }
-
+    
     @Override
     public void onReceive(Object message) {
         super.onReceive(message);

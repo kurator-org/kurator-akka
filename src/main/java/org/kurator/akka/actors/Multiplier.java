@@ -1,13 +1,10 @@
-package org.kurator.akka;
+package org.kurator.akka.actors;
+
+import org.kurator.akka.messages.EndOfStream;
 
 public class Multiplier extends BroadcastActor {
 
-    private Integer factor;
-
-    public Multiplier(Integer factor) {
-        super();
-        this.factor = factor;
-    }
+    public int factor = 1;
 
     @Override
     public void onReceive(Object message) {

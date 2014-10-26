@@ -1,4 +1,4 @@
-package org.kurator.akka;
+package org.kurator.akka.actors;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,18 +8,16 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
+import org.kurator.akka.messages.EndOfStream;
+
 import akka.actor.ActorRef;
 
 public class IntegerStreamMerger extends BroadcastActor {
 
-    private int streamCount;
-    private Map<ActorRef, Queue<Object>> inputQueues;
+    public int streamCount = 1;
+    
+    private Map<ActorRef, Queue<Object>> inputQueues = new HashMap<ActorRef, Queue<Object>>();;
     private Integer lastSent = Integer.MIN_VALUE;
-
-    public IntegerStreamMerger(int streamCount) {
-        this.streamCount = streamCount;
-        inputQueues = new HashMap<ActorRef, Queue<Object>>();
-    }
 
     @Override
     public void onReceive(Object message) {
@@ -113,9 +111,7 @@ public class IntegerStreamMerger extends BroadcastActor {
             }
 
             if (minHead > lastSent) {
-
                 lastSent = minHead;
-
                 broadcast(minHead);
             }
         }
