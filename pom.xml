@@ -7,6 +7,14 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <repositories>
+        <repository>
+        <id>org.restflow</id>
+        <name>restflow.org maven repository</name>
+        <url>http://restflow.org/mavenrepo</url>
+        </repository>
+    </repositories>
+        
     <name>kurator-akka</name>
     <url>http://maven.apache.org</url>
 
@@ -19,13 +27,13 @@
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_2.10</artifactId>
-            <version>2.1.4</version>
+            <version>2.3.6</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-slf4j_2.10</artifactId>
-            <version>2.1.4</version>
+            <version>2.3.6</version>
         </dependency>
 
         <dependency>
@@ -34,6 +42,36 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>3.1.2.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>3.1.2.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>3.1.2.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-expression</artifactId>
+      <version>3.1.2.RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-asm</artifactId>
+      <version>3.1.2.RELEASE</version>
+    </dependency>
+
+	    <dependency>
+	    	<groupId>org.restflow</groupId>
+	    	<artifactId>YamlSpringLoader</artifactId>
+	    </dependency>
 
     </dependencies>
       
@@ -50,4 +88,13 @@
         </plugins>	
     </build>
 	  
+    <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+    			<groupId>org.restflow</groupId>
+    			<artifactId>YamlSpringLoader</artifactId>
+    			<version>3.1</version>
+    		</dependency>
+    	</dependencies>
+    </dependencyManagement>
 </project>
