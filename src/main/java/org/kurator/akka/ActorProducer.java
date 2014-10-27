@@ -50,25 +50,14 @@ public class ActorProducer implements IndirectActorProducer {
     }
     
     
-    /** Uses reflection to set the named property on the bean to the provided value */
     private void setParameter(String name, Object value) {        
-        Field field;
         try {
-            field = actor.getClass().getField(name);
+            Field field = actor.getClass().getField(name);
             field.setAccessible(true);
             field.set(actor, value);
-        } catch (NoSuchFieldException e) {
-            // TODO Auto-generated catch block
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+            System.exit(-1);
+        } 
     }
 }

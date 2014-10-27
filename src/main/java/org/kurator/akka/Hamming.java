@@ -79,7 +79,8 @@ public class Hamming {
         
         filter.listensTo(mergeTwoThreeFive);
 
-        ActorRef workflow = builder.build(oneShot);
+        builder.inputActor(oneShot);
+        ActorRef workflow = builder.build();
         
         builder.startWorkflow();
         workflow.tell(new Integer(1), builder.getActorSystem().lookupRoot());
