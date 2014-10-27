@@ -22,11 +22,11 @@ public class ActorBuilder {
     }
     
     @SuppressWarnings("unchecked")
-    public void setActorClassName(String actorClassName) throws ClassNotFoundException {
+    public void setActorClass(String actorClassName) throws ClassNotFoundException {
         this.actorClass = (Class<? extends BroadcastActor>) Class.forName(actorClassName);
     }
     
-    public Class<? extends BroadcastActor> getActorClass() {
+    public Class<? extends BroadcastActor> actorClass() {
         return actorClass;
     }
     

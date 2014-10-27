@@ -1,0 +1,36 @@
+components:
+
+- id: Repeater
+  className: org.kurator.akka.ActorBuilder
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.actors.Repeater
+    listeners:
+    - !ref Filter
+  
+- id: Filter
+  className: org.kurator.akka.ActorBuilder
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.actors.Filter
+    listeners:
+    - !ref Printer
+    parameters:
+      max: 5
+      sendEosOnExceed: true
+
+- id: Printer
+  className: org.kurator.akka.ActorBuilder
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.actors.PrintStreamWriter
+ 
+- id: ThreeActorWorkflow
+  className: org.kurator.akka.WorkflowConfiguration
+  singleton: true
+  properties:
+    actors:
+    - !ref Repeater
+    - !ref Filter
+    - !ref Printer
+    inputActor: !ref Repeater

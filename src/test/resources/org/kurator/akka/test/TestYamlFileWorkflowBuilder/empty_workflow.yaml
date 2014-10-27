@@ -1,0 +1,5 @@
+components:
+ 
+- id: EmptyWorkflow
+  className: org.kurator.akka.WorkflowConfiguration
+  singleton: true

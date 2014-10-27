@@ -1,0 +1,24 @@
+components:
+
+- id: Repeater
+  className: org.kurator.akka.ActorBuilder
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.actors.Repeater
+    listeners:
+    - !ref Printer
+
+- id: Printer
+  className: org.kurator.akka.ActorBuilder
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.actors.PrintStreamWriter
+
+- id: TwoActorWorkflow
+  className: org.kurator.akka.WorkflowConfiguration
+  singleton: true
+  properties:
+    actors:
+    - !ref Repeater
+    - !ref Printer
+    inputActor: !ref Repeater

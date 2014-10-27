@@ -1,0 +1,15 @@
+components:
+ 
+- id: Printer
+  className: org.kurator.akka.ActorBuilder
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.actors.PrintStreamWriter
+
+- id: OneActorWorkflow
+  className: org.kurator.akka.WorkflowConfiguration
+  singleton: true
+  properties:
+    actors:
+    - !ref Printer
+    inputActor: !ref Printer

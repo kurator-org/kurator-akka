@@ -8,7 +8,7 @@ import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
 
-public class TestWorkflowStringRunner extends TestCase {
+public class TestYamlStringWorkflowBuilder extends TestCase {
     
     public static final String EOL = System.getProperty("line.separator");
     
@@ -36,7 +36,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorBuilder"            + EOL +
                 "  singleton: true"                                     + EOL +
                 "  properties:"                                         + EOL +
-                "    actorClassName: org.kurator.akka.actors.OneShot"   + EOL +
+                "    actorClass: org.kurator.akka.actors.OneShot"       + EOL +
                 ""                                                      + EOL +
                 "- id: OneActorWorkflow"                                + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
@@ -65,7 +65,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.Repeater"          + EOL +
+                "    actorClass: org.kurator.akka.actors.Repeater"              + EOL +
                 "    listeners:"                                                + EOL +
                 "    - !ref Printer"                                            + EOL +
                 ""                                                              + EOL +
@@ -73,7 +73,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.PrintStreamWriter" + EOL +
+                "    actorClass: org.kurator.akka.actors.PrintStreamWriter"     + EOL +
                 ""                                                              + EOL +
                 "- id: TwoActorWorkflow"                                        + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"           + EOL +
@@ -105,7 +105,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.Repeater"          + EOL +
+                "    actorClass: org.kurator.akka.actors.Repeater"              + EOL +
                 "    listeners:"                                                + EOL +
                 "    - !ref Filter"                                             + EOL +
                 ""                                                              + EOL +
@@ -113,7 +113,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.Filter"            + EOL +
+                "    actorClass: org.kurator.akka.actors.Filter"                + EOL +
                 "    listeners:"                                                + EOL +
                 "    - !ref Printer"                                            + EOL +
                 "    parameters:"                                               + EOL +
@@ -124,7 +124,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.PrintStreamWriter" + EOL +
+                "    actorClass: org.kurator.akka.actors.PrintStreamWriter"     + EOL +
                 ""                                                              + EOL +
                 "- id: ThreeActorWorkflow"                                      + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"           + EOL +

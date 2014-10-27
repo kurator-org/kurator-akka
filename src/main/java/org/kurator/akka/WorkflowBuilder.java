@@ -84,7 +84,7 @@ public class WorkflowBuilder {
         Set<ActorRef> actors = new HashSet<ActorRef>();
         if (actorConfigurations.size() > 0) {
             for (ActorBuilder actorConfig : actorConfigurations) {
-                ActorRef actor =  system.actorOf(Props.create(ActorProducer.class, actorConfig.getActorClass(), actorConfig.getParameters(), actorConfig.getListeners(), this));
+                ActorRef actor =  system.actorOf(Props.create(ActorProducer.class, actorConfig.actorClass(), actorConfig.getParameters(), actorConfig.getListeners(), this));
                 actors.add(actor);
                 actorRefForActorConfig.put(actorConfig, actor);
                 if (inputActorBuilder == actorConfig) inputActor = actor;
