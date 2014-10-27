@@ -42,7 +42,7 @@ public class ActorBuilder {
         sender.listener(this);
         return this;
     }
-    
+        
     public ActorBuilder parameter(String parameter, Object value) {
         if (parameters == null) {
             parameters = new HashMap<String,Object>();
@@ -63,7 +63,14 @@ public class ActorBuilder {
         this.listeners = listeners;
     }
     
-    public List<ActorBuilder> getListeners() {
+    public List<ActorBuilder> getListeners() {        
         return listeners;
     }
+    
+    public void setListensTo(List<ActorBuilder> senders) {
+        for (ActorBuilder sender : senders) {
+            sender.listener(this);
+        }
+    }
+
 }

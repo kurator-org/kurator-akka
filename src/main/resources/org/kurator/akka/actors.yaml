@@ -13,9 +13,23 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.Filter
-    
+
+- id: MultiplyActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.Multiplier
+
+- id: IntegerStreamMergerActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.IntegerStreamMerger
+
+- id: OneShotActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.OneShot
+
 - id: PrinterActor
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.PrintStreamWriter
-    

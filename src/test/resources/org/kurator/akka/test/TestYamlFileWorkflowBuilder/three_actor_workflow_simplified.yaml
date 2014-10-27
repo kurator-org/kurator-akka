@@ -7,8 +7,6 @@ components:
 - id: Repeater
   type: RepeaterActor
   properties:
-    listeners:
-    - !ref Filter
 
 - id: Filter
   type: FilterActor
@@ -16,17 +14,20 @@ components:
     parameters:
       max: 5
       sendEosOnExceed: true
-    listeners:
-    - !ref Printer
+    listensTo:
+      - !ref Repeater
 
 - id: Printer
   type: PrinterActor
+  properties:
+    listensTo:
+      - !ref Filter
  
 - id: ThreeActorWorkflow
   type: Workflow
   properties:
     actors:
-    - !ref Repeater
-    - !ref Filter
-    - !ref Printer
+      - !ref Repeater
+      - !ref Filter
+      - !ref Printer
     inputActor: !ref Repeater

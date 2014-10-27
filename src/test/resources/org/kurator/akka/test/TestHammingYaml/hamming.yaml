@@ -1,0 +1,80 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: OneShot
+  type: OneShotActor
+
+- id: Filter
+  type: FilterActor
+  properties:
+    parameters:
+      max: 30
+      sendEosOnExceed: true
+    listensTo:
+      - !ref OneShot
+      - !ref MergeTwoThreeFive
+
+- id: MultiplyByTwo
+  type: MultiplyActor
+  properties:
+    parameters:
+      factor: 2
+    listensTo:
+      - !ref Filter
+
+- id: MultiplyByThree
+  type: MultiplyActor
+  properties:
+    parameters:
+      factor: 3
+    listensTo:
+      - !ref Filter
+
+- id: MultiplyByFive
+  type: MultiplyActor
+  properties:
+    parameters:
+      factor: 5
+    listensTo:
+      - !ref Filter
+
+- id: MergeTwoThree
+  type: IntegerStreamMergerActor
+  properties:
+    parameters:
+      streamCount: 2
+    listensTo:
+      - !ref MultiplyByTwo
+      - !ref MultiplyByThree
+
+- id: MergeTwoThreeFive
+  type: IntegerStreamMergerActor
+  properties:
+    parameters:
+      streamCount: 2
+    listensTo:
+      - !ref MultiplyByFive
+      - !ref MergeTwoThree
+
+- id: Printer
+  type: PrinterActor
+  properties:
+    listensTo:
+      - !ref Filter
+  
+- id: HammingWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref OneShot
+      - !ref Filter
+      - !ref MultiplyByTwo
+      - !ref MultiplyByThree
+      - !ref MultiplyByFive
+      - !ref MergeTwoThree
+      - !ref MergeTwoThreeFive
+      - !ref Printer
+    inputActor: !ref OneShot

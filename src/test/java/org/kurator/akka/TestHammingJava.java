@@ -7,7 +7,7 @@ import java.util.concurrent.TimeoutException;
 
 import junit.framework.TestCase;
 
-public class TestHamming extends TestCase {
+public class TestHammingJava extends TestCase {
 
     private OutputStream outputStream;
     private PrintStream printStream;
