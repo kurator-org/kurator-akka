@@ -7,9 +7,9 @@ import org.restflow.yaml.spring.YamlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 
 @SuppressWarnings("deprecation")
-public class YamlStringRunner extends WorkflowRunner {
+public class YamlStringWorkflowBuilder extends WorkflowBuilder {
     
-    public YamlStringRunner(String definitionString) throws Exception {
+    public YamlStringWorkflowBuilder(String definitionString) throws Exception {
         super();
         GenericApplicationContext context = new GenericApplicationContext();
         YamlBeanDefinitionReader reader = new YamlBeanDefinitionReader(context);

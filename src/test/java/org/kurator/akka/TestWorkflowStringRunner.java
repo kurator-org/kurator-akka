@@ -2,8 +2,8 @@ package org.kurator.akka;
 
 import junit.framework.TestCase;
 
-import org.kurator.akka.WorkflowRunner;
-import org.kurator.akka.YamlStringRunner;
+import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.YamlStringWorkflowBuilder;
 import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
@@ -22,8 +22,8 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
                 "  singleton: true"                                     + EOL; 
         
-        WorkflowRunner runner = new YamlStringRunner(definition);   
-        ActorRef workflowRef = runner.getWorkflowRef();
+        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        ActorRef workflowRef = builder.getWorkflowRef();
         assertNotNull(workflowRef);
 }
 
@@ -33,10 +33,10 @@ public class TestWorkflowStringRunner extends TestCase {
                 "components:"                                           + EOL +
                 ""                                                      + EOL +
                 "- id: OneShot"                                         + EOL +
-                "  className: org.kurator.akka.ActorConfiguration"      + EOL +
+                "  className: org.kurator.akka.ActorBuilder"            + EOL +
                 "  singleton: true"                                     + EOL +
                 "  properties:"                                         + EOL +
-                "    actorClassName: org.kurator.akka.actors.OneShot"       + EOL +
+                "    actorClassName: org.kurator.akka.actors.OneShot"   + EOL +
                 ""                                                      + EOL +
                 "- id: OneActorWorkflow"                                + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
@@ -46,13 +46,13 @@ public class TestWorkflowStringRunner extends TestCase {
                 "    - !ref OneShot"                                    + EOL +
                 "    inputActor: !ref OneShot"                          + EOL;
         
-        WorkflowRunner runner = new YamlStringRunner(definition);
-        ActorRef workflow = runner.getWorkflowRef();
-        ActorSystem system = runner.getActorSystem();
+        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        ActorRef workflow = builder.getWorkflowRef();
+        ActorSystem system = builder.getActorSystem();
         
-        runner.start();
+        builder.startWorkflow();
         workflow.tell(new Integer(1), system.lookupRoot());
-        runner.await();
+        builder.awaitWorkflow();
     }
     
     public void testTwoActorWorkflow() throws Exception {
@@ -61,18 +61,18 @@ public class TestWorkflowStringRunner extends TestCase {
                 "components:"                                                   + EOL +
                 ""                                                              + EOL +
                 "- id: Repeater"                                                + EOL +
-                "  className: org.kurator.akka.ActorConfiguration"              + EOL +
+                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.Repeater"              + EOL +
+                "    actorClassName: org.kurator.akka.actors.Repeater"          + EOL +
                 "    listeners:"                                                + EOL +
                 "    - !ref Printer"                                            + EOL +
                 ""                                                              + EOL +
                 "- id: Printer"                                                 + EOL +
-                "  className: org.kurator.akka.ActorConfiguration"              + EOL +
+                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.PrintStreamWriter"     + EOL +
+                "    actorClassName: org.kurator.akka.actors.PrintStreamWriter" + EOL +
                 ""                                                              + EOL +
                 "- id: TwoActorWorkflow"                                        + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"           + EOL +
@@ -83,15 +83,15 @@ public class TestWorkflowStringRunner extends TestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowRunner runner = new YamlStringRunner(definition);
-        ActorRef workflow = runner.getWorkflowRef();
-        ActorSystem system = runner.getActorSystem();
+        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        ActorRef workflow = builder.getWorkflowRef();
+        ActorSystem system = builder.getActorSystem();
         
-        runner.start();
+        builder.startWorkflow();
         workflow.tell(new Integer(1), system.lookupRoot());
         workflow.tell(new Integer(2), system.lookupRoot());
         workflow.tell(new EndOfStream(), system.lookupRoot());
-        runner.await();
+        builder.awaitWorkflow();
     }
 
     public void testThreeActorWorkflow() throws Exception {
@@ -100,7 +100,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "components:"                                                   + EOL +
                 ""                                                              + EOL +
                 "- id: Repeater"                                                + EOL +
-                "  className: org.kurator.akka.ActorConfiguration"              + EOL +
+                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClassName: org.kurator.akka.actors.Repeater"          + EOL +
@@ -108,7 +108,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "    - !ref Filter"                                             + EOL +
                 ""                                                              + EOL +
                 "- id: Filter"                                                  + EOL +
-                "  className: org.kurator.akka.ActorConfiguration"              + EOL +
+                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClassName: org.kurator.akka.actors.Filter"            + EOL +
@@ -119,7 +119,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "      sendEosOnExceed: true"                                   + EOL +
                 ""                                                              + EOL +
                 "- id: Printer"                                                 + EOL +
-                "  className: org.kurator.akka.ActorConfiguration"              + EOL +
+                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClassName: org.kurator.akka.actors.PrintStreamWriter" + EOL +
@@ -134,11 +134,11 @@ public class TestWorkflowStringRunner extends TestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowRunner runner = new YamlStringRunner(definition);
-        ActorRef workflow = runner.getWorkflowRef();
-        ActorSystem system = runner.getActorSystem();
+        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        ActorRef workflow = builder.getWorkflowRef();
+        ActorSystem system = builder.getActorSystem();
         
-        runner.start();
+        builder.startWorkflow();
         workflow.tell(new Integer(1), system.lookupRoot());
         workflow.tell(new Integer(2), system.lookupRoot());
         workflow.tell(new Integer(3), system.lookupRoot());
@@ -148,7 +148,7 @@ public class TestWorkflowStringRunner extends TestCase {
         workflow.tell(new Integer(4), system.lookupRoot());
         workflow.tell(new Integer(3), system.lookupRoot());
         workflow.tell(new EndOfStream(), system.lookupRoot());
-        runner.await();
+        builder.awaitWorkflow();
     }
     
 }

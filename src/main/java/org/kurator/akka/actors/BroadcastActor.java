@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.kurator.akka.ActorConfiguration;
-import org.kurator.akka.WorkflowRunner;
+import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.WorkflowBuilder;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Response;
 
@@ -15,20 +15,20 @@ import akka.actor.ActorRef;
 public abstract class BroadcastActor extends AkkaActor {
 
     private final Set<ActorRef> listeners = new HashSet<ActorRef>();
-    private List<ActorConfiguration> listenerConfigurations = new LinkedList<ActorConfiguration>();
-    private WorkflowRunner runner;
+    private List<ActorBuilder> listenerConfigurations = new LinkedList<ActorBuilder>();
+    private WorkflowBuilder runner;
 
     public void addListeners(Set<ActorRef> listeners) {
         this.listeners.addAll(listeners);
     }
     
-    public void setListenerConfigs(List<ActorConfiguration> listenerConfigurations) {
+    public void setListenerConfigs(List<ActorBuilder> listenerConfigurations) {
         if (listenerConfigurations != null) {
             this.listenerConfigurations = listenerConfigurations;
         }
     }
     
-    public void setWorkflowRunner(WorkflowRunner runner) {
+    public void setWorkflowRunner(WorkflowBuilder runner) {
         this.runner = runner;
     }
 
@@ -38,7 +38,7 @@ public abstract class BroadcastActor extends AkkaActor {
 
         if (message instanceof Initialize) {
             
-            for (ActorConfiguration listenerConfig : listenerConfigurations) {
+            for (ActorBuilder listenerConfig : listenerConfigurations) {
                 ActorRef listener = runner.getActorForConfig(listenerConfig);
                 listeners.add(listener);
             }

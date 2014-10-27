@@ -1,38 +1,111 @@
 package org.kurator.akka;
 
-import java.util.Set;
 
-import akka.actor.Actor;
+import static akka.pattern.Patterns.ask;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+
+import org.kurator.akka.messages.Initialize;
+import org.springframework.context.support.GenericApplicationContext;
+
+import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.IndirectActorProducer;
+import akka.actor.Props;
 
-public class WorkflowBuilder implements IndirectActorProducer {
+public class WorkflowBuilder {
 
-    private ActorSystem system;
-    private Set<ActorRef> actors;
-    private ActorRef inputActor;
+    private WorkflowConfiguration workflowConfiguration;
+    private final ActorSystem system;
+    private ActorRef inputActor = null;
+    private Map<ActorBuilder,ActorRef> actorRefForActorConfig = new HashMap<ActorBuilder, ActorRef>();
+    private ActorRef workflowRef;
+    List<ActorBuilder> actorConfigurations;
+
+    public WorkflowBuilder() {
+        this.system = ActorSystem.create("Workflow");
+    }
+
+    public WorkflowBuilder(List<ActorBuilder> actorConfigurations, ActorBuilder inputActorConfig) {
+        this.system = ActorSystem.create("Workflow");
+        build(actorConfigurations, inputActorConfig);
+    }
     
-    public WorkflowBuilder(ActorSystem system, Set<ActorRef> actors) {
-        this.system = system;
-        this.actors = actors;
-    }
-
-    public WorkflowBuilder(ActorSystem system, Set<ActorRef> actors, ActorRef inputActor) {
-       this(system, actors);
-       this.inputActor = inputActor;
+    public ActorBuilder createActorBuilder() {
+        if (actorConfigurations == null) {
+            actorConfigurations = new LinkedList<ActorBuilder>();
+        }
+        ActorBuilder actor = new ActorBuilder();
+        actorConfigurations.add(actor);
+        return actor;
     }
     
-    @Override
-    public Class<? extends Actor> actorClass() {
-        return Workflow.class;
+    public ActorRef getWorkflowRef() {
+        return workflowRef;
+    }
+    
+    public ActorSystem getActorSystem() {
+        return system;
+    }
+    
+    public ActorRef getActorForConfig(ActorBuilder config) {
+        return actorRefForActorConfig.get(config);
+    }
+    
+    protected void loadWorkflowFromSpringContext(GenericApplicationContext context) throws Exception {
+
+        context.refresh();
+
+        // get the workflow configuration bean
+        String workflowNames[] = context.getBeanNamesForType(Class.forName("org.kurator.akka.WorkflowConfiguration"));
+        if (workflowNames.length != 1) {
+            throw new Exception("Workflow definition must contain at exactly one instance of WorkflowConfiguration.");
+        }
+        workflowConfiguration = (WorkflowConfiguration) context.getBean(workflowNames[0]);
+        
+        ActorBuilder inputActorConfiguration = workflowConfiguration.getInputActor(); 
+
+       build(workflowConfiguration.getActors(), inputActorConfiguration);
     }
 
-    @Override
-    public Workflow produce() {
-        Workflow workflow = new Workflow(system);
-        workflow.setActors(actors);
-        workflow.setInput(inputActor);
-        return workflow;
+    public ActorRef build(ActorBuilder inputActorConfig) {
+        return build(actorConfigurations, inputActorConfig);
+    }
+    public ActorRef build(List<ActorBuilder> actorConfigurations, ActorBuilder inputActorConfig) {
+        
+        Set<ActorRef> actors = new HashSet<ActorRef>();
+        if (actorConfigurations.size() > 0) {
+            for (ActorBuilder actorConfig : actorConfigurations) {
+                ActorRef actor =  system.actorOf(Props.create(ActorProducer.class, actorConfig.getActorClass(), actorConfig.getParameters(), actorConfig.getListeners(), this));
+                actors.add(actor);
+                actorRefForActorConfig.put(actorConfig, actor);
+                if (inputActorConfig == actorConfig) inputActor = actor;
+            }
+        }
+    
+        // create a workflow using the workflow configuration and comprising the actors
+        workflowRef = system.actorOf(Props.create(WorkflowProducer.class, system, actors, inputActor));
+        
+        return workflowRef;
+    }
+    
+    public void run() throws TimeoutException, InterruptedException {
+        this.startWorkflow();
+        this.awaitWorkflow();
+    }
+    
+    public void startWorkflow() throws TimeoutException, InterruptedException {
+        Future<Object> future = ask(workflowRef, new Initialize(), Constants.TIMEOUT);
+        future.ready(Constants.TIMEOUT_DURATION, null);
+    }
+    
+    public void awaitWorkflow() {
+        system.awaitTermination();        
     }
 }

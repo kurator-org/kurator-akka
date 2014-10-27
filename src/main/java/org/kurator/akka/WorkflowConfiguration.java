@@ -5,22 +5,22 @@ import java.util.List;
 
 public class WorkflowConfiguration {
     
-    List<ActorConfiguration> actorConfigurations = new LinkedList<ActorConfiguration>();
-    ActorConfiguration inputActorConfiguration;
+    List<ActorBuilder> actorConfigurations = new LinkedList<ActorBuilder>();
+    ActorBuilder inputActorConfiguration;
     
-    public void setActors(List<ActorConfiguration> actorConfigurations) {
+    public void setActors(List<ActorBuilder> actorConfigurations) {
         this.actorConfigurations = actorConfigurations;
     }
     
-    public List<ActorConfiguration> getActors() {
+    public List<ActorBuilder> getActors() {
         return actorConfigurations;
     }
     
-    public void setInputActor(ActorConfiguration inputActor) {
+    public void setInputActor(ActorBuilder inputActor) {
         inputActorConfiguration = inputActor;
     }
     
-    public ActorConfiguration getInputActor() {
+    public ActorBuilder getInputActor() {
         return inputActorConfiguration;
     }
 }

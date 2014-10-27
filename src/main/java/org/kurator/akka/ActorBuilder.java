@@ -1,73 +1,69 @@
 package org.kurator.akka;
 
-import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.kurator.akka.actors.BroadcastActor;
 
-import akka.actor.IndirectActorProducer;
-
-public class ActorBuilder implements IndirectActorProducer {
+public class ActorBuilder {
 
     private Class<? extends BroadcastActor> actorClass;
-    private Map<String, Object> parameters;
-    private List<ActorConfiguration> listenerConfigs;
-    private WorkflowRunner workflowRunner;
-    private BroadcastActor actor;
+    private List<ActorBuilder> listeners;
+    private Map<String,Object> parameters;
 
-    public ActorBuilder(Class<? extends BroadcastActor> actorClass, Map<String, Object> parameters, List<ActorConfiguration> listenerConfigs, WorkflowRunner runner) {
-        this.actorClass = actorClass;
-        this.parameters = parameters;
-        this.listenerConfigs = listenerConfigs;
-        this.workflowRunner = runner;
+    public ActorBuilder() {
     }
 
-    @Override
-    public Class<? extends BroadcastActor> actorClass() {
+    public ActorBuilder actorClass(Class<? extends BroadcastActor> actorClass) {
+        this.actorClass = actorClass;
+        return this;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void setActorClassName(String actorClassName) throws ClassNotFoundException {
+        this.actorClass = (Class<? extends BroadcastActor>) Class.forName(actorClassName);
+    }
+    
+    public Class<? extends BroadcastActor> getActorClass() {
         return actorClass;
     }
+    
+    public ActorBuilder listener(ActorBuilder listener) {
+        if (listeners == null) {
+            listeners = new LinkedList<ActorBuilder>();
+        }
+        listeners.add(listener);
+        return this;
+    }
 
-    @Override
-    public BroadcastActor produce() {
-        try {
-            actor = actorClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-        actor.setListenerConfigs(listenerConfigs);
-        actor.setWorkflowRunner(workflowRunner);
-        
-        if (parameters != null) {
-            for (Map.Entry<String,Object> parameter : parameters.entrySet()) {
-                setParameter(parameter.getKey(), parameter.getValue());
-            }
-        }
-        
-        return actor;
+    public ActorBuilder listensTo(ActorBuilder sender) {
+        sender.listener(this);
+        return this;
     }
     
-    
-    /** Uses reflection to set the named property on the bean to the provided value */
-    private void setParameter(String name, Object value) {        
-        Field field;
-        try {
-            field = actor.getClass().getField(name);
-            field.setAccessible(true);
-            field.set(actor, value);
-        } catch (NoSuchFieldException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+    public ActorBuilder parameter(String parameter, Object value) {
+        if (parameters == null) {
+            parameters = new HashMap<String,Object>();
         }
+        parameters.put(parameter, value);
+        return this;
+    }
+    
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+    
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
+    
+    public void setListeners(List<ActorBuilder> listeners) {
+        this.listeners = listeners;
+    }
+    
+    public List<ActorBuilder> getListeners() {
+        return listeners;
     }
 }
