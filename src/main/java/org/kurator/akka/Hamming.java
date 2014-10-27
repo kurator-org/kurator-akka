@@ -8,7 +8,6 @@ import org.kurator.akka.actors.IntegerStreamMerger;
 import org.kurator.akka.actors.Multiplier;
 import org.kurator.akka.actors.OneShot;
 import org.kurator.akka.actors.PrintStreamWriter;
-import akka.actor.ActorRef;
 
 public class Hamming {
 
@@ -34,44 +33,45 @@ public class Hamming {
 
     public void run() throws TimeoutException, InterruptedException {
 
-        WorkflowBuilder builder = new WorkflowBuilder();
+        WorkflowBuilder wfb = new WorkflowBuilder();
         
-        ActorBuilder oneShot = builder.createActorBuilder()
+        ActorBuilder oneShot = wfb.createActorBuilder()
                 .actorClass(OneShot.class);
         
-        ActorBuilder filter = builder.createActorBuilder()
+        ActorBuilder filter = wfb.createActorBuilder()
                 .actorClass(Filter.class)
                 .parameter("max", maxHammingNumber)
                 .listensTo(oneShot);
         
-        ActorBuilder multiplyByTwo = builder.createActorBuilder()
+        ActorBuilder multiplyByTwo = wfb.createActorBuilder()
                 .actorClass(Multiplier.class)
                 .parameter("factor", 2)
                 .listensTo(filter);
 
-        ActorBuilder multiplyByThree = builder.createActorBuilder()
+        ActorBuilder multiplyByThree = wfb.createActorBuilder()
                 .actorClass(Multiplier.class)
                 .parameter("factor", 3)
                 .listensTo(filter);
         
-        ActorBuilder multiplyByFive = builder.createActorBuilder()
+        ActorBuilder multiplyByFive = wfb.createActorBuilder()
                 .actorClass(Multiplier.class)
                 .parameter("factor", 5)
                 .listensTo(filter);
         
-        ActorBuilder mergeTwoThree = builder.createActorBuilder()
+        ActorBuilder mergeTwoThree = wfb.createActorBuilder()
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
                 .listensTo(multiplyByTwo)
                 .listensTo(multiplyByThree);
            
-        ActorBuilder mergeTwoThreeFive = builder.createActorBuilder()
+        ActorBuilder mergeTwoThreeFive = wfb.createActorBuilder()
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
                 .listensTo(multiplyByFive)
                 .listensTo(mergeTwoThree);
         
-        ActorBuilder printStreamWriter = builder.createActorBuilder()
+        @SuppressWarnings("unused")
+        ActorBuilder printStreamWriter = wfb.createActorBuilder()
                 .actorClass(PrintStreamWriter.class)
                 .parameter("stream", outputStream)
                 .parameter("separator", separator)
@@ -79,11 +79,12 @@ public class Hamming {
         
         filter.listensTo(mergeTwoThreeFive);
 
-        builder.inputActor(oneShot);
-        ActorRef workflow = builder.build();
+        wfb.inputActor(oneShot);
         
-        builder.startWorkflow();
-        workflow.tell(new Integer(1), builder.getActorSystem().lookupRoot());
-        builder.awaitWorkflow();
+        wfb.build();
+        
+        wfb.startWorkflow();
+        wfb.tellWorkflow(new Integer(1));
+        wfb.awaitWorkflow();
     }
 }

@@ -7,7 +7,6 @@ import org.kurator.akka.YamlStringWorkflowBuilder;
 import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 
 public class TestWorkflowStringRunner extends TestCase {
     
@@ -23,6 +22,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  singleton: true"                                     + EOL; 
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        builder.build();
         ActorRef workflowRef = builder.getWorkflowRef();
         assertNotNull(workflowRef);
 }
@@ -47,11 +47,12 @@ public class TestWorkflowStringRunner extends TestCase {
                 "    inputActor: !ref OneShot"                          + EOL;
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
-        ActorRef workflow = builder.getWorkflowRef();
-        ActorSystem system = builder.getActorSystem();
-        
+        builder.build();
+
         builder.startWorkflow();
-        workflow.tell(new Integer(1), system.lookupRoot());
+        
+        builder.tellWorkflow(1);
+        
         builder.awaitWorkflow();
     }
     
@@ -84,13 +85,14 @@ public class TestWorkflowStringRunner extends TestCase {
                 "    inputActor: !ref Repeater"                                 + EOL;
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
-        ActorRef workflow = builder.getWorkflowRef();
-        ActorSystem system = builder.getActorSystem();
-        
+        builder.build();
+
         builder.startWorkflow();
-        workflow.tell(new Integer(1), system.lookupRoot());
-        workflow.tell(new Integer(2), system.lookupRoot());
-        workflow.tell(new EndOfStream(), system.lookupRoot());
+        
+        builder.tellWorkflow(1);
+        builder.tellWorkflow(2);
+        builder.tellWorkflow(new EndOfStream());
+        
         builder.awaitWorkflow();
     }
 
@@ -135,19 +137,20 @@ public class TestWorkflowStringRunner extends TestCase {
                 "    inputActor: !ref Repeater"                                 + EOL;
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
-        ActorRef workflow = builder.getWorkflowRef();
-        ActorSystem system = builder.getActorSystem();
-        
+        builder.build();
+
         builder.startWorkflow();
-        workflow.tell(new Integer(1), system.lookupRoot());
-        workflow.tell(new Integer(2), system.lookupRoot());
-        workflow.tell(new Integer(3), system.lookupRoot());
-        workflow.tell(new Integer(4), system.lookupRoot());
-        workflow.tell(new Integer(5), system.lookupRoot());
-        workflow.tell(new Integer(6), system.lookupRoot());
-        workflow.tell(new Integer(4), system.lookupRoot());
-        workflow.tell(new Integer(3), system.lookupRoot());
-        workflow.tell(new EndOfStream(), system.lookupRoot());
+        
+        builder.tellWorkflow(1);
+        builder.tellWorkflow(2);
+        builder.tellWorkflow(3);
+        builder.tellWorkflow(4);
+        builder.tellWorkflow(5);
+        builder.tellWorkflow(6);
+        builder.tellWorkflow(4);
+        builder.tellWorkflow(3);
+        builder.tellWorkflow(new EndOfStream());
+        
         builder.awaitWorkflow();
     }
     

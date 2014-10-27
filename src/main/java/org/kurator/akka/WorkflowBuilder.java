@@ -72,7 +72,7 @@ public class WorkflowBuilder {
         
         inputActorBuilder = workflowConfiguration.getInputActor(); 
 
-       build(workflowConfiguration.getActors());
+        actorConfigurations = workflowConfiguration.getActors();
     }
 
     public ActorRef build() {
@@ -100,6 +100,10 @@ public class WorkflowBuilder {
     public void run() throws TimeoutException, InterruptedException {
         this.startWorkflow();
         this.awaitWorkflow();
+    }
+    
+    public void tellWorkflow(Object message) {
+        workflowRef.tell(message, system.lookupRoot());
     }
     
     public void startWorkflow() throws TimeoutException, InterruptedException {
