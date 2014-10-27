@@ -1,0 +1,21 @@
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+
+types:
+
+- id: RepeaterActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.Repeater
+
+- id: FilterActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.Filter
+    
+- id: PrinterActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.PrintStreamWriter
+    

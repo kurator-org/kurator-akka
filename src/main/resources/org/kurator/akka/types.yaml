@@ -1,0 +1,10 @@
+types:
+
+- id: Actor
+  className: org.kurator.akka.ActorBuilder
+  singleton: true
+
+- id: Workflow
+  className: org.kurator.akka.WorkflowConfiguration
+  singleton: false
+

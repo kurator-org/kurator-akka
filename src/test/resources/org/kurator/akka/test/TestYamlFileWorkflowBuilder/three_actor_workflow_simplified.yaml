@@ -1,0 +1,32 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: Repeater
+  type: RepeaterActor
+  properties:
+    listeners:
+    - !ref Filter
+
+- id: Filter
+  type: FilterActor
+  properties:
+    parameters:
+      max: 5
+      sendEosOnExceed: true
+    listeners:
+    - !ref Printer
+
+- id: Printer
+  type: PrinterActor
+ 
+- id: ThreeActorWorkflow
+  type: Workflow
+  properties:
+    actors:
+    - !ref Repeater
+    - !ref Filter
+    - !ref Printer
+    inputActor: !ref Repeater
