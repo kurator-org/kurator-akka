@@ -1,214 +1,189 @@
 package org.kurator.akka.actors;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.TimeoutException;
+
+import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.messages.EndOfStream;
 
 import junit.framework.TestCase;
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 
 public class TestIntegerStreamMerger_TwoInputStreams extends TestCase {
 
-    private OutputStream outputStream;
-    private PrintStream printStream;
-    private ActorSystem actorSystem;
+    private WorkflowBuilder wfb;
+    private OutputStream outputBuffer;
+    private ActorRef repeaterA;
+    private ActorRef repeaterB;
 
-    ActorRef repeaterA;
-    ActorRef repeaterB;
-    ActorRef merge;
-    ActorRef printer;
-    //
-    // @SuppressWarnings("serial")
-    // @Override
-    // public void setUp() {
-    //
-    // outputStream = new ByteArrayOutputStream();
-    // printStream = new PrintStream(outputStream);
-    // actorSystem = ActorSystem.create("TestActorSystem");
-    //
-    // repeaterA = actorSystem.actorOf(new Props(new UntypedActorFactory() {
-    // public UntypedActor create() {
-    // BroadcastActor a = new Repeater();
-    // return a;
-    // }
-    // }), "repeaterA");
-    //
-    // repeaterB = actorSystem.actorOf(new Props(new UntypedActorFactory() {
-    // public UntypedActor create() {
-    // return new Repeater();
-    // }
-    // }), "repeaterB");
-    //
-    // merge = actorSystem.actorOf(new Props(new UntypedActorFactory() {
-    // public UntypedActor create() {
-    // return new IntegerStreamMerger(2);
-    // }
-    // }), "merge");
-    //
-    // printer = actorSystem.actorOf(new Props(new UntypedActorFactory() {
-    // public UntypedActor create() {
-    // return new PrintStreamWriter(printStream, ", ");
-    // }
-    // }), "printer");
-    //
-    // final ActorRef director = actorSystem.actorOf(new Props(
-    // new UntypedActorFactory() {
-    // public UntypedActor create() {
-    // Workflow a = new Workflow(actorSystem);
-    // a.actor(repeaterA);
-    // a.actor(repeaterB);
-    // a.actor(merge);
-    // a.actor(printer);
-    // a.connection(repeaterA, merge);
-    // a.connection(repeaterB, merge);
-    // a.connection(merge, printer);
-    // return a;
-    // }
-    // }), "monitor");
-    //
-    // final FiniteDuration timeoutDuration = Duration.create(500,
-    // TimeUnit.SECONDS);
-    // final Timeout timeout = new Timeout(timeoutDuration);
-    // Future<Object> future = ask(director, new Initialize(), timeout);
-    // try {
-    // future.ready(timeoutDuration, null);
-    // } catch (TimeoutException e) {
-    // e.printStackTrace();
-    // } catch (InterruptedException e) {
-    // e.printStackTrace();
-    // }
-    // }
-    //
-     public void testIntegerStreamMerger_TwoStreams_NoValues() {
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("", outputStream.toString());
+     @Override
+     public void setUp() {
+    
+         outputBuffer = new ByteArrayOutputStream();
+         PrintStream printStream = new PrintStream(outputBuffer);
+        
+         wfb = new WorkflowBuilder();
+    
+         ActorBuilder repeaterABuilder = wfb.createActorBuilder()
+                 .actorClass(Repeater.class);
+    
+         ActorBuilder repeaterBBuilder = wfb.createActorBuilder()
+                 .actorClass(Repeater.class);
+
+         ActorBuilder merge = wfb.createActorBuilder()
+                 .actorClass(IntegerStreamMerger.class)
+                 .parameter("streamCount", 2)
+                 .listensTo(repeaterABuilder)
+                 .listensTo(repeaterBBuilder);
+        
+         @SuppressWarnings("unused")
+         ActorBuilder printer = wfb.createActorBuilder()
+                 .actorClass(PrintStreamWriter.class)
+                 .parameter("stream", printStream)
+                 .parameter("separator", ", ")
+                 .listensTo(merge);
+        
+         wfb.build();
+         
+         repeaterA = wfb.getActorForConfig(repeaterABuilder);
+         repeaterB = wfb.getActorForConfig(repeaterBBuilder);
+     }
+
+     public void testIntegerStreamMerger_TwoStreams_NoValues() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("", outputBuffer.toString());
      }
     
-//     public void testIntegerStreamMerger_TwoStreams_OneEmpty_DistinctValues()
-//     {
-//     repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(4), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("1, 2, 3, 4", outputStream.toString());
-//     }
-//    
-//     public void testIntegerStreamMerger_TwoStreams_OneEmpty_IdenticalValues()
-//     {
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("7", outputStream.toString());
-//     }
-//    
-//     public void
-//     testIntegerStreamMerger_TwoStreams_OneEmpty_ValuesWithDuplicates() {
-//     repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(4), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(5), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(5), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("1, 2, 3, 4, 5", outputStream.toString());
-//     }
-//    
-//     public void
-//     testIntegerStreamMerger_TwoStreams_DistinctValues_RoundRobin() {
-//     repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("1, 2, 3, 4", outputStream.toString());
-//     }
-//    
-//     public void
-//     testIntegerStreamMerger_TwoStreams_DistinctValues_OneStreamFirst() {
-//     repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(5), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(6), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("1, 2, 3, 4, 5, 6", outputStream.toString());
-//     }
-//    
-//     public void
-//     testIntegerStreamMerger_TwoStreams_IdenticalValues_RoundRobin() {
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("7", outputStream.toString());
-//     }
-//    
-//     public void
-//     testIntegerStreamMerger_TwoStreams_IdenticalValues_OneStreamFirst() {
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(7), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("7", outputStream.toString());
-//     }
-//    
-//     public void
-//     testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_RoundRobin() {
-//     repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(5), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(5), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("1, 2, 3, 4, 5", outputStream.toString());
-//     }
-//    
-//     public void
-//     testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_OneStreamFirst()
-//     {
-//     repeaterA.tell(new Integer(1), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(2), actorSystem.lookupRoot());
-//     repeaterA.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(3), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(4), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(5), actorSystem.lookupRoot());
-//     repeaterB.tell(new Integer(5), actorSystem.lookupRoot());
-//     repeaterA.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     repeaterB.tell(new EndOfStream(), actorSystem.lookupRoot());
-//     actorSystem.awaitTermination();
-//     assertEquals("1, 2, 3, 4, 5", outputStream.toString());
-//     }
+     public void testIntegerStreamMerger_TwoStreams_OneEmpty_DistinctValues() throws TimeoutException, InterruptedException
+     {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(1), wfb.root());
+         repeaterA.tell(new Integer(2), wfb.root());
+         repeaterA.tell(new Integer(3), wfb.root());
+         repeaterA.tell(new Integer(4), wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("1, 2, 3, 4", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_OneEmpty_IdenticalValues() throws TimeoutException, InterruptedException
+     {
+         wfb.startWorkflow();
+         repeaterA.tell(7, wfb.root());
+         repeaterA.tell(7, wfb.root());
+         repeaterA.tell(7, wfb.root());
+         repeaterA.tell(7, wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("7", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_OneEmpty_ValuesWithDuplicates() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(1), wfb.root());
+         repeaterA.tell(new Integer(2), wfb.root());
+         repeaterA.tell(new Integer(2), wfb.root());
+         repeaterA.tell(new Integer(3), wfb.root());
+         repeaterA.tell(new Integer(3), wfb.root());
+         repeaterA.tell(new Integer(4), wfb.root());
+         repeaterA.tell(new Integer(5), wfb.root());
+         repeaterA.tell(new Integer(5), wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("1, 2, 3, 4, 5", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_DistinctValues_RoundRobin() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(1), wfb.root());
+         repeaterB.tell(new Integer(2), wfb.root());
+         repeaterA.tell(new Integer(3), wfb.root());
+         repeaterB.tell(new Integer(4), wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("1, 2, 3, 4", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_DistinctValues_OneStreamFirst() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(1), wfb.root());
+         repeaterA.tell(new Integer(3), wfb.root());
+         repeaterA.tell(new Integer(5), wfb.root());
+         repeaterB.tell(new Integer(2), wfb.root());
+         repeaterB.tell(new Integer(4), wfb.root());
+         repeaterB.tell(new Integer(6), wfb.root());
+         repeaterA.tell(new EndOfStream(),  wfb.root());
+         repeaterB.tell(new EndOfStream(),  wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("1, 2, 3, 4, 5, 6", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_IdenticalValues_RoundRobin() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(7), wfb.root());
+         repeaterB.tell(new Integer(7), wfb.root());
+         repeaterA.tell(new Integer(7), wfb.root());
+         repeaterB.tell(new Integer(7), wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("7", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_IdenticalValues_OneStreamFirst() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(7), wfb.root());
+         repeaterA.tell(new Integer(7), wfb.root());
+         repeaterA.tell(new Integer(7), wfb.root());
+         repeaterB.tell(new Integer(7), wfb.root());
+         repeaterB.tell(new Integer(7), wfb.root());
+         repeaterB.tell(new Integer(7), wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("7", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_RoundRobin() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(1), wfb.root());
+         repeaterB.tell(new Integer(2), wfb.root());
+         repeaterA.tell(new Integer(2), wfb.root());
+         repeaterB.tell(new Integer(3), wfb.root());
+         repeaterA.tell(new Integer(3), wfb.root());
+         repeaterB.tell(new Integer(4), wfb.root());
+         repeaterA.tell(new Integer(5), wfb.root());
+         repeaterB.tell(new Integer(5), wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("1, 2, 3, 4, 5", outputBuffer.toString());
+     }
+    
+     public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_OneStreamFirst() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         repeaterA.tell(new Integer(1), wfb.root());
+         repeaterA.tell(new Integer(2), wfb.root());
+         repeaterA.tell(new Integer(2), wfb.root());
+         repeaterA.tell(new Integer(3), wfb.root());
+         repeaterB.tell(new Integer(3), wfb.root());
+         repeaterB.tell(new Integer(4), wfb.root());
+         repeaterB.tell(new Integer(5), wfb.root());
+         repeaterB.tell(new Integer(5), wfb.root());
+         repeaterA.tell(new EndOfStream(), wfb.root());
+         repeaterB.tell(new EndOfStream(), wfb.root());
+         wfb.awaitWorkflow();
+         assertEquals("1, 2, 3, 4, 5", outputBuffer.toString());
+     }
 
 }

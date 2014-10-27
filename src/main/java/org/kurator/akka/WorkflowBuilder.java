@@ -51,6 +51,10 @@ public class WorkflowBuilder {
         return workflowRef;
     }
     
+    public ActorRef root() {
+        return system.lookupRoot();
+    }
+    
     public ActorSystem getActorSystem() {
         return system;
     }

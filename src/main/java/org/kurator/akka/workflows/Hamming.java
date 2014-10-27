@@ -1,8 +1,10 @@
-package org.kurator.akka;
+package org.kurator.akka.workflows;
 
 import java.io.PrintStream;
 import java.util.concurrent.TimeoutException;
 
+import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.WorkflowBuilder;
 import org.kurator.akka.actors.Filter;
 import org.kurator.akka.actors.IntegerStreamMerger;
 import org.kurator.akka.actors.Multiplier;

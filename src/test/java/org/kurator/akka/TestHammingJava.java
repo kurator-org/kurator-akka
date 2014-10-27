@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.TimeoutException;
 
+import org.kurator.akka.workflows.Hamming;
+
 import junit.framework.TestCase;
 
 public class TestHammingJava extends TestCase {
