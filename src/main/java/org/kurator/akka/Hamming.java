@@ -1,9 +1,6 @@
 package org.kurator.akka;
 
-
 import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.actors.Filter;
@@ -36,53 +33,53 @@ public class Hamming {
     }
 
     public void run() throws TimeoutException, InterruptedException {
-        
-        ActorConfiguration oneShot = new ActorConfiguration(OneShot.class);
-        
-        ActorConfiguration filter = new ActorConfiguration(Filter.class);
-        filter.set("max", maxHammingNumber);
-        
-        ActorConfiguration multiplyByTwo = new ActorConfiguration(Multiplier.class);
-        multiplyByTwo.set("factor", 2);
 
-        ActorConfiguration multiplyByThree = new ActorConfiguration(Multiplier.class);
-        multiplyByThree.set("factor", 3);
+        WorkflowRunner runner = new WorkflowRunner();
+        
+        ActorConfiguration oneShot = runner.createActor()
+                .actorClass(OneShot.class);
+        
+        ActorConfiguration filter = runner.createActor()
+                .actorClass(Filter.class)
+                .parameter("max", maxHammingNumber)
+                .listensTo(oneShot);
+        
+        ActorConfiguration multiplyByTwo = runner.createActor()
+                .actorClass(Multiplier.class)
+                .parameter("factor", 2)
+                .listensTo(filter);
 
-        ActorConfiguration multiplyByFive = new ActorConfiguration(Multiplier.class);
-        multiplyByFive.set("factor", 5);
+        ActorConfiguration multiplyByThree = runner.createActor()
+                .actorClass(Multiplier.class)
+                .parameter("factor", 3)
+                .listensTo(filter);
+        
+        ActorConfiguration multiplyByFive = runner.createActor()
+                .actorClass(Multiplier.class)
+                .parameter("factor", 5)
+                .listensTo(filter);
+        
+        ActorConfiguration mergeTwoThree = runner.createActor()
+                .actorClass(IntegerStreamMerger.class)
+                .parameter("streamCount", 2)
+                .listensTo(multiplyByTwo)
+                .listensTo(multiplyByThree);
+           
+        ActorConfiguration mergeTwoThreeFive = runner.createActor()
+                .actorClass(IntegerStreamMerger.class)
+                .parameter("streamCount", 2)
+                .listensTo(multiplyByFive)
+                .listensTo(mergeTwoThree);
+        
+        ActorConfiguration printStreamWriter = runner.createActor()
+                .actorClass(PrintStreamWriter.class)
+                .parameter("stream", outputStream)
+                .parameter("separator", separator)
+                .listensTo(filter);
+        
+        filter.listensTo(mergeTwoThreeFive);
 
-        ActorConfiguration mergeTwoThree = new ActorConfiguration(IntegerStreamMerger.class);
-        mergeTwoThree.set("streamCount", 2);
-        
-        ActorConfiguration mergeTwoThreeFive = new ActorConfiguration(IntegerStreamMerger.class);
-        mergeTwoThreeFive.set("streamCount", 2);
-        
-        ActorConfiguration printStreamWriter = new ActorConfiguration(PrintStreamWriter.class);
-        printStreamWriter.set("stream", outputStream);
-        printStreamWriter.set("separator", separator);
-        
-        oneShot.listener(filter);
-        filter.listener(printStreamWriter);
-        filter.listener(multiplyByTwo);
-        filter.listener(multiplyByThree);
-        filter.listener(multiplyByFive);
-        multiplyByTwo.listener(mergeTwoThree);
-        multiplyByThree.listener(mergeTwoThree);
-        multiplyByFive.listener(mergeTwoThreeFive);
-        mergeTwoThree.listener(mergeTwoThreeFive);
-        mergeTwoThreeFive.listener(filter);
-        
-        List<ActorConfiguration> actors = new LinkedList<ActorConfiguration>();
-        actors.add(oneShot);
-        actors.add(filter);
-        actors.add(multiplyByTwo);
-        actors.add(multiplyByThree);
-        actors.add(multiplyByFive);
-        actors.add(mergeTwoThree);
-        actors.add(mergeTwoThreeFive);
-        actors.add(printStreamWriter);
-
-        WorkflowRunner runner = new WorkflowRunner(actors, oneShot);
+        runner.instantiateWorkflow(oneShot);
         ActorRef workflow = runner.getWorkflowRef();
         
         runner.start();

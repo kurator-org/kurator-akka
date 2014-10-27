@@ -16,8 +16,13 @@ public class ActorConfiguration {
     public ActorConfiguration() {
     }
 
-    public ActorConfiguration(Class<? extends BroadcastActor> actorClass) {
+    public static ActorConfiguration create() {
+        return new ActorConfiguration();
+    }
+    
+    public ActorConfiguration actorClass(Class<? extends BroadcastActor> actorClass) {
         this.actorClass = actorClass;
+        return this;
     }
     
     @SuppressWarnings("unchecked")
@@ -29,19 +34,25 @@ public class ActorConfiguration {
         return actorClass;
     }
     
-    public void listener(ActorConfiguration listener) {
+    public ActorConfiguration listener(ActorConfiguration listener) {
         if (listeners == null) {
             listeners = new LinkedList<ActorConfiguration>();
         }
         listeners.add(listener);
+        return this;
     }
 
+    public ActorConfiguration listensTo(ActorConfiguration sender) {
+        sender.listener(this);
+        return this;
+    }
     
-    public void set(String parameter, Object value) {
+    public ActorConfiguration parameter(String parameter, Object value) {
         if (parameters == null) {
             parameters = new HashMap<String,Object>();
         }
         parameters.put(parameter, value);
+        return this;
     }
     
     public void setParameters(Map<String, Object> parameters) {

@@ -5,6 +5,7 @@ import static akka.pattern.Patterns.ask;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,7 @@ public class WorkflowRunner {
     private ActorRef inputActor = null;
     private Map<ActorConfiguration,ActorRef> actorRefForActorConfig = new HashMap<ActorConfiguration, ActorRef>();
     private ActorRef workflowRef;
+    List<ActorConfiguration> actorConfigurations;
 
     public WorkflowRunner() {
         this.system = ActorSystem.create("Workflow");
@@ -33,6 +35,15 @@ public class WorkflowRunner {
     public WorkflowRunner(List<ActorConfiguration> actorConfigurations, ActorConfiguration inputActorConfig) {
         this.system = ActorSystem.create("Workflow");
         instantiateWorkflow(actorConfigurations, inputActorConfig);
+    }
+    
+    public ActorConfiguration createActor() {
+        if (actorConfigurations == null) {
+            actorConfigurations = new LinkedList<ActorConfiguration>();
+        }
+        ActorConfiguration actor = ActorConfiguration.create();
+        actorConfigurations.add(actor);
+        return actor;
     }
     
     public ActorRef getWorkflowRef() {
@@ -63,7 +74,9 @@ public class WorkflowRunner {
        instantiateWorkflow(workflowConfiguration.getActors(), inputActorConfiguration);
     }
 
-  
+    public ActorRef instantiateWorkflow(ActorConfiguration inputActorConfig) {
+        return instantiateWorkflow(actorConfigurations, inputActorConfig);
+    }
     public ActorRef instantiateWorkflow(List<ActorConfiguration> actorConfigurations, ActorConfiguration inputActorConfig) {
         
         Set<ActorRef> actors = new HashSet<ActorRef>();

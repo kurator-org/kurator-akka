@@ -36,7 +36,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorConfiguration"      + EOL +
                 "  singleton: true"                                     + EOL +
                 "  properties:"                                         + EOL +
-                "    actorClassName: org.kurator.akka.actors.OneShot"   + EOL +
+                "    actorClassName: org.kurator.akka.actors.OneShot"       + EOL +
                 ""                                                      + EOL +
                 "- id: OneActorWorkflow"                                + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
@@ -64,7 +64,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorConfiguration"              + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.Repeater"          + EOL +
+                "    actorClassName: org.kurator.akka.actors.Repeater"              + EOL +
                 "    listeners:"                                                + EOL +
                 "    - !ref Printer"                                            + EOL +
                 ""                                                              + EOL +
@@ -72,7 +72,7 @@ public class TestWorkflowStringRunner extends TestCase {
                 "  className: org.kurator.akka.ActorConfiguration"              + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
-                "    actorClassName: org.kurator.akka.actors.PrintStreamWriter" + EOL +
+                "    actorClassName: org.kurator.akka.actors.PrintStreamWriter"     + EOL +
                 ""                                                              + EOL +
                 "- id: TwoActorWorkflow"                                        + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"           + EOL +
