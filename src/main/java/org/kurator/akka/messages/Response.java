@@ -1,5 +1,5 @@
 package org.kurator.akka.messages;
 
-public class Response {
+public class Response implements ControlMessage {
 
 }

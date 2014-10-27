@@ -32,27 +32,26 @@ public class TestYamlStringWorkflowBuilder extends TestCase {
         String definition = 
                 "components:"                                           + EOL +
                 ""                                                      + EOL +
-                "- id: OneShot"                                         + EOL +
+                "- id: Repeater"                                        + EOL +
                 "  className: org.kurator.akka.ActorBuilder"            + EOL +
                 "  singleton: true"                                     + EOL +
                 "  properties:"                                         + EOL +
-                "    actorClass: org.kurator.akka.actors.OneShot"       + EOL +
+                "    actorClass: org.kurator.akka.actors.Repeater"      + EOL +
                 ""                                                      + EOL +
                 "- id: OneActorWorkflow"                                + EOL +
                 "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
                 "  singleton: true"                                     + EOL +
                 "  properties:"                                         + EOL +
                 "    actors:"                                           + EOL +
-                "    - !ref OneShot"                                    + EOL +
-                "    inputActor: !ref OneShot"                          + EOL;
+                "    - !ref Repeater"                                   + EOL +
+                "    inputActor: !ref Repeater"                         + EOL;
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
         builder.build();
 
-        builder.startWorkflow();
-        
+        builder.startWorkflow();        
         builder.tellWorkflow(1);
-        
+        builder.tellWorkflow(new EndOfStream());
         builder.awaitWorkflow();
     }
     

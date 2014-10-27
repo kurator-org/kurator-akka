@@ -11,6 +11,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Response;
+import org.kurator.akka.messages.StartMessage;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -54,7 +55,7 @@ public class Workflow extends UntypedActor {
         receivers.add(receiver);
     }
 
-    private void elaborate() throws TimeoutException, InterruptedException {
+    private void initialize() throws TimeoutException, InterruptedException {
 
         // send an initialize message to each actor
         final ArrayList<Future<Object>> responseFutures = new ArrayList<Future<Object>>();
@@ -76,10 +77,16 @@ public class Workflow extends UntypedActor {
     public void onReceive(Object message) throws Exception {
 
         if (message instanceof Initialize) {
-            elaborate();
+            initialize();
             return;
         }
 
+        if (message instanceof StartMessage) {
+            for (ActorRef a : actors) {
+                a.tell(message, getSelf());
+            }
+        }
+        
         if (message instanceof Terminated) {
             Terminated t = (Terminated) message;
             ActorRef terminatedActor = t.actor();

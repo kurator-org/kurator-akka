@@ -2,6 +2,7 @@ package org.kurator.akka.actors;
 
 import java.io.PrintStream;
 
+import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.messages.Initialize;
 
@@ -14,18 +15,22 @@ public class PrintStreamWriter extends BroadcastActor {
     
     @Override
     public void onReceive(Object message) {
+        
         super.onReceive(message);
-        if (message instanceof Initialize) {
-        } else if (message instanceof EndOfStream) {
-            broadcast(message);
-            getContext().stop(getSelf());
-        } else {
-            if (isFirst) {
-                isFirst = false;
-            } else {
-                stream.print(separator);
+        
+        if (message instanceof ControlMessage) {
+            if (message instanceof EndOfStream) {
+                broadcast(message);
+                getContext().stop(getSelf());
             }
-            stream.print(message);
+            return;
         }
+        
+        if (isFirst) {
+            isFirst = false;
+        } else {
+            stream.print(separator);
+        }
+        stream.print(message);
     }
 }

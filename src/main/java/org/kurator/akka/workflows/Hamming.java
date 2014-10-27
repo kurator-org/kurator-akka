@@ -38,7 +38,8 @@ public class Hamming {
         WorkflowBuilder wfb = new WorkflowBuilder();
         
         ActorBuilder oneShot = wfb.createActorBuilder()
-                .actorClass(OneShot.class);
+                .actorClass(OneShot.class)
+                .parameter("value", 1);
         
         ActorBuilder filter = wfb.createActorBuilder()
                 .actorClass(Filter.class)
@@ -80,13 +81,8 @@ public class Hamming {
                 .listensTo(filter);
         
         filter.listensTo(mergeTwoThreeFive);
-
-        wfb.inputActor(oneShot);
         
         wfb.build();
-        
-        wfb.startWorkflow();
-        wfb.tellWorkflow(new Integer(1));
-        wfb.awaitWorkflow();
+        wfb.run();
     }
 }

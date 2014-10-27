@@ -1,5 +1,5 @@
 package org.kurator.akka.messages;
 
-public class EndOfStream {
+public class EndOfStream implements ControlMessage {
 
 }

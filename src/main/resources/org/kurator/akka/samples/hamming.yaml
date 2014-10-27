@@ -6,6 +6,9 @@ components:
 
 - id: OneShot
   type: OneShotActor
+  properties:
+    parameters:
+      value: 1
 
 - id: Filter
   type: FilterActor

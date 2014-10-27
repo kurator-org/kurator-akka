@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.messages.Initialize;
+import org.kurator.akka.messages.StartMessage;
 import org.springframework.context.support.GenericApplicationContext;
 
 import scala.concurrent.Future;
@@ -113,6 +114,7 @@ public class WorkflowBuilder {
     public void startWorkflow() throws TimeoutException, InterruptedException {
         Future<Object> future = ask(workflowRef, new Initialize(), Constants.TIMEOUT);
         future.ready(Constants.TIMEOUT_DURATION, null);
+        workflowRef.tell(new StartMessage(), system.lookupRoot());
     }
     
     public void awaitWorkflow() {
