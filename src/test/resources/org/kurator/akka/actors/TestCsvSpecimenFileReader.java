@@ -26,7 +26,7 @@ public class TestCsvSpecimenFileReader extends TestCase {
     
          ActorBuilder reader = wfb.createActorBuilder()
                  .actorClass(CsvSpecimenFileReader.class)
-                 .parameter("filePath", "C:\\Users\\tmcphillips\\Downloads\\2011Demo.csv" );
+                 .parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/2011Demo.csv" );
     
          @SuppressWarnings("unused")
          ActorBuilder printer = wfb.createActorBuilder()
