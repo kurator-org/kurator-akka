@@ -16,6 +16,7 @@ public class TestHammingYaml extends TestCase {
     
     public void testHammingYaml() throws Exception {        
         WorkflowBuilder builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "hamming.yaml");
+        builder.apply("max", 100);
         builder.build();
         builder.run();
     }

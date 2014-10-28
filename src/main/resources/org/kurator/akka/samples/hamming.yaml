@@ -80,4 +80,7 @@ components:
       - !ref MergeTwoThree
       - !ref MergeTwoThreeFive
       - !ref Printer
-    inputActor: !ref OneShot
+    parameters:
+      max:
+        actor: !ref Filter
+        parameter: max

@@ -4,6 +4,10 @@ import static java.util.Arrays.asList;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.yaml.snakeyaml.Yaml;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -12,22 +16,25 @@ import joptsimple.OptionSet;
 public class KuratorAkka {
 
     public static void main(String[] args) throws Exception {
-        runWorkflowForCLIArgs(args);
+        runWorkflowForArgs(args);
     }
 
-    public static void runWorkflowForCLIArgs(String[] args) throws Exception {
+    public static void runWorkflowForArgs(String[] args) throws Exception {
      
         enableLog4J();
         
         OptionParser parser = createOptionsParser();
         InputStream yamlInputStream = null;
         String yamlFilePath = null;
+        Map<String,Object> settings = null;
         
         try {
 
             OptionSet options = parser.parse(args);
 
             yamlFilePath = extractYamlFilePathFromOptions(options);
+            
+            settings = parseParameterSettingsFromOptions(options);
             
             if (yamlFilePath == null) {
                 yamlInputStream = System.in;
@@ -41,6 +48,7 @@ public class KuratorAkka {
         
         if (yamlFilePath != null) {
             WorkflowBuilder builder = new YamlFileWorkflowBuilder(yamlFilePath);
+            builder.apply(settings);
             builder.build();
             builder.run();
         }
@@ -71,6 +79,31 @@ public class KuratorAkka {
         return yamlFilePath;
     }
     
+    
+    static Map<String, Object> parseParameterSettingsFromOptions(OptionSet options) throws Exception {    
+        
+        Map<String, Object> settings = new HashMap<String,Object>();
+
+        Yaml yaml = new Yaml();
+
+        for (Object inputOptionObject :  options.valuesOf("i")) {
+            String inputOption = (String) inputOptionObject;
+            int indexOfFirstEquals = inputOption.indexOf("=");
+            if (indexOfFirstEquals == -1) {
+                throw new Exception(
+                    "Input options should be key-value pairs separated by equal signs. Example: -i count=12");
+            } else {
+                String inputName = inputOption.substring(0, indexOfFirstEquals);
+                String inputValueString = inputOption.substring(indexOfFirstEquals + 1);
+                Object inputValue = yaml.load(inputValueString);
+                settings.put(inputName, inputValue);
+            }
+        }
+        
+        return settings;
+    }
+    
+    
     private static OptionParser createOptionsParser() {
 
         OptionParser parser = null;
@@ -83,6 +116,10 @@ public class KuratorAkka {
                     .describedAs("workflow definition file or stream")
                     .defaultsTo("-");
 
+                acceptsAll(asList("i", "input"), "key-valued inputs")
+                    .withRequiredArg().describedAs("input parameters")
+                    .ofType(String.class).describedAs("key=value");
+                
                 acceptsAll(asList("h", "?"), "display help for Kurator Akka CLI");
 
             }};

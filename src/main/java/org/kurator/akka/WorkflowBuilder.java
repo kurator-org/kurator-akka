@@ -32,7 +32,8 @@ public class WorkflowBuilder {
     private Map<ActorBuilder,ActorRef> actorRefForActorConfig = new HashMap<ActorBuilder, ActorRef>();
     private ActorRef workflowRef;
     private ActorBuilder inputActorBuilder;
-    List<ActorBuilder> actorConfigurations;
+    private List<ActorBuilder> actorConfigurations;
+    private Map<String, Object> workflowParameters;
 
     public WorkflowBuilder() {
         
@@ -89,8 +90,38 @@ public class WorkflowBuilder {
         inputActorBuilder = workflowConfiguration.getInputActor(); 
 
         actorConfigurations = workflowConfiguration.getActors();
+        
+        workflowParameters = workflowConfiguration.getParameters();
     }
 
+    
+    public void apply(Map<String, Object> workflowSettings) throws Exception {
+        
+        for (Map.Entry<String, Object> setting : workflowSettings.entrySet()) {
+            String settingName = setting.getKey();
+            Object settingValue = setting.getValue();
+            apply(settingName, settingValue);
+        }
+    }
+
+    public void apply(String settingName, Object settingValue) throws Exception {
+        
+        Map<String,Object> workflowParameter = null;
+        if (workflowParameters != null) {
+            workflowParameter = (Map<String, Object>) workflowParameters.get(settingName);
+        }
+            
+        if (workflowParameter == null) {
+            throw new Exception("Workflow does not take parameter named " + settingName);
+        }
+                    
+        ActorBuilder actor = (ActorBuilder) workflowParameter.get("actor");
+        String actorParameterName = (String) workflowParameter.get("parameter");
+
+        actor.parameter(actorParameterName, settingValue);
+    }
+
+    
     public ActorRef build() {
         return build(actorConfigurations);
     }
