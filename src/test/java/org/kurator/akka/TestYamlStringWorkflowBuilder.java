@@ -12,6 +12,12 @@ public class TestYamlStringWorkflowBuilder extends TestCase {
     
     public static final String EOL = System.getProperty("line.separator");
     
+    @Override
+    public void setUp() {
+        KuratorAkka.enableLog4J();
+    }
+
+    
     public void testEmptyWorkflow() throws Exception {
         
         String definition = 

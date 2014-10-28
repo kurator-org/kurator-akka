@@ -12,6 +12,11 @@ public class TestYamlFileWorkflowBuilder extends TestCase {
     static final String EOL = System.getProperty("line.separator");
     static final String RESOURCE_PATH = "classpath:/org/kurator/akka/test/TestYamlFileWorkflowBuilder/";
     
+    @Override
+    public void setUp() {
+        KuratorAkka.enableLog4J();
+    }
+    
     public void testEmptyWorkflow() throws Exception {
         
         WorkflowBuilder builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "empty_workflow.yaml");

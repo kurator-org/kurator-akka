@@ -2,13 +2,14 @@ package org.kurator.akka;
 
 import static java.util.Arrays.asList;
 
+import java.io.File;
 import java.io.InputStream;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-public class KuratorAkkaCLI {
+public class KuratorAkka {
 
     public static void main(String[] args) throws Exception {
         runWorkflowForCLIArgs(args);
@@ -16,6 +17,8 @@ public class KuratorAkkaCLI {
 
     public static void runWorkflowForCLIArgs(String[] args) throws Exception {
      
+        enableLog4J();
+        
         OptionParser parser = createOptionsParser();
         InputStream yamlInputStream = null;
         String yamlFilePath = null;
@@ -91,5 +94,22 @@ public class KuratorAkkaCLI {
         }
             
         return parser;
+    }
+    
+    public static void enableLog4J() {
+
+        if (!new File("log4j.properties").exists()) {
+            if (System.getProperty("org.apache.commons.logging.Log") == null) {
+                System.setProperty("org.apache.commons.logging.Log",
+                        "org.apache.commons.logging.impl.SimpleLog");
+            }
+
+            if (System
+                    .getProperty("org.apache.commons.logging.simplelog.defaultlog") == null) {
+                System.setProperty(
+                        "org.apache.commons.logging.simplelog.defaultlog",
+                        "error");
+            }
+        }
     }
 }
