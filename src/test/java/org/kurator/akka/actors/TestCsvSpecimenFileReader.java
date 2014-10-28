@@ -3,7 +3,6 @@ package org.kurator.akka.actors;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.WorkflowBuilder;
@@ -15,7 +14,8 @@ public class TestCsvSpecimenFileReader extends TestCase {
     static final String EOL = System.getProperty("line.separator");
     private WorkflowBuilder wfb;
     private OutputStream outputBuffer;
-
+    private ActorBuilder reader;
+    
      @Override
      public void setUp() {
     
@@ -24,9 +24,8 @@ public class TestCsvSpecimenFileReader extends TestCase {
         
          wfb = new WorkflowBuilder();
     
-         ActorBuilder reader = wfb.createActorBuilder()
-                 .actorClass(CsvSpecimenFileReader.class)
-                 .parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/2011Demo.csv" );
+         reader = wfb.createActorBuilder()
+                 .actorClass(CsvSpecimenFileReader.class);
     
          @SuppressWarnings("unused")
          ActorBuilder printer = wfb.createActorBuilder()
@@ -35,11 +34,12 @@ public class TestCsvSpecimenFileReader extends TestCase {
                  .parameter("separator", EOL)
                  .listensTo(reader);
         
-         wfb.build();
      }
      
-    public void testIntegerStreamMerger_NoValues() throws TimeoutException, InterruptedException {
+    public void testCsvSpecimenFileReader_EightLightFile() throws Exception {
 
+        reader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/2011Demo.csv" );
+        wfb.build();
         wfb.startWorkflow();
         wfb.awaitWorkflow();
         

@@ -15,6 +15,22 @@
         <name>restflow.org maven repository</name>
         <url>http://restflow.org/mavenrepo</url>
         </repository>
+        
+                <repository>
+            <id>filteredpush</id>
+            <name>Filtered Push Repository</name>
+            <url>http://firuta.huh.harvard.edu:9090/archiva/repository/filteredpush/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
+        </repository>
+        
     </repositories>
         
     <properties>
