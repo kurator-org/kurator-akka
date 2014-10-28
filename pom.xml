@@ -85,7 +85,20 @@
       <artifactId>jopt-simple</artifactId>
       <version>3.2</version>
     </dependency>
-	    
+	
+	<dependency>
+      <groupId>net.sourceforge.javacsv</groupId>
+      <artifactId>javacsv</artifactId>
+      <version>2.0</version>
+      <scope>compile</scope>
+    </dependency>
+    
+    <dependency>
+         <groupId>org.filteredpush</groupId>
+         <artifactId>FP-KurationServices</artifactId>
+         <version>0.0.1-SNAPSHOT</version>
+     </dependency>
+    
     </dependencies>
       
     <build>

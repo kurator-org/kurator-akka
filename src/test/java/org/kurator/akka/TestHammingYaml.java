@@ -19,7 +19,5 @@ public class TestHammingYaml extends TestCase {
         builder.apply("max", 100);
         builder.build();
         builder.run();
-    }
-    
+    }   
 }
-   
