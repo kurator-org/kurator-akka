@@ -15,6 +15,10 @@ import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.StartMessage;
 import org.springframework.context.support.GenericApplicationContext;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -31,7 +35,14 @@ public class WorkflowBuilder {
     List<ActorBuilder> actorConfigurations;
 
     public WorkflowBuilder() {
-        this.system = ActorSystem.create("Workflow");
+        
+        // create a configuration for the actor system that disables all logging from Akka
+        Config config = ConfigFactory.load()
+                .withValue("akka.loglevel", ConfigValueFactory.fromAnyRef("OFF"))
+                .withValue("akka.stdout-loglevel", ConfigValueFactory.fromAnyRef("OFF"));
+        
+        // create the actor system itself
+        this.system = ActorSystem.create("Workflow",  config);
     }
 
     public ActorBuilder createActorBuilder() {
