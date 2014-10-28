@@ -4,9 +4,11 @@
 
     <groupId>org.kurator</groupId>
     <artifactId>kurator-akka</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
-
+    <name>kurator-akka</name>
+    <url>http://opensource.ncsa.illinois.edu/projects/KURATOR</url>
+    
     <repositories>
         <repository>
         <id>org.restflow</id>
@@ -15,9 +17,6 @@
         </repository>
     </repositories>
         
-    <name>kurator-akka</name>
-    <url>http://maven.apache.org</url>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -71,8 +70,8 @@
 	    <dependency>
 	    	<groupId>org.restflow</groupId>
 	    	<artifactId>YamlSpringLoader</artifactId>
+	    	<version>3.1</version>
 	    </dependency>
-
 	    
 	    <dependency>
 	      <groupId>org.yaml</groupId>
@@ -126,7 +125,7 @@
           		<archive>
             		<manifest>
               			<addClasspath>true</addClasspath>
-              			<mainClass>org.restflow.RestFlow</mainClass>
+              			<mainClass>org.kurator.akka.KuratorAkkaCLI</mainClass>
              			<!--  <classpathPrefix>dependency/</classpathPrefix>-->
             		</manifest>
           		</archive>
@@ -145,7 +144,8 @@
                 <descriptorRefs>
                     <descriptorRef>jar-with-dependencies</descriptorRef>
                 </descriptorRefs>
-
+		        <finalName>kurator-akka-0.1-executable</finalName>
+		        <appendAssemblyId>false</appendAssemblyId>
             </configuration>
       <executions>
         <execution>
@@ -158,9 +158,6 @@
         </plugin>
 
         </plugins>
-
-
-
 
         <pluginManagement>
         	<plugins>
@@ -201,13 +198,4 @@
         </pluginManagement>
     </build>
 	  
-    <dependencyManagement>
-    	<dependencies>
-    		<dependency>
-    			<groupId>org.restflow</groupId>
-    			<artifactId>YamlSpringLoader</artifactId>
-    			<version>3.1</version>
-    		</dependency>
-    	</dependencies>
-    </dependencyManagement>
 </project>
