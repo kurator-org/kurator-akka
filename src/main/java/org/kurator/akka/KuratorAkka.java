@@ -41,14 +41,21 @@ public class KuratorAkka {
             }
             
         } catch (OptionException exception) {
-            System.err.print("Error parsing command-line optins ");
+            System.err.print("Error parsing command-line options ");
             System.err.println(exception.getMessage());
             parser.printHelpOn(System.err);
         }
         
         if (yamlFilePath != null) {
             WorkflowBuilder builder = new YamlFileWorkflowBuilder(yamlFilePath);
-            builder.apply(settings);
+            
+            try {
+                builder.apply(settings);
+            } catch(Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
+            
             builder.build();
             builder.run();
         }
