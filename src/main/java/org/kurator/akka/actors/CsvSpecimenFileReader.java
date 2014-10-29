@@ -3,6 +3,7 @@ package org.kurator.akka.actors;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.kurator.akka.data.OrderedSpecimenRecord;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.messages.StartMessage;
 
@@ -14,6 +15,7 @@ public class CsvSpecimenFileReader extends BroadcastActor {
 
     public boolean sendEos = true;
     public String filePath = null;
+    public boolean useOrderedSpecimenRecord = false;
     
     @Override
     public void onReceive(Object message) {
@@ -47,7 +49,7 @@ public class CsvSpecimenFileReader extends BroadcastActor {
         
         while (csvReader.readRecord())
         {
-            SpecimenRecord record = new SpecimenRecord();
+            SpecimenRecord record = useOrderedSpecimenRecord ? new OrderedSpecimenRecord() : new SpecimenRecord();
             for (String header : csvReader.getHeaders()){
                 record.put(header.replace("\"", ""), csvReader.get(header));
             }
