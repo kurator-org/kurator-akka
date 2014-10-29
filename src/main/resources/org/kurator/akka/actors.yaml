@@ -33,3 +33,19 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.PrintStreamWriter
+
+- id: CsvSpecimenFileReader
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.CsvSpecimenFileReader
+
+- id: CsvSpecimenFileWriter
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.CsvSpecimenFileWriter
+
+- id: ScientificNameValidator
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.ScientificNameValidator
+    
