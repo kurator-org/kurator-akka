@@ -41,19 +41,20 @@ public class CsvSpecimenFileReader extends BroadcastActor {
     
     private void parseAndBroadcastRecords() throws IOException {
 
-        CsvReader reader = new CsvReader(filePath);
+        CsvReader csvReader = new CsvReader(filePath);
 
-        reader.readHeaders();
+        csvReader.readHeaders();
         
-        while (reader.readRecord())
+        while (csvReader.readRecord())
         {
             SpecimenRecord record = new SpecimenRecord();
-            for (String header : reader.getHeaders()){
-                record.put(header.replace("\"", ""), reader.get(header));
+            for (String header : csvReader.getHeaders()){
+                record.put(header.replace("\"", ""), csvReader.get(header));
             }
             broadcast(record);
         }
-        reader.close();
+
+        csvReader.close();
     }
 }
 

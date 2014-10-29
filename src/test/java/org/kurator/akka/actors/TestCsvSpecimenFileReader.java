@@ -33,10 +33,9 @@ public class TestCsvSpecimenFileReader extends TestCase {
                  .parameter("stream", printStream)
                  .parameter("separator", EOL)
                  .listensTo(reader);
-        
      }
      
-    public void testCsvSpecimenFileReader_EightLightFile() throws Exception {
+    public void testCsvSpecimenFileReader_EightLineFile() throws Exception {
 
         reader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/2011Demo.csv" );
         wfb.build();
