@@ -33,6 +33,9 @@ components:
       - !ref NameValidator
       - !ref FileWriter
     parameters:
-      file:
+      in:
         actor: !ref FileReader
+        parameter: filePath
+      out:
+        actor: !ref FileWriter
         parameter: filePath
