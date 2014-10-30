@@ -1,4 +1,4 @@
-package org.kurator.akka;
+package org.kurator.akka.actors;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -7,9 +7,6 @@ import java.io.Writer;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.WorkflowBuilder;
-import org.kurator.akka.actors.CsvSpecimenFileReader;
-import org.kurator.akka.actors.CsvSpecimenFileWriter;
-import org.kurator.akka.actors.ScientificNameValidator;
 
 import junit.framework.TestCase;
 
