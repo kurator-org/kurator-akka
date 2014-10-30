@@ -48,3 +48,8 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.ScientificNameValidator
+    
+- id: InternalDateValidator
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.InternalDateValidator   

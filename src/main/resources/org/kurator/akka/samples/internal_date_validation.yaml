@@ -1,0 +1,41 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: FileReader
+  type: CsvSpecimenFileReader
+  properties:
+    parameters:
+      filePath:
+      useOrderedSpecimenRecord: true
+
+- id: DateValidator
+  type: InternalDateValidator
+  properties:
+    listensTo:
+      - !ref FileReader
+
+- id: FileWriter
+  type: CsvSpecimenFileWriter
+  properties:
+    parameters:
+      filePath: out.csv
+    listensTo:
+      - !ref DateValidator
+  
+- id: DateValidationWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref FileReader
+      - !ref DateValidator
+      - !ref FileWriter
+    parameters:
+      in:
+        actor: !ref FileReader
+        parameter: filePath
+      out:
+        actor: !ref FileWriter
+        parameter: filePath
