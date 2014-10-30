@@ -7,7 +7,7 @@ public class Multiplier extends BroadcastActor {
     public int factor = 1;
 
     @Override
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
         super.onReceive(message);
         if (message instanceof Integer) {
             Integer product = (Integer) message * this.factor;

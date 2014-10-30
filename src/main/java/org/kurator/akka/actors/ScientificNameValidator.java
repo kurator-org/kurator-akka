@@ -17,8 +17,8 @@ import fp.util.SpecimenRecordTypeConf;
 
 public class ScientificNameValidator extends BroadcastActor {
    
-    public String serviceClassQN;
-    public boolean insertLSID;
+    public String serviceClassQN = "fp.services.COLService";
+    public boolean insertLSID = true;
 
     private String scientificNameLabel;
     private String authorLabel;
@@ -57,7 +57,7 @@ public class ScientificNameValidator extends BroadcastActor {
         }
     }
     
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
 
         super.onReceive(message);
         

@@ -20,7 +20,7 @@ public class IntegerStreamMerger extends BroadcastActor {
     private Integer lastSent = Integer.MIN_VALUE;
 
     @Override
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
 
         super.onReceive(message);
 

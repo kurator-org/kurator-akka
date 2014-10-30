@@ -34,7 +34,7 @@ public abstract class BroadcastActor extends AkkaActor {
 
     
     @Override
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
 
         if (message instanceof Initialize) {
             

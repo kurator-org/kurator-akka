@@ -1,0 +1,38 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: FileReader
+  type: CsvSpecimenFileReader
+  properties:
+    parameters:
+      filePath:
+      useOrderedSpecimenRecord: true
+
+- id: NameValidator
+  type: ScientificNameValidator
+  properties:
+    listensTo:
+      - !ref FileReader
+
+- id: FileWriter
+  type: CsvSpecimenFileWriter
+  properties:
+    parameters:
+      filePath: out.csv
+    listensTo:
+      - !ref NameValidator
+  
+- id: SciNameValidationWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref FileReader
+      - !ref NameValidator
+      - !ref FileWriter
+    parameters:
+      file:
+        actor: !ref FileReader
+        parameter: filePath

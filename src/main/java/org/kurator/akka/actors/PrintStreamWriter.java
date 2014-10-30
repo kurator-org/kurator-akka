@@ -14,7 +14,7 @@ public class PrintStreamWriter extends BroadcastActor {
     private boolean isFirst = true;
     
     @Override
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
         
         super.onReceive(message);
         

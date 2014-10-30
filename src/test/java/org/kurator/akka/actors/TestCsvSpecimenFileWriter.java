@@ -38,7 +38,7 @@ public class TestCsvSpecimenFileWriter extends TestCase {
      
     public void testCsvSpecimenFileWriter_EightLineFile() throws Exception {
 
-        csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/2011Demo.csv" );
+        csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv" );
         csvWriter.parameter("writer", bufferWriter);
         wfb.build();
         wfb.startWorkflow();

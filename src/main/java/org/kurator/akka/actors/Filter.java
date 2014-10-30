@@ -10,7 +10,7 @@ public class Filter extends BroadcastActor {
     private boolean eosSent = false;
 
     @Override
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
 
         super.onReceive(message);
 

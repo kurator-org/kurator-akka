@@ -18,7 +18,7 @@ public class CsvSpecimenFileReader extends BroadcastActor {
     public boolean useOrderedSpecimenRecord = false;
     
     @Override
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
 
         super.onReceive(message);
         

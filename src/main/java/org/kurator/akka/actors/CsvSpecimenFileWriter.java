@@ -1,10 +1,7 @@
 package org.kurator.akka.actors;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,24 +16,26 @@ import fp.util.SpecimenRecord;
 
 public class CsvSpecimenFileWriter extends BroadcastActor {
 
+    public Writer writer;
     public String filePath = null;
-    OutputStream os = new ByteArrayOutputStream();
-    public Writer writer = new OutputStreamWriter(os);
-    public OutputStreamWriter outputStreamWriter = null;
     
     private Boolean headerWritten = false;
     private List<String> headers = new ArrayList<String>();
     private CsvWriter csvWriter;
     
     @Override
-    public void onReceive(Object message) {
+    public void onReceive(Object message) throws Exception {
 
         super.onReceive(message);
         
         if (message instanceof StartMessage) {
             
             if (writer == null) {
-                writer = getFileWriterForPath(filePath);
+                if (filePath == null) {
+                    throw new Exception("No file specified for CsVSpecimenFileWriter.");
+                } else {
+                    writer = getFileWriterForPath(filePath);
+                }
             }
             
             csvWriter = new CsvWriter(writer, ',');

@@ -1,0 +1,2 @@
+catalogNumber ,recordedBy,fieldNumber ,year,month,day,decimalLatitude ,decimalLongitude ,geodeticDatum ,country,stateProvince,county,locality,family ,scientificName ,scientificNameAuthorship ,reproductiveCondition ,InstitutionCode ,CollectionCode ,DatasetName ,Id
+100001,Megan A. Jensen,126,2007,6,29,47.1384,-120.9263,WGS84,United States,Washington,Chelan,Wenatchee National Forest. South Cle Elum Ridge.,Asteraceae  ,Taraxacum erythrospermum,auct.,Flower:March;April;May;June;July;August,DAV ,FilteredPush,SPNHCDEMO,926137834
