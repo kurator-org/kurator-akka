@@ -1,5 +1,10 @@
 package org.kurator.akka;
 
+/* This file is an adaptation of RestFlow.java in the org.restlow 
+ * package as of 28Oct2014.  See licenses/restflow_license.txt for 
+ * the copyright notice, license, and git repository URL for RestFlow.
+ */
+
 import static java.util.Arrays.asList;
 
 import java.io.File;

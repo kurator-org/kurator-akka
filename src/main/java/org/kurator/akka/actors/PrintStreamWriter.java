@@ -4,7 +4,6 @@ import java.io.PrintStream;
 
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
-import org.kurator.akka.messages.Initialize;
 
 public class PrintStreamWriter extends BroadcastActor {
 
