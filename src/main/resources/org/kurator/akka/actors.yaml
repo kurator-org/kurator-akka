@@ -24,10 +24,10 @@ types:
   properties:
     actorClass: org.kurator.akka.actors.IntegerStreamMerger
 
-- id: OneShotActor
+- id: ConstantSourceActor
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.OneShot
+    actorClass: org.kurator.akka.actors.ConstantSource
 
 - id: PrinterActor
   type: Actor

@@ -10,7 +10,7 @@ import com.csvreader.CsvReader;
 
 import fp.util.SpecimenRecord;
 
-public class CsvSpecimenFileReader extends BroadcastActor {
+public class CsvSpecimenFileReader extends Transformer {
 
     public boolean sendEos = true;
     public String filePath = null;

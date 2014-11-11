@@ -13,7 +13,7 @@ import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
 
-public class IntegerStreamMerger extends BroadcastActor {
+public class IntegerStreamMerger extends Transformer {
 
     public int streamCount = 1;
     

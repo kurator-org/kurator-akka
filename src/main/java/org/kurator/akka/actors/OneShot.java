@@ -3,7 +3,7 @@ package org.kurator.akka.actors;
 import org.kurator.akka.messages.EmptyMessage;
 import org.kurator.akka.messages.EndOfStream;
 
-public class OneShot extends BroadcastActor {
+public class OneShot extends Transformer {
 
     public Object value = new EmptyMessage();
     public boolean sendEos = false;

@@ -17,7 +17,7 @@ import fp.util.CurrationException;
 import fp.util.SpecimenRecord;
 import fp.util.SpecimenRecordTypeConf;
 
-public class InternalDateValidator extends BroadcastActor {
+public class InternalDateValidator extends Transformer {
    
     public String singleServiceClassQN = "fp.services.InternalDateValidationService";
 

@@ -4,19 +4,19 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.actors.BroadcastActor;
+import org.kurator.akka.actors.Transformer;
 
 import akka.actor.IndirectActorProducer;
 
 public class ActorProducer implements IndirectActorProducer {
 
-    private Class<? extends BroadcastActor> actorClass;
+    private Class<? extends Transformer> actorClass;
     private Map<String, Object> parameters;
     private List<ActorBuilder> listenerBuilders;
     private WorkflowBuilder workflowBuilder;
-    private BroadcastActor actor;
+    private Transformer actor;
 
-    public ActorProducer(Class<? extends BroadcastActor> actorClass, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, WorkflowBuilder workflowBuilder) {
+    public ActorProducer(Class<? extends Transformer> actorClass, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, WorkflowBuilder workflowBuilder) {
         this.actorClass = actorClass;
         this.parameters = parameters;
         this.listenerBuilders = listenerConfigs;
@@ -24,12 +24,12 @@ public class ActorProducer implements IndirectActorProducer {
     }
 
     @Override
-    public Class<? extends BroadcastActor> actorClass() {
+    public Class<? extends Transformer> actorClass() {
         return actorClass;
     }
 
     @Override
-    public BroadcastActor produce() {
+    public Transformer produce() {
         
         try {
             actor = actorClass.newInstance();

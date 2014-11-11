@@ -2,7 +2,7 @@ package org.kurator.akka.actors;
 
 import java.io.PrintStream;
 
-public class PrintStreamWriter extends BroadcastActor {
+public class PrintStreamWriter extends Transformer {
 
     public PrintStream stream = System.out;
     public String separator = System.lineSeparator();

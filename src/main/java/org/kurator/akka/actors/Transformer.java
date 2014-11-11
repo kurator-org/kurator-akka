@@ -15,7 +15,7 @@ import org.kurator.akka.messages.StartMessage;
 
 import akka.actor.ActorRef;
 
-public abstract class BroadcastActor extends AkkaActor {
+public abstract class Transformer extends AkkaActor {
 
     private final Set<ActorRef> listeners = new HashSet<ActorRef>();
     private List<ActorBuilder> listenerConfigurations = new LinkedList<ActorBuilder>();

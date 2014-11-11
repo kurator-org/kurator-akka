@@ -5,10 +5,11 @@ imports:
 components:
 
 - id: OneShot
-  type: OneShotActor
+  type: ConstantSourceActor
   properties:
     parameters:
       value: 1
+      sendEos: false
 
 - id: Filter
   type: FilterActor

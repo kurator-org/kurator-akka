@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.kurator.akka.messages.EndOfStream;
 
-public class ConstantSource extends BroadcastActor {
+public class ConstantSource extends Transformer {
 
     public Object value;
     public Collection<Object> values;

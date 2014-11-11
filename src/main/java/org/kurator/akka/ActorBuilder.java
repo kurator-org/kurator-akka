@@ -5,28 +5,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.actors.BroadcastActor;
+import org.kurator.akka.actors.Transformer;
 
 public class ActorBuilder {
 
-    private Class<? extends BroadcastActor> actorClass;
+    private Class<? extends Transformer> actorClass;
     private List<ActorBuilder> listeners;
     private Map<String,Object> parameters;
 
     public ActorBuilder() {
     }
 
-    public ActorBuilder actorClass(Class<? extends BroadcastActor> actorClass) {
+    public ActorBuilder actorClass(Class<? extends Transformer> actorClass) {
         this.actorClass = actorClass;
         return this;
     }
     
     @SuppressWarnings("unchecked")
     public void setActorClass(String actorClassName) throws ClassNotFoundException {
-        this.actorClass = (Class<? extends BroadcastActor>) Class.forName(actorClassName);
+        this.actorClass = (Class<? extends Transformer>) Class.forName(actorClassName);
     }
     
-    public Class<? extends BroadcastActor> actorClass() {
+    public Class<? extends Transformer> actorClass() {
         return actorClass;
     }
     

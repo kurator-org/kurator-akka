@@ -5,6 +5,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.actors.ConstantSource;
 import org.kurator.akka.actors.Filter;
 import org.kurator.akka.actors.IntegerStreamMerger;
 import org.kurator.akka.actors.Multiplier;
@@ -38,8 +39,9 @@ public class Hamming {
         WorkflowBuilder wfb = new WorkflowBuilder();
         
         ActorBuilder oneShot = wfb.createActorBuilder()
-                .actorClass(OneShot.class)
-                .parameter("value", 1);
+                .actorClass(ConstantSource.class)
+                .parameter("value", 1)
+                .parameter("sendEos", false);
         
         ActorBuilder filter = wfb.createActorBuilder()
                 .actorClass(Filter.class)

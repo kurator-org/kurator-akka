@@ -12,7 +12,7 @@ import com.csvreader.CsvWriter;
 
 import fp.util.SpecimenRecord;
 
-public class CsvSpecimenFileWriter extends BroadcastActor {
+public class CsvSpecimenFileWriter extends Transformer {
 
     public Writer writer;
     public String filePath = null;
