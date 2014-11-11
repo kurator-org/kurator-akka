@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kurator.akka.data.OrderedSpecimenRecord;
-import org.kurator.akka.messages.EndOfStream;
-import org.kurator.akka.messages.StartMessage;
 
 import com.csvreader.CsvWriter;
 
@@ -23,24 +21,27 @@ public class CsvSpecimenFileWriter extends BroadcastActor {
     private List<String> headers = new ArrayList<String>();
     private CsvWriter csvWriter;
     
-    @Override
-    public void onReceive(Object message) throws Exception {
-
-        super.onReceive(message);
+    public void handleStart() throws Exception {
         
-        if (message instanceof StartMessage) {
-            
-            if (writer == null) {
-                if (filePath == null) {
-                    throw new Exception("No file specified for CsVSpecimenFileWriter.");
-                } else {
-                    writer = getFileWriterForPath(filePath);
-                }
+        if (writer == null) {
+            if (filePath == null) {
+                throw new Exception("No file specified for CsVSpecimenFileWriter.");
+            } else {
+                writer = getFileWriterForPath(filePath);
             }
-            
-            csvWriter = new CsvWriter(writer, ',');
+        }
         
-        } else if (message instanceof SpecimenRecord) {
+        csvWriter = new CsvWriter(writer, ',');
+    }
+    
+    public void handleEnd() throws Exception {
+        csvWriter.close();
+    }
+    
+    @Override
+    public void handleDataMessage(Object message) throws Exception {
+
+        if (message instanceof SpecimenRecord) {
         
             SpecimenRecord record = (SpecimenRecord) message;
             if (!headerWritten) {
@@ -49,13 +50,6 @@ public class CsvSpecimenFileWriter extends BroadcastActor {
             }
             
             writeRecordValuesToFile(record);
-        
-        } else if (message instanceof EndOfStream) {
-            
-            csvWriter.close();
-            
-            broadcast(message);
-            getContext().stop(getSelf());
         }
     }
 

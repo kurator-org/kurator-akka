@@ -5,8 +5,6 @@ package org.kurator.akka.actors;
  * in the FP-Akka package as of 28Oct2014.
  */
 
-import org.kurator.akka.messages.EndOfStream;
-import org.kurator.akka.messages.Initialize;
 
 import fp.services.INewScientificNameValidationService;
 import fp.util.CurationComment;
@@ -27,7 +25,7 @@ public class ScientificNameValidator extends BroadcastActor {
     private INewScientificNameValidationService scientificNameService;
 
 
-    public void initialize() {
+    public void handleInitialize() {
         
         SpecimenRecordTypeConf specimenRecordTypeConf = SpecimenRecordTypeConf.getInstance();
 
@@ -57,16 +55,9 @@ public class ScientificNameValidator extends BroadcastActor {
         }
     }
     
-    public void onReceive(Object message) throws Exception {
+    public void handleDataMessage(Object message) throws Exception {
 
-        super.onReceive(message);
-        
-        if (message instanceof Initialize) {
-            
-            initialize();
-            return;
-            
-        } else if (message instanceof SpecimenRecord) {
+        if (message instanceof SpecimenRecord) {
             
             SpecimenRecord inputSpecimenRecord = (SpecimenRecord) message;
             
@@ -110,11 +101,6 @@ public class ScientificNameValidator extends BroadcastActor {
             CurationCommentType curationComment = CurationComment.construct(curationStatus,scientificNameService.getComment(),scientificNameService.getServiceName());
             
             updateAndSendRecord(inputSpecimenRecord, curationComment);
-
-        } else if (message instanceof EndOfStream) {            
-
-            broadcast(message);
-            getContext().stop(getSelf());
         }
     }
 

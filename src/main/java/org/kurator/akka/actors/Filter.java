@@ -10,15 +10,7 @@ public class Filter extends BroadcastActor {
     private boolean eosSent = false;
 
     @Override
-    public void onReceive(Object message) throws Exception {
-
-        super.onReceive(message);
-
-        if (message instanceof EndOfStream) {
-            broadcast(message);
-            getContext().stop(getSelf());
-            return;
-        }
+    public void handleDataMessage(Object message) throws Exception {
 
         if (eosSent)
             return;

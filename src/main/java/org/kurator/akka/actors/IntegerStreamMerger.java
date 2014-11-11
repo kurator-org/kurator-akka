@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
+import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
@@ -18,11 +19,24 @@ public class IntegerStreamMerger extends BroadcastActor {
     
     private Map<ActorRef, Queue<Object>> inputQueues = new HashMap<ActorRef, Queue<Object>>();;
     private Integer lastSent = Integer.MIN_VALUE;
+    
+    public IntegerStreamMerger() {
+        super();
+        endOnEos = false;
+    }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-
-        super.onReceive(message);
+    public void handleControlMessage(ControlMessage message) {
+        
+        if (message instanceof EndOfStream) {
+            addToInputQueue(this.getSender(), message);
+            fire();
+        }
+        
+    }
+    
+    @Override
+    public void handleDataMessage(Object message) throws Exception {
 
         ActorRef sender = this.getSender();
 

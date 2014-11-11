@@ -2,9 +2,6 @@ package org.kurator.akka.actors;
 
 import java.io.PrintStream;
 
-import org.kurator.akka.messages.ControlMessage;
-import org.kurator.akka.messages.EndOfStream;
-
 public class PrintStreamWriter extends BroadcastActor {
 
     public PrintStream stream = System.out;
@@ -13,17 +10,7 @@ public class PrintStreamWriter extends BroadcastActor {
     private boolean isFirst = true;
     
     @Override
-    public void onReceive(Object message) throws Exception {
-        
-        super.onReceive(message);
-        
-        if (message instanceof ControlMessage) {
-            if (message instanceof EndOfStream) {
-                broadcast(message);
-                getContext().stop(getSelf());
-            }
-            return;
-        }
+    public void handleDataMessage(Object message) throws Exception {
         
         if (isFirst) {
             isFirst = false;

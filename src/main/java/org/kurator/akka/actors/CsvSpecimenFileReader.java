@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import org.kurator.akka.data.OrderedSpecimenRecord;
 import org.kurator.akka.messages.EndOfStream;
-import org.kurator.akka.messages.StartMessage;
 
 import com.csvreader.CsvReader;
 
@@ -18,27 +17,22 @@ public class CsvSpecimenFileReader extends BroadcastActor {
     public boolean useOrderedSpecimenRecord = false;
     
     @Override
-    public void onReceive(Object message) throws Exception {
-
-        super.onReceive(message);
+    public void handleStart() throws Exception {
         
-        if (message instanceof StartMessage) {
-
-            try {
-                parseAndBroadcastRecords();    
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-
-            if (sendEos) {
-                broadcast(new EndOfStream());
-            }
-            getContext().stop(getSelf());
+        try {
+            parseAndBroadcastRecords();    
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
         }
+
+        if (sendEos) {
+            broadcast(new EndOfStream());
+        }
+        getContext().stop(getSelf());
     }
     
     private void parseAndBroadcastRecords() throws IOException {

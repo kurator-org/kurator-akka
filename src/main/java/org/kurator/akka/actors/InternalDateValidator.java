@@ -9,9 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-import org.kurator.akka.messages.EndOfStream;
-import org.kurator.akka.messages.Initialize;
-
 import fp.services.IInternalDateValidationService;
 import fp.util.CurationComment;
 import fp.util.CurationCommentType;
@@ -37,7 +34,7 @@ public class InternalDateValidator extends BroadcastActor {
     private LinkedList<SpecimenRecord> inputObjList = new LinkedList<SpecimenRecord>();
     private LinkedHashMap<String, TreeSet<SpecimenRecord>> inputDataMap = new LinkedHashMap<String, TreeSet<SpecimenRecord>>();
 
-    public void initialize() {
+    public void handleInitialize() {
         
         try {
             //initialize required label
@@ -98,16 +95,9 @@ public class InternalDateValidator extends BroadcastActor {
         return "CollectionEventOutlierFinder";
     }
     
-    public void onReceive(Object message) throws Exception {
+    public void handleDataMessage(Object message) throws Exception {
 
-        super.onReceive(message);
-        
-        if (message instanceof Initialize) {
-            
-            initialize();
-            return;
-            
-        } else if (message instanceof SpecimenRecord) {
+       if (message instanceof SpecimenRecord) {
             
             SpecimenRecord inputSpecimenRecord = (SpecimenRecord) message;
             
@@ -131,11 +121,6 @@ public class InternalDateValidator extends BroadcastActor {
 
             curationComment = CurationComment.construct(curationStatus, singleDateValidationService.getComment(), singleDateValidationService.getServiceName());
             updateAndSendRecord(inputSpecimenRecord, curationComment);
-
-        } else if (message instanceof EndOfStream) {            
-
-            broadcast(message);
-            getContext().stop(getSelf());
         }
     }
 

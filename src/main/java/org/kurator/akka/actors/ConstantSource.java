@@ -3,7 +3,6 @@ package org.kurator.akka.actors;
 import java.util.Collection;
 
 import org.kurator.akka.messages.EndOfStream;
-import org.kurator.akka.messages.StartMessage;
 
 public class ConstantSource extends BroadcastActor {
 
@@ -12,25 +11,20 @@ public class ConstantSource extends BroadcastActor {
     public boolean sendEos = true;
     
     @Override
-    public void onReceive(Object message) throws Exception {
+    public void handleStart() throws Exception {
         
-        super.onReceive(message);
-                
-        if (message instanceof StartMessage) {
-            
-            if (value != null) {
-                broadcast(value);
-            } else if (values != null) {
-                for (Object value : values) {
-                    broadcast(value);                    
-                }
+        if (value != null) {
+            broadcast(value);
+        } else if (values != null) {
+            for (Object value : values) {
+                broadcast(value);                    
             }
-            
-            if (sendEos) {
-                broadcast(new EndOfStream());
-            }
-            
-            getContext().stop(getSelf());
         }
+        
+        if (sendEos) {
+            broadcast(new EndOfStream());
+        }
+        
+        getContext().stop(getSelf());
     }
 }
