@@ -9,7 +9,6 @@ import org.kurator.akka.actors.ConstantSource;
 import org.kurator.akka.actors.Filter;
 import org.kurator.akka.actors.IntegerStreamMerger;
 import org.kurator.akka.actors.Multiplier;
-import org.kurator.akka.actors.OneShot;
 import org.kurator.akka.actors.PrintStreamWriter;
 
 public class Hamming {
