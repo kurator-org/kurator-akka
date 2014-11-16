@@ -4,21 +4,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.kurator.akka.data.OrderedSpecimenRecord;
-import org.kurator.akka.messages.EndOfStream;
 
 import com.csvreader.CsvReader;
 
 import fp.util.SpecimenRecord;
 
-public class CsvSpecimenFileReader extends Transformer {
+public class CsvSpecimenFileReader extends OneShot {
 
     public boolean sendEos = true;
     public String filePath = null;
     public boolean useOrderedSpecimenRecord = false;
     
     @Override
-    public void handleStart() throws Exception {
-        
+    public void fireOnce() throws Exception {        
         try {
             parseAndBroadcastRecords();    
         } catch (FileNotFoundException e) {
@@ -28,11 +26,6 @@ public class CsvSpecimenFileReader extends Transformer {
             e.printStackTrace();
             System.exit(-1);
         }
-
-        if (sendEos) {
-            broadcast(new EndOfStream());
-        }
-        getContext().stop(getSelf());
     }
     
     private void parseAndBroadcastRecords() throws IOException {

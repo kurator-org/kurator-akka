@@ -104,8 +104,7 @@ public class IntegerStreamMerger extends Transformer {
                 if (--streamCount == 0) {
                     Queue<Object> queue = entry.getValue();
                     EndOfStream endOfStreamMessage = (EndOfStream) queue.peek();
-                    broadcast(endOfStreamMessage);
-                    getContext().stop(getSelf());
+                    endStreamAndStop(endOfStreamMessage);
                     return;
                 }
             }

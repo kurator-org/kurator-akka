@@ -1,22 +1,26 @@
 package org.kurator.akka.actors;
 
-import org.kurator.akka.messages.EmptyMessage;
-import org.kurator.akka.messages.EndOfStream;
+public abstract class OneShot extends Transformer {
 
-public class OneShot extends Transformer {
-
-    public Object value = new EmptyMessage();
-    public boolean sendEos = false;
+    public boolean sendEos = true;
+    
+    public abstract void fireOnce() throws Exception;
     
     @Override
     public void handleStart() throws Exception {
-        
-        broadcast(value);
+
+        fireOnce();
         
         if (sendEos) {
-            broadcast(new EndOfStream());
+            endStreamAndStop();
+        } else {
+            stop();
         }
-        
-        getContext().stop(getSelf());
+    }
+    
+    @Override
+    public final void onReceive(Object message) throws Exception {
+
+        super.onReceive(message);
     }
 }

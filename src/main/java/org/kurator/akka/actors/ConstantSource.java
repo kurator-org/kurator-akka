@@ -2,16 +2,13 @@ package org.kurator.akka.actors;
 
 import java.util.Collection;
 
-import org.kurator.akka.messages.EndOfStream;
-
-public class ConstantSource extends Transformer {
+public class ConstantSource extends OneShot {
 
     public Object value;
     public Collection<Object> values;
-    public boolean sendEos = true;
-    
+
     @Override
-    public void handleStart() throws Exception {
+    public void fireOnce() throws Exception {
         
         if (value != null) {
             broadcast(value);
@@ -19,12 +16,6 @@ public class ConstantSource extends Transformer {
             for (Object value : values) {
                 broadcast(value);                    
             }
-        }
-        
-        if (sendEos) {
-            broadcast(new EndOfStream());
-        }
-        
-        getContext().stop(getSelf());
+        }        
     }
 }
