@@ -8,7 +8,7 @@ package org.kurator.akka;
 import static java.util.Arrays.asList;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,35 +21,58 @@ import joptsimple.OptionSet;
 public class KuratorAkka {
 
     public static void main(String[] args) throws Exception {
-        runWorkflowForArgs(args);
+        runWorkflowForArgs(args, System.out, System.err);
     }
 
-    public static void runWorkflowForArgs(String[] args) throws Exception {
+    public static void runWorkflowForArgs(String[] args, PrintStream outStream, PrintStream errStream) throws Exception {
      
         enableLog4J();
         
-        OptionParser parser = createOptionsParser();
-        InputStream yamlInputStream = null;
+        OptionParser parser = null;        
+        try {
+            parser = createOptionsParser();
+        }
+        catch (OptionException exception) {
+            errStream.print("Option definition error: ");
+            errStream.println(exception.getMessage());
+            System.exit(-1);
+        }
+            
+        if (args.length == 0) {
+            errStream.println();
+            errStream.println("Error: No workflow definition file was provided");
+            errStream.println();
+            parser.printHelpOn(System.err);
+            System.exit(-1);
+        }
+        
+//        InputStream yamlInputStream = null;
         String yamlFilePath = null;
         Map<String,Object> settings = null;
         
+        OptionSet options = null;
+        
         try {
 
-            OptionSet options = parser.parse(args);
+            options = parser.parse(args);
 
-            yamlFilePath = extractYamlFilePathFromOptions(options);
-            
-            settings = parseParameterSettingsFromOptions(options);
-            
-            if (yamlFilePath == null) {
-                yamlInputStream = System.in;
-            }
-            
         } catch (OptionException exception) {
-            System.err.print("Error parsing command-line options ");
-            System.err.println(exception.getMessage());
-            parser.printHelpOn(System.err);
+            errStream.println();
+            errStream.println("Error parsing command-line options: ");
+            errStream.println(exception.getMessage());
+            errStream.println();
+            parser.printHelpOn(errStream);
+            System.exit(-1);
         }
+        
+        yamlFilePath = extractYamlFilePathFromOptions(options);
+            
+        settings = parseParameterSettingsFromOptions(options);
+        
+//        if (yamlFilePath == null) {
+//            yamlInputStream = System.in;
+//        }
+        
         
         if (yamlFilePath != null) {
             WorkflowBuilder builder = new YamlFileWorkflowBuilder(yamlFilePath);
@@ -92,7 +115,7 @@ public class KuratorAkka {
     }
     
     
-    static Map<String, Object> parseParameterSettingsFromOptions(OptionSet options) throws Exception {    
+    private static Map<String, Object> parseParameterSettingsFromOptions(OptionSet options) throws Exception {    
         
         Map<String, Object> settings = new HashMap<String,Object>();
 
@@ -116,31 +139,27 @@ public class KuratorAkka {
     }
     
     
-    private static OptionParser createOptionsParser() {
+    private static OptionParser createOptionsParser() throws Exception {
 
         OptionParser parser = null;
         
-        try {
-            parser = new OptionParser() {{
-                
-                acceptsAll(asList("f", "definition"))
-                    .withRequiredArg().ofType(String.class)
-                    .describedAs("workflow definition file or stream")
-                    .defaultsTo("-");
-
-                acceptsAll(asList("i", "input"), "key-valued inputs")
-                    .withRequiredArg().describedAs("input parameters")
-                    .ofType(String.class).describedAs("key=value");
-                
-                acceptsAll(asList("h", "?"), "display help for Kurator Akka CLI");
-
-            }};
+        parser = new OptionParser() {{
             
-        } catch (OptionException exception) {
-            System.err.print("Option definition error: ");
-            System.err.println(exception.getMessage());
-            System.exit(-1);
-        }
+            acceptsAll(asList("f", "file"), "workflow definition file")
+                .withRequiredArg()
+                .ofType(String.class)
+//              .defaultsTo("-")
+                .describedAs("definition");
+
+            acceptsAll(asList("i", "input"), "key-valued inputs")
+                .withRequiredArg()
+                .ofType(String.class)
+                .describedAs("input parameters")
+                .describedAs("key=value");
+            
+            acceptsAll(asList("h", "help"), "display help");
+
+        }};
             
         return parser;
     }
