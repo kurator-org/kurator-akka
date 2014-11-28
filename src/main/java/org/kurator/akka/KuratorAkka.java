@@ -21,10 +21,10 @@ import joptsimple.OptionSet;
 public class KuratorAkka {
 
     public static void main(String[] args) throws Exception {
-        runWorkflowForArgs(args, System.out, System.err);
+        System.exit(runWorkflowForArgs(args, System.out, System.err));
     }
 
-    public static void runWorkflowForArgs(String[] args, PrintStream outStream, PrintStream errStream) throws Exception {
+    public static int runWorkflowForArgs(String[] args, PrintStream outStream, PrintStream errStream) throws Exception {
      
         enableLog4J();
         
@@ -35,15 +35,14 @@ public class KuratorAkka {
         catch (OptionException exception) {
             errStream.print("Option definition error: ");
             errStream.println(exception.getMessage());
-            System.exit(-1);
+            return -1;
         }
             
         if (args.length == 0) {
-            errStream.println();
             errStream.println("Error: No workflow definition file was provided");
             errStream.println();
-            parser.printHelpOn(System.err);
-            System.exit(-1);
+            parser.printHelpOn(errStream);
+            return -1;
         }
         
 //        InputStream yamlInputStream = null;
@@ -57,12 +56,18 @@ public class KuratorAkka {
             options = parser.parse(args);
 
         } catch (OptionException exception) {
-            errStream.println();
-            errStream.println("Error parsing command-line options: ");
+            errStream.println("Error parsing command-line options:");
             errStream.println(exception.getMessage());
             errStream.println();
             parser.printHelpOn(errStream);
-            System.exit(-1);
+            return -1;
+        }
+        
+        
+        if (options.has("h")) {
+            errStream.println();
+            parser.printHelpOn(errStream);
+            return 0;            
         }
         
         yamlFilePath = extractYamlFilePathFromOptions(options);
@@ -84,10 +89,14 @@ public class KuratorAkka {
                 System.exit(-1);
             }
             
+            builder.outputStream(outStream)
+                   .errorStream(errStream);
+            
             builder.build();
             builder.run();
         }
         
+        return 0;
     }
 
     private static String extractYamlFilePathFromOptions(OptionSet options) {
