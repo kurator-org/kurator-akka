@@ -38,37 +38,44 @@ public class Hamming {
         WorkflowBuilder wfb = new WorkflowBuilder();
         
         ActorBuilder oneShot = wfb.createActorBuilder()
+                .name("oneShot")
                 .actorClass(ConstantSource.class)
                 .parameter("value", 1)
                 .parameter("sendEos", false);
         
         ActorBuilder filter = wfb.createActorBuilder()
+                .name("filter")
                 .actorClass(Filter.class)
                 .parameter("max", maxHammingNumber)
                 .listensTo(oneShot);
         
         ActorBuilder multiplyByTwo = wfb.createActorBuilder()
+                .name("multiplyByTwo")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 2)
                 .listensTo(filter);
 
         ActorBuilder multiplyByThree = wfb.createActorBuilder()
+                .name("multiplyByThree")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 3)
                 .listensTo(filter);
         
         ActorBuilder multiplyByFive = wfb.createActorBuilder()
+                .name("multiplyByFive")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 5)
                 .listensTo(filter);
         
         ActorBuilder mergeTwoThree = wfb.createActorBuilder()
+                .name("mergeTwoThree")
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
                 .listensTo(multiplyByTwo)
                 .listensTo(multiplyByThree);
            
         ActorBuilder mergeTwoThreeFive = wfb.createActorBuilder()
+                .name("mergeTwoThreeFive")
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
                 .listensTo(multiplyByFive)
@@ -76,6 +83,7 @@ public class Hamming {
         
         @SuppressWarnings("unused")
         ActorBuilder printStreamWriter = wfb.createActorBuilder()
+                .name("printStreamWriter")
                 .actorClass(PrintStreamWriter.class)
                 .parameter("stream", outputStream)
                 .parameter("separator", separator)
