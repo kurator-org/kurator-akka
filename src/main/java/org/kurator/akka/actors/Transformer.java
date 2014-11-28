@@ -2,7 +2,7 @@ package org.kurator.akka.actors;
 
 import org.kurator.akka.messages.ControlMessage;
 
-public abstract class Transformer extends AkkaActor {
+public abstract class Transformer extends KuratorAkkaActor {
 
     public void handleDataMessage(Object message) throws Exception {}
     
@@ -20,7 +20,7 @@ public abstract class Transformer extends AkkaActor {
             }
             
         } catch (Exception e) {
-
+            reportException(e);
             endStreamAndStop();
         }
     }

@@ -9,6 +9,7 @@ import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.WorkflowBuilder;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
+import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Response;
 import org.kurator.akka.messages.StartMessage;
@@ -16,9 +17,10 @@ import org.kurator.akka.messages.StartMessage;
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 
-public abstract class AkkaActor extends UntypedActor {
+public abstract class KuratorAkkaActor extends UntypedActor{
 
     public boolean endOnEos = true;
+    
     protected final Set<ActorRef> listeners = new HashSet<ActorRef>();
     protected List<ActorBuilder> listenerConfigurations = new LinkedList<ActorBuilder>();
     protected WorkflowBuilder runner;
@@ -27,6 +29,7 @@ public abstract class AkkaActor extends UntypedActor {
     public void handleStart() throws Exception {}
     public void handleControlMessage(ControlMessage message) {}
     public void handleEnd() throws Exception {}
+
     
     public void addListeners(Set<ActorRef> listeners) {
         this.listeners.addAll(listeners);
@@ -92,5 +95,11 @@ public abstract class AkkaActor extends UntypedActor {
     
     public void stop() {
         getContext().stop(getSelf());
-    }    
+    }
+    
+    protected void reportException(Exception e) {
+        ActorRef workflowRef = runner.getWorkflowRef();
+        ExceptionMessage em = new ExceptionMessage(e);
+        workflowRef.tell(em, this.getSelf());
+    }
 }

@@ -40,7 +40,10 @@ public class WorkflowBuilder {
         // create a configuration for the actor system that disables all logging from Akka
         Config config = ConfigFactory.load()
                 .withValue("akka.loglevel", ConfigValueFactory.fromAnyRef("OFF"))
-                .withValue("akka.stdout-loglevel", ConfigValueFactory.fromAnyRef("OFF"));
+                .withValue("akka.stdout-loglevel", ConfigValueFactory.fromAnyRef("OFF"))
+                .withValue("akka.actor.guardian-supervisor-strategy", 
+                        ConfigValueFactory.fromAnyRef("akka.actor.DefaultSupervisorStrategy"))
+                        ;
         
         // create the actor system itself
         this.system = ActorSystem.create("Workflow",  config);
@@ -130,11 +133,17 @@ public class WorkflowBuilder {
         
         Set<ActorRef> actors = new HashSet<ActorRef>();
         if (actorConfigurations.size() > 0) {
+            int actorIndex = 0;
             for (ActorBuilder actorConfig : actorConfigurations) {
-                ActorRef actor =  system.actorOf(Props.create(ActorProducer.class, actorConfig.actorClass(), actorConfig.getParameters(), actorConfig.getListeners(), this));
+                String actorName = actorConfig.getName();
+                if (actorName == null) {
+                    actorName = actorConfig.actorClass().getName().toString() + "_" + actorIndex;
+                }
+                ActorRef actor =  system.actorOf(Props.create(ActorProducer.class, actorConfig.actorClass(), actorConfig.getParameters(), actorConfig.getListeners(), this), actorName);
                 actors.add(actor);
                 actorRefForActorConfig.put(actorConfig, actor);
                 if (inputActorBuilder == actorConfig) inputActor = actor;
+                actorIndex++;
             }
         }
     

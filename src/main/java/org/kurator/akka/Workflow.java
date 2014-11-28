@@ -2,6 +2,7 @@ package org.kurator.akka;
 
 import static akka.pattern.Patterns.ask;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
+import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Response;
 import org.kurator.akka.messages.StartMessage;
@@ -25,11 +27,20 @@ public class Workflow extends UntypedActor {
     Set<ActorRef> actors = new HashSet<ActorRef>();
     ActorRef inputActor;
 
+    private final PrintStream stdoutStream;
+    private final PrintStream stderrStream;
+    
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
-    public Workflow(ActorSystem actorSystem) {
+    public Workflow(ActorSystem actorSystem, PrintStream stdoutStream, PrintStream stderrStream) {
         this.actorSystem = actorSystem;
+        this.stdoutStream = stdoutStream;
+        this.stderrStream = stderrStream;
     }
+    
+    public Workflow(ActorSystem actorSystem) {
+        this(actorSystem, System.out, System.err);
+    }       
     
     public void setInput(ActorRef inputActor) {
         this.inputActor = inputActor;
@@ -85,6 +96,14 @@ public class Workflow extends UntypedActor {
             for (ActorRef a : actors) {
                 a.tell(message, getSelf());
             }
+        }
+        
+        if (message instanceof ExceptionMessage) {
+            ExceptionMessage em = (ExceptionMessage)message;
+            stderrStream.println(sender() + " threw an uncaught exception:");
+            Exception e = em.getException();
+            if (e.getMessage() != null) stderrStream.println(e.getMessage());
+            e.printStackTrace(stderrStream);
         }
         
         if (message instanceof Terminated) {

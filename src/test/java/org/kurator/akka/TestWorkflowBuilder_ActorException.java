@@ -44,13 +44,26 @@ public class TestWorkflowBuilder_ActorException extends TestCase {
          wfb.inputActor(repeater);
          
          wfb.build();
-     }     
-
+     }
+     
+     public void testWorkflowBuilder_NoActorException_DistinctValues() throws TimeoutException, InterruptedException {
+         wfb.startWorkflow();
+         wfb.tellWorkflow(1);
+         wfb.tellWorkflow(2);
+         wfb.tellWorkflow(3);
+         wfb.tellWorkflow(4);
+         wfb.tellWorkflow(5);
+         wfb.tellWorkflow(new EndOfStream());
+         wfb.awaitWorkflow();
+         assertEquals("1, 2, 3, 4, 5", outputBuffer.toString());
+     }
+     
      public void testWorkflowBuilder_ActorException_DistinctValues() throws TimeoutException, InterruptedException {
          wfb.startWorkflow();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
          wfb.tellWorkflow(3);
+         wfb.tellWorkflow(TestActor.exceptionTriggerValue);
          wfb.tellWorkflow(4);
          wfb.tellWorkflow(5);
          wfb.tellWorkflow(new EndOfStream());
@@ -60,12 +73,14 @@ public class TestWorkflowBuilder_ActorException extends TestCase {
      
      public static class TestActor extends Transformer {
 
+         static public final Integer exceptionTriggerValue = Integer.MIN_VALUE;
+         
          @Override
          public void handleDataMessage(Object message) throws Exception {
 
              if (message instanceof Integer) {
-                 if (((Integer)message) == 4) {
-                     throw new Exception("Foo");
+                 if (((Integer)message) == exceptionTriggerValue) {
+                     throw new Exception("Exception trigger value was sent to actor");
                  }
                  broadcast(message);
              }

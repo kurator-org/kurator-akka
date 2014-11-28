@@ -5,28 +5,44 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.actors.AkkaActor;
+import org.kurator.akka.actors.KuratorAkkaActor;
+import org.springframework.beans.factory.BeanNameAware;
 
-public class ActorBuilder {
+public class ActorBuilder implements BeanNameAware {
 
-    private Class<? extends AkkaActor> actorClass;
+    private Class<? extends KuratorAkkaActor> actorClass;
     private List<ActorBuilder> listeners;
     private Map<String,Object> parameters;
+    protected String actorName = null;
 
     public ActorBuilder() {
     }
 
-    public ActorBuilder actorClass(Class<? extends AkkaActor> actorClass) {
+    public ActorBuilder actorClass(Class<? extends KuratorAkkaActor> actorClass) {
         this.actorClass = actorClass;
         return this;
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        actorName = name;
+    }
+
+    public ActorBuilder name(String name) {
+        actorName = name;
+        return this;
+    }
+    
+    public String getName() {
+        return actorName;
     }
     
     @SuppressWarnings("unchecked")
     public void setActorClass(String actorClassName) throws ClassNotFoundException {
-        this.actorClass = (Class<? extends AkkaActor>) Class.forName(actorClassName);
+        this.actorClass = (Class<? extends KuratorAkkaActor>) Class.forName(actorClassName);
     }
     
-    public Class<? extends AkkaActor> actorClass() {
+    public Class<? extends KuratorAkkaActor> actorClass() {
         return actorClass;
     }
     
