@@ -1,12 +1,8 @@
 package org.kurator.akka.actors;
 
-import java.io.PrintStream;
-
 public class PrintStreamWriter extends Transformer {
 
-    public PrintStream stream = System.out;
-    public String separator = System.lineSeparator();
-    
+    public String separator = System.lineSeparator();    
     private boolean isFirst = true;
     
     @Override
@@ -15,8 +11,8 @@ public class PrintStreamWriter extends Transformer {
         if (isFirst) {
             isFirst = false;
         } else {
-            stream.print(separator);
+            outStream.print(separator);
         }
-        stream.print(message);
+        outStream.print(message);
     }
 }

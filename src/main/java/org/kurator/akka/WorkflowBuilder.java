@@ -3,6 +3,7 @@ package org.kurator.akka;
 
 import static akka.pattern.Patterns.ask;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,6 +35,8 @@ public class WorkflowBuilder {
     private ActorBuilder inputActorBuilder;
     private List<ActorBuilder> actorConfigurations;
     private Map<String, Object> workflowParameters;
+    private PrintStream outStream = System.out;
+    private PrintStream errStream = System.err;
 
     public WorkflowBuilder() {
         
@@ -58,6 +61,16 @@ public class WorkflowBuilder {
         return actor;
     }
     
+    public WorkflowBuilder outputStream(PrintStream outStream) {
+        this.outStream = outStream;
+        return this;
+    }
+
+    public WorkflowBuilder errorStream(PrintStream errStream) {
+        this.errStream = errStream;
+        return this;
+    }
+
     public WorkflowBuilder inputActor(ActorBuilder inputActorBuilder) {
         this.inputActorBuilder = inputActorBuilder;
         return this;
@@ -139,7 +152,17 @@ public class WorkflowBuilder {
                 if (actorName == null) {
                     actorName = actorConfig.actorClass().getName().toString() + "_" + actorIndex;
                 }
-                ActorRef actor =  system.actorOf(Props.create(ActorProducer.class, actorConfig.actorClass(), actorConfig.getParameters(), actorConfig.getListeners(), this), actorName);
+                
+                ActorRef actor =  system.actorOf(
+                                    Props.create(ActorProducer.class, 
+                                    actorConfig.actorClass(), 
+                                    actorConfig.getParameters(), 
+                                    actorConfig.getListeners(), 
+                                    outStream,
+                                    errStream,
+                                    this
+                                  ), actorName);
+            
                 actors.add(actor);
                 actorRefForActorConfig.put(actorConfig, actor);
                 if (inputActorBuilder == actorConfig) inputActor = actor;

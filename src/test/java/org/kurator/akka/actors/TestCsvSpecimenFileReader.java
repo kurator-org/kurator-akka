@@ -22,7 +22,8 @@ public class TestCsvSpecimenFileReader extends TestCase {
          outputBuffer = new ByteArrayOutputStream();
          PrintStream printStream = new PrintStream(outputBuffer);
         
-         wfb = new WorkflowBuilder();
+         wfb = new WorkflowBuilder()
+             .outputStream(printStream);
     
          reader = wfb.createActorBuilder()
                  .actorClass(CsvSpecimenFileReader.class)
@@ -31,7 +32,6 @@ public class TestCsvSpecimenFileReader extends TestCase {
          @SuppressWarnings("unused")
          ActorBuilder printer = wfb.createActorBuilder()
                  .actorClass(PrintStreamWriter.class)
-                 .parameter("stream", printStream)
                  .parameter("separator", EOL)
                  .listensTo(reader);
      }

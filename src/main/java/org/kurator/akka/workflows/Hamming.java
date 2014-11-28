@@ -35,7 +35,8 @@ public class Hamming {
 
     public void run() throws TimeoutException, InterruptedException {
 
-        WorkflowBuilder wfb = new WorkflowBuilder();
+        WorkflowBuilder wfb = new WorkflowBuilder()
+                .outputStream(outputStream);
         
         ActorBuilder oneShot = wfb.createActorBuilder()
                 .name("oneShot")
@@ -85,7 +86,6 @@ public class Hamming {
         ActorBuilder printStreamWriter = wfb.createActorBuilder()
                 .name("printStreamWriter")
                 .actorClass(PrintStreamWriter.class)
-                .parameter("stream", outputStream)
                 .parameter("separator", separator)
                 .listensTo(filter);
         

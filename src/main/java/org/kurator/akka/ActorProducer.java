@@ -1,5 +1,6 @@
 package org.kurator.akka;
 
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,17 @@ public class ActorProducer implements IndirectActorProducer {
     private List<ActorBuilder> listenerBuilders;
     private WorkflowBuilder workflowBuilder;
     private Transformer actor;
+    private PrintStream outStream;
+    private PrintStream errStream;
 
-    public ActorProducer(Class<? extends Transformer> actorClass, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, WorkflowBuilder workflowBuilder) {
+    public ActorProducer(Class<? extends Transformer> actorClass, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, 
+            PrintStream outStream, PrintStream errStream, WorkflowBuilder workflowBuilder) {
         this.actorClass = actorClass;
         this.parameters = parameters;
         this.listenerBuilders = listenerConfigs;
         this.workflowBuilder = workflowBuilder;
+        this.outStream = outStream;
+        this.errStream = errStream;
     }
 
     @Override
@@ -39,6 +45,8 @@ public class ActorProducer implements IndirectActorProducer {
         }
         actor.setListenerConfigs(listenerBuilders);
         actor.setWorkflowRunner(workflowBuilder);
+        actor.outputStream(outStream);
+        actor.errorStream(errStream);
         
         if (parameters != null) {
             for (Map.Entry<String,Object> parameter : parameters.entrySet()) {

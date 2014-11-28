@@ -25,7 +25,8 @@ public class TestIntegerStreamMerger_TwoInputStreams extends TestCase {
          outputBuffer = new ByteArrayOutputStream();
          PrintStream printStream = new PrintStream(outputBuffer);
         
-         wfb = new WorkflowBuilder();
+         wfb = new WorkflowBuilder()
+             .outputStream(printStream);
     
          ActorBuilder repeaterABuilder = wfb.createActorBuilder()
                  .actorClass(Repeater.class);
@@ -42,7 +43,6 @@ public class TestIntegerStreamMerger_TwoInputStreams extends TestCase {
          @SuppressWarnings("unused")
          ActorBuilder printer = wfb.createActorBuilder()
                  .actorClass(PrintStreamWriter.class)
-                 .parameter("stream", printStream)
                  .parameter("separator", ", ")
                  .listensTo(merge);
         

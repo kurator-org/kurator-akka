@@ -1,5 +1,6 @@
 package org.kurator.akka.actors;
 
+import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,12 +25,22 @@ public abstract class KuratorAkkaActor extends UntypedActor{
     protected final Set<ActorRef> listeners = new HashSet<ActorRef>();
     protected List<ActorBuilder> listenerConfigurations = new LinkedList<ActorBuilder>();
     protected WorkflowBuilder runner;
-
+    
+    protected PrintStream outStream = System.out;
+    protected PrintStream errStream = System.err;
+    
     public void handleInitialize() throws Exception {}
     public void handleStart() throws Exception {}
     public void handleControlMessage(ControlMessage message) {}
     public void handleEnd() throws Exception {}
-
+    
+    public void errorStream(PrintStream errStream) {
+        this.errStream = errStream;
+    }
+    
+    public void outputStream(PrintStream outStream) {
+        this.outStream = outStream;
+    }
     
     public void addListeners(Set<ActorRef> listeners) {
         this.listeners.addAll(listeners);
