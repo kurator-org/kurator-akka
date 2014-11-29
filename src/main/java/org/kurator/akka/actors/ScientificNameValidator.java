@@ -98,6 +98,8 @@ public class ScientificNameValidator extends Transformer {
                 inputSpecimenRecord.put("scientificNameAuthorship", scientificNameService.getCorrectedAuthor());
             }
 
+            if(!scientificNameService.getLSID().equals("")) inputSpecimenRecord.put("GUID", scientificNameService.getLSID());
+            
             CurationCommentType curationComment = CurationComment.construct(curationStatus,scientificNameService.getComment(),scientificNameService.getServiceName());
             
             updateAndSendRecord(inputSpecimenRecord, curationComment);
