@@ -102,7 +102,6 @@ public class Workflow extends UntypedActor {
             ExceptionMessage em = (ExceptionMessage)message;
             stderrStream.println(sender() + " threw an uncaught exception:");
             Exception e = em.getException();
-            if (e.getMessage() != null) stderrStream.println(e.getMessage());
             e.printStackTrace(stderrStream);
         }
         

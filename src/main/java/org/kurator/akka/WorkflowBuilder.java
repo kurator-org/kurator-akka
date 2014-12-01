@@ -153,8 +153,8 @@ public class WorkflowBuilder {
                     actorName = actorConfig.actorClass().getName().toString() + "_" + actorIndex;
                 }
                 
-                ActorRef actor =  system.actorOf(
-                                    Props.create(ActorProducer.class, 
+                ActorRef actor =  system.actorOf(Props.create(
+                                    ActorProducer.class, 
                                     actorConfig.actorClass(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(), 
@@ -171,7 +171,14 @@ public class WorkflowBuilder {
         }
     
         // create a workflow using the workflow configuration and comprising the actors
-        workflowRef = system.actorOf(Props.create(WorkflowProducer.class, system, actors, inputActor));
+        workflowRef = system.actorOf(Props.create(
+                            WorkflowProducer.class, 
+                            system, 
+                            actors, 
+                            inputActor, 
+                            outStream,
+                            errStream
+                       ));
         
         return workflowRef;
     }
