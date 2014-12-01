@@ -83,7 +83,7 @@ public abstract class KuratorAkkaActor extends UntypedActor{
             }
     
         } catch (Exception e) {
-
+            reportException(e);
             endStreamAndStop();
         }
     }   

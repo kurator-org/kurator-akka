@@ -97,6 +97,7 @@ public class Workflow extends UntypedActor {
             for (ActorRef a : actors) {
                 a.tell(message, getSelf());
             }
+            return;
         }
         
         if (message instanceof ExceptionMessage) {
@@ -104,6 +105,7 @@ public class Workflow extends UntypedActor {
             stderrStream.println(sender() + " threw an uncaught exception:");
             Exception e = em.getException();
             e.printStackTrace(stderrStream);
+            return;
         }
         
         if (message instanceof Terminated) {

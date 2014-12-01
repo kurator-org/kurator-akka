@@ -25,7 +25,7 @@ public class KuratorAkka {
     }
 
     public static int runWorkflowForArgs(String[] args, PrintStream outStream, PrintStream errStream) throws Exception {
-     
+
         enableLog4J();
         
         OptionParser parser = null;        
@@ -181,8 +181,7 @@ public class KuratorAkka {
                         "org.apache.commons.logging.impl.SimpleLog");
             }
 
-            if (System
-                    .getProperty("org.apache.commons.logging.simplelog.defaultlog") == null) {
+            if (System.getProperty("org.apache.commons.logging.simplelog.defaultlog") == null) {
                 System.setProperty(
                         "org.apache.commons.logging.simplelog.defaultlog",
                         "error");

@@ -6,13 +6,11 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowBuilder;
 
-import junit.framework.TestCase;
+public class TestScientificNameValidator extends KuratorAkkaTestCase {
 
-public class TestScientificNameValidator extends TestCase {
-
-    static final String EOL = System.getProperty("line.separator");
     private WorkflowBuilder wfb;
     private OutputStream outputBuffer;
     private ActorBuilder csvReader;
@@ -22,6 +20,8 @@ public class TestScientificNameValidator extends TestCase {
     
     @Override
     public void setUp() {
+        
+        super.setUp();
    
         outputBuffer = new ByteArrayOutputStream();
         bufferWriter = new OutputStreamWriter(outputBuffer);

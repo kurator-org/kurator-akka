@@ -1,29 +1,24 @@
 package org.kurator.akka.actors;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowBuilder;
 import org.kurator.akka.messages.EndOfStream;
 
-import junit.framework.TestCase;
-
-public class TestIntegerStreamMerger_OneInputStream extends TestCase {
+public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase {
 
     private WorkflowBuilder wfb;
-    private OutputStream outputBuffer;
 
      @Override
      public void setUp() {
-    
-         outputBuffer = new ByteArrayOutputStream();
-         PrintStream printStream = new PrintStream(outputBuffer);
-        
+
+         super.setUp();
+         
          wfb = new WorkflowBuilder()
-             .outputStream(printStream);
+             .outputStream(stdoutStream)
+             .errorStream(stderrStream);
     
          ActorBuilder repeater = wfb.createActorBuilder()
                  .actorClass(Repeater.class);
@@ -48,7 +43,8 @@ public class TestIntegerStreamMerger_OneInputStream extends TestCase {
         wfb.startWorkflow();
         wfb.tellWorkflow(new EndOfStream());
         wfb.awaitWorkflow();
-        assertEquals("", outputBuffer.toString());
+        assertEquals("", stdoutBuffer.toString());
+        assertEquals("", stderrBuffer.toString());
     }
      
      public void testIntegerStreamMerger_DistinctValues() throws TimeoutException, InterruptedException {
@@ -59,7 +55,8 @@ public class TestIntegerStreamMerger_OneInputStream extends TestCase {
          wfb.tellWorkflow(4);
          wfb.tellWorkflow(new EndOfStream());
          wfb.awaitWorkflow();
-         assertEquals("1, 2, 3, 4", outputBuffer.toString());
+         assertEquals("1, 2, 3, 4", stdoutBuffer.toString());
+         assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_IdenticalValues() throws TimeoutException, InterruptedException {
@@ -70,7 +67,8 @@ public class TestIntegerStreamMerger_OneInputStream extends TestCase {
          wfb.tellWorkflow(7);
          wfb.tellWorkflow(new EndOfStream());
          wfb.awaitWorkflow();
-         assertEquals("7", outputBuffer.toString());
+         assertEquals("7", stdoutBuffer.toString());
+         assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_ValuesWithDuplicates() throws TimeoutException, InterruptedException {
@@ -85,7 +83,7 @@ public class TestIntegerStreamMerger_OneInputStream extends TestCase {
          wfb.tellWorkflow(5);
          wfb.tellWorkflow(new EndOfStream());
          wfb.awaitWorkflow();
-         assertEquals("1, 2, 3, 4, 5", outputBuffer.toString());
+         assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
+         assertEquals("", stderrBuffer.toString());
      }
-
 }

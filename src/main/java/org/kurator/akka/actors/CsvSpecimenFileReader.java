@@ -1,7 +1,6 @@
 package org.kurator.akka.actors;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import org.kurator.akka.data.OrderedSpecimenRecord;
 
@@ -16,21 +15,15 @@ public class CsvSpecimenFileReader extends OneShot {
     public boolean useOrderedSpecimenRecord = false;
     
     @Override
-    public void fireOnce() throws Exception {        
-        try {
-            parseAndBroadcastRecords();    
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
-    
-    private void parseAndBroadcastRecords() throws IOException {
+    public void fireOnce() throws Exception {
+        
+        CsvReader csvReader;
 
-        CsvReader csvReader = new CsvReader(filePath);
+        try {
+            csvReader = new CsvReader(filePath);
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Input CSV file not found: " + filePath);
+        }
 
         csvReader.readHeaders();
         

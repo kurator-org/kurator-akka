@@ -23,8 +23,8 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "  singleton: true"                                     + EOL; 
         
         ActorRef workflowRef = new YamlStringWorkflowBuilder(definition)
-            .outputStream(outPrintStream)
-            .errorStream(errPrintStream)
+            .outputStream(stderrStream)
+            .errorStream(stdoutStream)
             .build();
             
         assertNotNull(workflowRef);
@@ -50,8 +50,8 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    inputActor: !ref Repeater"                         + EOL;
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
-            .outputStream(outPrintStream)
-            .errorStream(errPrintStream);
+            .outputStream(stderrStream)
+            .errorStream(stdoutStream);
             
         builder.build();
 
@@ -90,8 +90,8 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    inputActor: !ref Repeater"                                 + EOL;
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
-            .outputStream(outPrintStream)
-            .errorStream(errPrintStream);
+            .outputStream(stderrStream)
+            .errorStream(stdoutStream);
                 
         builder.build();
 
@@ -145,8 +145,8 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    inputActor: !ref Repeater"                                 + EOL;
         
         WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
-            .outputStream(outPrintStream)
-            .errorStream(errPrintStream);
+            .outputStream(stderrStream)
+            .errorStream(stdoutStream);
         
         builder.build();
 

@@ -25,8 +25,8 @@ public class TestYamlFileWorkflowBuilder extends KuratorAkkaTestCase {
 
         WorkflowBuilder builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "one_actor_workflow.yaml");
         
-        builder.outputStream(outPrintStream)
-               .errorStream(errPrintStream)
+        builder.outputStream(stdoutStream)
+               .errorStream(stderrStream)
                .build();
         
         builder.startWorkflow();
@@ -34,16 +34,16 @@ public class TestYamlFileWorkflowBuilder extends KuratorAkkaTestCase {
         builder.tellWorkflow(new EndOfStream());
         builder.awaitWorkflow();
         
-        assertEquals("1", stdOutputBuffer.toString());
-        assertEquals("", errOutputBuffer.toString());
+        assertEquals("1", stdoutBuffer.toString());
+        assertEquals("", stderrBuffer.toString());
     }
     
     public void testTwoActorWorkflow() throws Exception {
         
         WorkflowBuilder builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "two_actor_workflow.yaml");
         
-        builder.outputStream(outPrintStream)
-               .errorStream(errPrintStream)
+        builder.outputStream(stdoutStream)
+               .errorStream(stderrStream)
                .build();
         
         builder.startWorkflow();
@@ -52,16 +52,16 @@ public class TestYamlFileWorkflowBuilder extends KuratorAkkaTestCase {
         builder.tellWorkflow(new EndOfStream());
         builder.awaitWorkflow();
         
-        assertEquals("1, 2", stdOutputBuffer.toString());
-        assertEquals("", errOutputBuffer.toString());
+        assertEquals("1, 2", stdoutBuffer.toString());
+        assertEquals("", stderrBuffer.toString());
 }
 
     public void testThreeActorWorkflow() throws Exception { 
         
         WorkflowBuilder builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "three_actor_workflow.yaml");
         
-        builder.outputStream(outPrintStream)
-               .errorStream(errPrintStream)
+        builder.outputStream(stdoutStream)
+               .errorStream(stderrStream)
                .build();
         
         builder.startWorkflow();
@@ -76,18 +76,18 @@ public class TestYamlFileWorkflowBuilder extends KuratorAkkaTestCase {
         builder.tellWorkflow(new EndOfStream());
         builder.awaitWorkflow();
         
-        assertEquals("1, 2, 3, 4, 5", stdOutputBuffer.toString());
-        assertEquals("", errOutputBuffer.toString());
+        assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
+        assertEquals("", stderrBuffer.toString());
     }
     
     public void testThreeActorWorkflowSimplified() throws Exception {        
 
         WorkflowBuilder builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "three_actor_workflow_simplified.yaml");
         
-        builder.outputStream(outPrintStream)
-               .errorStream(errPrintStream)
-               .build();
-        
+        builder.outputStream(stdoutStream)
+                .errorStream(stderrStream)
+                .build();
+                
         builder.startWorkflow();
         builder.tellWorkflow(1);
         builder.tellWorkflow(2);
@@ -100,8 +100,8 @@ public class TestYamlFileWorkflowBuilder extends KuratorAkkaTestCase {
         builder.tellWorkflow(new EndOfStream());
         builder.awaitWorkflow();
         
-        assertEquals("1, 2, 3, 4, 5", stdOutputBuffer.toString());
-        assertEquals("", errOutputBuffer.toString());
+        assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
+        assertEquals("", stderrBuffer.toString());
     }
 }
    

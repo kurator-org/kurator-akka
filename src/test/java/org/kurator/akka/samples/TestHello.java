@@ -12,16 +12,16 @@ public class TestHello extends KuratorAkkaTestCase {
     
     public void testHello_DefaultGreeting() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/hello.yaml" };
-        KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
-        assertEquals("Hello World!", stdOutputBuffer.toString());
-        assertEquals("", errOutputBuffer.toString());
+        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        assertEquals("Hello World!", stdoutBuffer.toString());
+        assertEquals("", stderrBuffer.toString());
     }
 
     public void testHello_CustomGreeting() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/hello.yaml",
                 "-p", "greeting='Goodnight and good luck!'"};
-        KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
-        assertEquals("Goodnight and good luck!", stdOutputBuffer.toString());
-        assertEquals("", errOutputBuffer.toString());
+        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        assertEquals("Goodnight and good luck!", stdoutBuffer.toString());
+        assertEquals("", stderrBuffer.toString());
     }
 }
