@@ -120,6 +120,7 @@ public class WorkflowBuilder {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void apply(String settingName, Object settingValue) throws Exception {
         
         Map<String,Object> workflowParameter = null;

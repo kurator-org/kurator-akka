@@ -27,6 +27,7 @@ public class Workflow extends UntypedActor {
     Set<ActorRef> actors = new HashSet<ActorRef>();
     ActorRef inputActor;
 
+    @SuppressWarnings("unused")
     private final PrintStream stdoutStream;
     private final PrintStream stderrStream;
     
