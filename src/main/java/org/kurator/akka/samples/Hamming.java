@@ -1,4 +1,4 @@
-package org.kurator.akka.workflows;
+package org.kurator.akka.samples;
 
 import java.io.PrintStream;
 import java.util.concurrent.TimeoutException;

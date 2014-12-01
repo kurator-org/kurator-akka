@@ -1,15 +1,15 @@
-package org.kurator.akka;
+package org.kurator.akka.samples;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.TimeoutException;
 
-import org.kurator.akka.workflows.Hamming;
+import org.kurator.akka.samples.Hamming;
 
 import junit.framework.TestCase;
 
-public class TestHammingJava extends TestCase {
+public class TestHamming_Java extends TestCase {
 
     private OutputStream outputStream;
     private PrintStream printStream;

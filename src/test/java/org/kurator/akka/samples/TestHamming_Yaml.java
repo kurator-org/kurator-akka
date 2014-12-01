@@ -1,10 +1,12 @@
-package org.kurator.akka;
+package org.kurator.akka.samples;
 
 import junit.framework.TestCase;
 
+import org.kurator.akka.KuratorAkka;
 import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.YamlFileWorkflowBuilder;
 
-public class TestHammingYaml extends TestCase {
+public class TestHamming_Yaml extends TestCase {
     
     static final String EOL = System.getProperty("line.separator");
     static final String RESOURCE_PATH = "classpath:/org/kurator/akka/samples/";
