@@ -5,7 +5,7 @@ import org.kurator.akka.messages.EndOfStream;
 public class Filter extends Transformer {
 
     public int max = 1;
-    public boolean sendEosOnExceed = true;
+    public boolean sendEosOnExceed = false;
 
     private boolean eosSent = false;
 

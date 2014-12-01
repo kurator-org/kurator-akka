@@ -48,6 +48,7 @@ public class Hamming {
                 .name("filter")
                 .actorClass(Filter.class)
                 .parameter("max", maxHammingNumber)
+                .parameter("sendEosOnExceed", true)
                 .listensTo(oneShot);
         
         ActorBuilder multiplyByTwo = wfb.createActorBuilder()

@@ -1,0 +1,51 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: IntegerSource
+  type: ConstantSourceActor
+  properties:
+    parameters:
+      values:
+        - 5
+        - 7
+        - 254
+        - -18
+        - 55
+        - 100
+        - 99
+        - 101
+
+- id: Filter
+  type: FilterActor
+  properties:
+    parameters:
+      max: 100
+    listensTo:
+      - !ref IntegerSource
+
+- id: Printer
+  type: PrinterActor
+  properties:
+    listensTo:
+      - !ref Filter
+    parameters:
+      separator: ', '
+      
+- id: IntegerFilter
+  type: Workflow
+  properties:
+    actors:
+      - !ref IntegerSource
+      - !ref Filter
+      - !ref Printer
+    parameters:
+      max:
+        actor: !ref Filter
+        parameter: max
+      values:
+        actor: !ref IntegerSource
+        parameter: values
+        
