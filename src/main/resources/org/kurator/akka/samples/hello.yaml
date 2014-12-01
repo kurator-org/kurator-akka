@@ -1,0 +1,29 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: GreetingSource
+  type: ConstantSourceActor
+  properties:
+    parameters:
+      value: Hello World!
+
+- id: GreetingPrinter
+  type: PrinterActor
+  properties:
+    listensTo:
+      - !ref GreetingSource
+  
+- id: HelloWorldWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref GreetingSource
+      - !ref GreetingPrinter
+    parameters:
+      greeting:
+        actor: !ref GreetingSource
+        parameter: value
+ 
