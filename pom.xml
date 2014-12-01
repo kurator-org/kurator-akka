@@ -4,7 +4,7 @@
 
     <groupId>org.kurator</groupId>
     <artifactId>kurator-akka</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
     <name>kurator-akka</name>
     <url>http://opensource.ncsa.illinois.edu/projects/KURATOR</url>
@@ -172,7 +172,7 @@
                 <descriptorRefs>
                     <descriptorRef>jar-with-dependencies</descriptorRef>
                 </descriptorRefs>
-		        <finalName>kurator-akka-0.1-executable</finalName>
+		        <finalName>kurator-akka-0.2-executable</finalName>
 		        <appendAssemblyId>false</appendAssemblyId>
             </configuration>
       <executions>

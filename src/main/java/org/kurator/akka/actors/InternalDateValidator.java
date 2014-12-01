@@ -5,7 +5,6 @@ package org.kurator.akka.actors;
  * in the FP-Akka package as of 29Oct2014.
  */
 
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.TreeSet;
