@@ -34,7 +34,7 @@ public class TestHello extends TestCase {
 
     public void testHello_CustomGreeting() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/hello.yaml",
-                "-i", "greeting='Goodnight and good luck!'"};
+                "-p", "greeting='Goodnight and good luck!'"};
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
         assertEquals("Goodnight and good luck!", stdOutputBuffer.toString());
         assertEquals("", errOutputBuffer.toString());

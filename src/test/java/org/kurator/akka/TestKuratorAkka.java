@@ -21,7 +21,7 @@ public class TestKuratorAkka extends TestCase {
         "------                                  -----------                            "   + EOL +
         "-f, --file <definition>                 workflow definition file               "   + EOL +
         "-h, --help                              display help                           "   + EOL +
-        "-i, --input <key=value>                 key-valued inputs                      "   + EOL;            
+        "-p, --parameter <key=value>             key-valued parameter assignment        "   + EOL;            
     
     @Override
     public void setUp() {
@@ -143,7 +143,7 @@ public class TestKuratorAkka extends TestCase {
     }
     
     public void testKuratorAkka_InputOption_HammingWorkflow() throws Exception {
-        String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml", "--input", "max=5"};
+        String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml", "--parameter", "max=5"};
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
         assertEquals(
             "1"         + EOL +
@@ -155,7 +155,7 @@ public class TestKuratorAkka extends TestCase {
     }
 
     public void testKuratorAkka_InputOption_Abbreviated_HammingWorkflow() throws Exception {
-        String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml", "-i", "max=5"};
+        String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml", "-p", "max=5"};
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
         assertEquals(
             "1"         + EOL +

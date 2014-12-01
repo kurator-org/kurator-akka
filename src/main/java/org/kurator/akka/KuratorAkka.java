@@ -130,7 +130,7 @@ public class KuratorAkka {
 
         Yaml yaml = new Yaml();
 
-        for (Object inputOptionObject :  options.valuesOf("i")) {
+        for (Object inputOptionObject :  options.valuesOf("p")) {
             String inputOption = (String) inputOptionObject;
             int indexOfFirstEquals = inputOption.indexOf("=");
             if (indexOfFirstEquals == -1) {
@@ -160,10 +160,10 @@ public class KuratorAkka {
 //              .defaultsTo("-")
                 .describedAs("definition");
 
-            acceptsAll(asList("i", "input"), "key-valued inputs")
+            acceptsAll(asList("p", "parameter"), "key-valued parameter assignment")
                 .withRequiredArg()
                 .ofType(String.class)
-                .describedAs("input parameters")
+                .describedAs("input parameter")
                 .describedAs("key=value");
             
             acceptsAll(asList("h", "help"), "display help");

@@ -34,7 +34,7 @@ public class TestIntegerFilter extends TestCase {
 
     public void testHello_CustomMax() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/integer_filter.yaml",
-                          "-i", "max=60"};
+                          "-p", "max=60"};
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
         assertEquals("5, 7, -18, 55", stdOutputBuffer.toString());
         assertEquals("", errOutputBuffer.toString());
@@ -42,7 +42,7 @@ public class TestIntegerFilter extends TestCase {
 
     public void testHello_CustomValues() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/integer_filter.yaml",
-                          "-i", "values=[1, 10, 50, 100, 150, 200, -10, 0, 500, 74]" };
+                          "-p", "values=[1, 10, 50, 100, 150, 200, -10, 0, 500, 74]" };
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
         assertEquals("1, 10, 50, 100, -10, 0, 74", stdOutputBuffer.toString());
         assertEquals("", errOutputBuffer.toString());
