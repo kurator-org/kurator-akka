@@ -6,17 +6,6 @@ components:
 
 - id: IntegerSource
   type: ConstantSourceActor
-  properties:
-    parameters:
-      values:
-        - 5
-        - 7
-        - 254
-        - -18
-        - 55
-        - 100
-        - 99
-        - 101
 
 - id: Filter
   type: FilterActor

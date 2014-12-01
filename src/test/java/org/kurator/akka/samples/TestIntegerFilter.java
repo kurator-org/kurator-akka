@@ -25,26 +25,28 @@ public class TestIntegerFilter extends TestCase {
         errPrintStream = new PrintStream(errOutputBuffer);
     }
     
-    public void testHello_DefaultMax() throws Exception {
-        String[] args = { "-f", "classpath:/org/kurator/akka/samples/integer_filter.yaml" };
+    public void testIntegerFilter_DefaultMax() throws Exception {
+        String[] args = { "-f", "classpath:/org/kurator/akka/samples/integer_filter.yaml",
+                          "-p", "values=[5, 7, 254, -18, 55, 100, 99, 101]" };
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
         assertEquals("5, 7, -18, 55, 100, 99", stdOutputBuffer.toString());
         assertEquals("", errOutputBuffer.toString());
     }
 
-    public void testHello_CustomMax() throws Exception {
+    public void testIntegerFilter_CustomMax() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/integer_filter.yaml",
+                          "-p", "values=[5, 7, 254, -18, 55, 100, 99, 101]" ,
                           "-p", "max=60"};
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
         assertEquals("5, 7, -18, 55", stdOutputBuffer.toString());
         assertEquals("", errOutputBuffer.toString());
     }
 
-    public void testHello_CustomValues() throws Exception {
-        String[] args = { "-f", "classpath:/org/kurator/akka/samples/integer_filter.yaml",
-                          "-p", "values=[1, 10, 50, 100, 150, 200, -10, 0, 500, 74]" };
+    public void testIntegerFilter_NoValues() throws Exception {
+        String[] args = { "-f", "classpath:/org/kurator/akka/samples/integer_filter.yaml" };
         KuratorAkka.runWorkflowForArgs(args, outPrintStream, errPrintStream);
-        assertEquals("1, 10, 50, 100, -10, 0, 74", stdOutputBuffer.toString());
+        assertEquals("", stdOutputBuffer.toString());
         assertEquals("", errOutputBuffer.toString());
     }
+
 }
