@@ -1,22 +1,17 @@
 package org.kurator.akka;
 
-import junit.framework.TestCase;
-
 import org.kurator.akka.WorkflowBuilder;
 import org.kurator.akka.YamlStringWorkflowBuilder;
 import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
 
-public class TestYamlStringWorkflowBuilder extends TestCase {
-    
-    public static final String EOL = System.getProperty("line.separator");
+public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
     
     @Override
     public void setUp() {
-        KuratorAkka.enableLog4J();
+        super.setUp();
     }
-
     
     public void testEmptyWorkflow() throws Exception {
         
@@ -27,9 +22,11 @@ public class TestYamlStringWorkflowBuilder extends TestCase {
                 "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
                 "  singleton: true"                                     + EOL; 
         
-        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
-        builder.build();
-        ActorRef workflowRef = builder.getWorkflowRef();
+        ActorRef workflowRef = new YamlStringWorkflowBuilder(definition)
+            .outputStream(outPrintStream)
+            .errorStream(errPrintStream)
+            .build();
+            
         assertNotNull(workflowRef);
 }
 
@@ -52,7 +49,10 @@ public class TestYamlStringWorkflowBuilder extends TestCase {
                 "    - !ref Repeater"                                   + EOL +
                 "    inputActor: !ref Repeater"                         + EOL;
         
-        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
+            .outputStream(outPrintStream)
+            .errorStream(errPrintStream);
+            
         builder.build();
 
         builder.startWorkflow();        
@@ -89,7 +89,10 @@ public class TestYamlStringWorkflowBuilder extends TestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
+            .outputStream(outPrintStream)
+            .errorStream(errPrintStream);
+                
         builder.build();
 
         builder.startWorkflow();
@@ -141,7 +144,10 @@ public class TestYamlStringWorkflowBuilder extends TestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition);
+        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
+            .outputStream(outPrintStream)
+            .errorStream(errPrintStream);
+        
         builder.build();
 
         builder.startWorkflow();

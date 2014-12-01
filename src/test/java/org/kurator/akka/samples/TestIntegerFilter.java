@@ -1,28 +1,13 @@
 package org.kurator.akka.samples;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-
 import org.kurator.akka.KuratorAkka;
+import org.kurator.akka.KuratorAkkaTestCase;
 
-import junit.framework.TestCase;
-
-public class TestIntegerFilter extends TestCase {
-
-    static final String EOL = System.getProperty("line.separator");
-
-    private OutputStream errOutputBuffer;
-    private OutputStream stdOutputBuffer;
-    private PrintStream errPrintStream;
-    private PrintStream outPrintStream;
-
+public class TestIntegerFilter extends KuratorAkkaTestCase {
+    
     @Override
     public void setUp() {
-        stdOutputBuffer = new ByteArrayOutputStream();
-        outPrintStream = new PrintStream(stdOutputBuffer);
-        errOutputBuffer = new ByteArrayOutputStream();
-        errPrintStream = new PrintStream(errOutputBuffer);
+        super.setUp();
     }
     
     public void testIntegerFilter_DefaultMax() throws Exception {

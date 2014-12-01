@@ -1,8 +1,5 @@
 package org.kurator.akka;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.ActorBuilder;
@@ -12,22 +9,19 @@ import org.kurator.akka.actors.PrintStreamWriter;
 import org.kurator.akka.actors.Repeater;
 import org.kurator.akka.messages.EndOfStream;
 
-import junit.framework.TestCase;
-
-public class TestWorkflowBuilder_ActorException extends TestCase {
+public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
 
     private WorkflowBuilder wfb;
-    private OutputStream outputBuffer;
 
      @Override
      public void setUp() {
     
-         outputBuffer = new ByteArrayOutputStream();
-         PrintStream printStream = new PrintStream(outputBuffer);
-        
+         super.setUp();
+         
          wfb = new WorkflowBuilder()
-             .outputStream(printStream);
-    
+             .outputStream(outPrintStream)
+             .errorStream(errPrintStream);
+
          ActorBuilder repeater = wfb.createActorBuilder()
                  .actorClass(Repeater.class);
     
@@ -46,7 +40,7 @@ public class TestWorkflowBuilder_ActorException extends TestCase {
          wfb.build();
      }
      
-     public void testWorkflowBuilder_NoActorException_DistinctValues() throws TimeoutException, InterruptedException {
+     public void testWorkflowBuilder_NoActorException() throws TimeoutException, InterruptedException {
          wfb.startWorkflow();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
@@ -55,10 +49,12 @@ public class TestWorkflowBuilder_ActorException extends TestCase {
          wfb.tellWorkflow(5);
          wfb.tellWorkflow(new EndOfStream());
          wfb.awaitWorkflow();
-         assertEquals("1, 2, 3, 4, 5", outputBuffer.toString());
+
+         assertEquals("1, 2, 3, 4, 5", stdOutputBuffer.toString());
+         assertEquals("", errOutputBuffer.toString());
      }
      
-     public void testWorkflowBuilder_ActorException_DistinctValues() throws TimeoutException, InterruptedException {
+     public void testWorkflowBuilder_ActorException() throws TimeoutException, InterruptedException {
          wfb.startWorkflow();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
@@ -68,7 +64,9 @@ public class TestWorkflowBuilder_ActorException extends TestCase {
          wfb.tellWorkflow(5);
          wfb.tellWorkflow(new EndOfStream());
          wfb.awaitWorkflow();
-         assertEquals("1, 2, 3", outputBuffer.toString());
+         
+         assertEquals("1, 2, 3", stdOutputBuffer.toString());
+         assertTrue(errOutputBuffer.toString().contains("Exception trigger value was sent to actor"));
      }
      
      public static class TestActor extends Transformer {

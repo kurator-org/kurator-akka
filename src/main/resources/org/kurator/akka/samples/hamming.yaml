@@ -85,3 +85,7 @@ components:
       max:
         actor: !ref Filter
         parameter: max
+      separator:
+        actor: !ref Printer
+        parameter: separator
+        

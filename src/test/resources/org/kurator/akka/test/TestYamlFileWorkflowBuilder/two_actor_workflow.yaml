@@ -13,7 +13,9 @@ components:
   singleton: true
   properties:
     actorClass: org.kurator.akka.actors.PrintStreamWriter
-
+    parameters: 
+      separator: ', '
+      
 - id: TwoActorWorkflow
   className: org.kurator.akka.WorkflowConfiguration
   singleton: true

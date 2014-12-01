@@ -1,19 +1,6 @@
 package org.kurator.akka;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-
-import junit.framework.TestCase;
-
-public class TestKuratorAkka extends TestCase {
-
-    static final String EOL = System.getProperty("line.separator");
-
-    private OutputStream errOutputBuffer;
-    private OutputStream stdOutputBuffer;
-    private PrintStream errPrintStream;
-    private PrintStream outPrintStream;
+public class TestKuratorAkka extends KuratorAkkaTestCase {
 
     private static String EXPECTED_HELP_OUTPUT =
         ""                                                                                  + EOL +
@@ -25,10 +12,7 @@ public class TestKuratorAkka extends TestCase {
     
     @Override
     public void setUp() {
-        stdOutputBuffer = new ByteArrayOutputStream();
-        outPrintStream = new PrintStream(stdOutputBuffer);
-        errOutputBuffer = new ByteArrayOutputStream();
-        errPrintStream = new PrintStream(errOutputBuffer);
+        super.setUp();
     }
     
     public void testKuratorAkka_NoArgs() throws Exception {

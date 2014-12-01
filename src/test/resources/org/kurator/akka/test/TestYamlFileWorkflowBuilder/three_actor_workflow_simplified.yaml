@@ -20,9 +20,11 @@ components:
 - id: Printer
   type: PrinterActor
   properties:
+    parameters: 
+      separator: ', '
     listensTo:
       - !ref Filter
- 
+       
 - id: ThreeActorWorkflow
   type: Workflow
   properties:
