@@ -18,7 +18,7 @@ import org.kurator.akka.messages.StartMessage;
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 
-public abstract class KuratorAkkaActor extends UntypedActor{
+public abstract class KuratorAkkaActor extends UntypedActor {
 
     public boolean endOnEos = true;
     

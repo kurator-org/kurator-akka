@@ -1,0 +1,41 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: GreetingSource
+  type: ConstantSourceActor
+  properties:
+    parameters:
+      value: Hello World
+
+- id: GreetingEmphasizer
+  type: StringAppender
+  properties:
+    parameters:
+      suffix: '!'
+    listensTo:
+      - !ref GreetingSource
+
+- id: GreetingPrinter
+  type: PrinterActor
+  properties:
+    listensTo:
+      - !ref GreetingEmphasizer
+  
+- id: HelloWorldWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref GreetingSource
+      - !ref GreetingEmphasizer
+      - !ref GreetingPrinter
+    parameters:
+      greeting:
+        actor: !ref GreetingSource
+        parameter: value
+      emphasis:
+        actor: !ref GreetingEmphasizer
+        parameter: suffix
+ 

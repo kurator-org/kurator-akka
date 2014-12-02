@@ -53,3 +53,8 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.InternalDateValidator   
+
+- id: StringAppender
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.StringAppender
