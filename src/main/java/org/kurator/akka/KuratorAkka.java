@@ -21,7 +21,16 @@ import joptsimple.OptionSet;
 public class KuratorAkka {
 
     public static void main(String[] args) throws Exception {
-        System.exit(runWorkflowForArgs(args, System.out, System.err));
+        
+        int returnValue = -1;
+        
+        try {
+         returnValue = runWorkflowForArgs(args, System.out, System.err);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        System.exit(returnValue);
     }
 
     public static int runWorkflowForArgs(String[] args, PrintStream outStream, PrintStream errStream) throws Exception {

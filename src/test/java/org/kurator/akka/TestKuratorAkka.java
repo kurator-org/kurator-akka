@@ -53,6 +53,32 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
             EXPECTED_HELP_OUTPUT,
             stderrBuffer.toString());
     }
+
+    public void testKuratorAkka_FileOption_MissingFile_Classpath() throws Exception {
+        String[] args = {"-f", "classpath:/org/kurator/akka/samples/no_such_file.yaml"};
+        Exception exception = null;
+        try {
+            KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        } catch (Exception e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains(
+                "class path resource [org/kurator/akka/samples/no_such_file.yaml] cannot be opened because it does not exist"));
+    }
+
+    public void testKuratorAkka_FileOption_MissingFile_FileSystem() throws Exception {
+        String[] args = {"-f", "file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml"};
+        Exception exception = null;
+        try {
+            KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        } catch (Exception e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("(The system cannot find the file specified"));
+    }
+
     
     public void testKuratorAkka_FileOption_ClasspathScheme_HammingWorkflow() throws Exception {
         String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml"};
