@@ -89,19 +89,14 @@ public class KuratorAkka {
         
         
         if (yamlFilePath != null) {
+            
             WorkflowBuilder builder = new YamlFileWorkflowBuilder(yamlFilePath);
             
-            try {
-                builder.apply(settings);
-            } catch(Exception e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
+            builder.apply(settings)
+                   .outputStream(outStream)
+                   .errorStream(errStream)
+                   .build();
             
-            builder.outputStream(outStream)
-                   .errorStream(errStream);
-            
-            builder.build();
             builder.run();
         }
         

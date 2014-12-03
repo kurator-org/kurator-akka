@@ -111,17 +111,18 @@ public class WorkflowBuilder {
     }
 
     
-    public void apply(Map<String, Object> workflowSettings) throws Exception {
+    public WorkflowBuilder apply(Map<String, Object> workflowSettings) throws Exception {
         
         for (Map.Entry<String, Object> setting : workflowSettings.entrySet()) {
             String settingName = setting.getKey();
             Object settingValue = setting.getValue();
             apply(settingName, settingValue);
         }
+        return this;
     }
 
     @SuppressWarnings("unchecked")
-    public void apply(String settingName, Object settingValue) throws Exception {
+    public WorkflowBuilder apply(String settingName, Object settingValue) throws Exception {
         
         Map<String,Object> workflowParameter = null;
         if (workflowParameters != null) {
@@ -136,6 +137,8 @@ public class WorkflowBuilder {
         String actorParameterName = (String) workflowParameter.get("parameter");
 
         actor.parameter(actorParameterName, settingValue);
+        
+        return this;
     }
 
     
