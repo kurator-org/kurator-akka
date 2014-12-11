@@ -2,6 +2,7 @@ package org.kurator.akka;
 
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import akka.actor.IndirectActorProducer;
 public class ActorProducer implements IndirectActorProducer {
 
     private Class<? extends Transformer> actorClass;
+    private Map<String, Object> defaults;
     private Map<String, Object> parameters;
     private List<ActorBuilder> listenerBuilders;
     private WorkflowBuilder workflowBuilder;
@@ -19,9 +21,10 @@ public class ActorProducer implements IndirectActorProducer {
     private PrintStream outStream;
     private PrintStream errStream;
 
-    public ActorProducer(Class<? extends Transformer> actorClass, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, 
+    public ActorProducer(Class<? extends Transformer> actorClass, Map<String, Object> defaults, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, 
             PrintStream outStream, PrintStream errStream, WorkflowBuilder workflowBuilder) {
         this.actorClass = actorClass;
+        this.defaults = defaults;
         this.parameters = parameters;
         this.listenerBuilders = listenerConfigs;
         this.workflowBuilder = workflowBuilder;
@@ -48,12 +51,14 @@ public class ActorProducer implements IndirectActorProducer {
         actor.outputStream(outStream);
         actor.errorStream(errStream);
         
-        if (parameters != null) {
-            for (Map.Entry<String,Object> parameter : parameters.entrySet()) {
-                setParameter(parameter.getKey(), parameter.getValue());
-            }
+        Map<String,Object> parameterSettings = new HashMap<String,Object>();
+        parameterSettings.putAll(defaults);
+        parameterSettings.putAll(parameters);
+
+        for (Map.Entry<String,Object> setting : parameterSettings.entrySet()) {
+            setParameter(setting.getKey(), setting.getValue());
         }
-        
+            
         return actor;
     }
     

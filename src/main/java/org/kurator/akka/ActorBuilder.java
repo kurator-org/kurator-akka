@@ -12,7 +12,8 @@ public class ActorBuilder implements BeanNameAware {
 
     private Class<? extends KuratorAkkaActor> actorClass;
     private List<ActorBuilder> listeners;
-    private Map<String,Object> parameters;
+    private Map<String,Object> defaults = new HashMap<String,Object>();
+    private Map<String,Object> parameters = new HashMap<String,Object>();
     protected String actorName = null;
 
     public ActorBuilder() {
@@ -66,6 +67,15 @@ public class ActorBuilder implements BeanNameAware {
         parameters.put(parameter, value);
         return this;
     }
+    
+    public void setDefaults(Map<String, Object> defaults) {
+        this.defaults = defaults;
+    }
+    
+    public Map<String, Object> getDefaults() {
+        return defaults;
+    }
+    
     
     public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;

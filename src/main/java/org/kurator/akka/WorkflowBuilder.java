@@ -160,6 +160,7 @@ public class WorkflowBuilder {
                 ActorRef actor =  system.actorOf(Props.create(
                                     ActorProducer.class, 
                                     actorConfig.actorClass(), 
+                                    actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(), 
                                     outStream,
