@@ -29,8 +29,9 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
         wfb = new WorkflowBuilder();
    
         csvReader = wfb.createActorBuilder()
-                .actorClass(CsvSpecimenFileReader.class)
-                .parameter("useOrderedSpecimenRecord", true);
+                .actorClass(CsvStreamReader.class)
+                .parameter("removeHeaderQuotes", true)
+                .parameter("recordClass", "org.kurator.akka.data.OrderedSpecimenRecord");
         
         sciNameValidator = wfb.createActorBuilder()
                 .actorClass(ScientificNameValidator.class)
@@ -44,7 +45,7 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
     public void testScientficNameValidator_OneRecord() throws Exception {
 
         csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/one_specimen_record.csv" );
-        csvWriter.parameter("writer", bufferWriter);
+        csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
         wfb.startWorkflow();
@@ -60,7 +61,7 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
     public void testScientficNameValidator_EightRecords() throws Exception {
 
        csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv" );
-       csvWriter.parameter("writer", bufferWriter);
+       csvWriter.parameter("outputWriter", bufferWriter);
        
        wfb.build();
        wfb.startWorkflow();

@@ -13,7 +13,6 @@ components:
   properties:
     parameters:
       filePath:
-      useOrderedSpecimenRecord: true
 
 - id: DateValidator
   type: InternalDateValidator
@@ -25,6 +24,7 @@ components:
   type: CsvSpecimenFileWriter
   properties:
     parameters:
+      outputWriter:
       filePath: out.csv
     listensTo:
       - !ref DateValidator
@@ -43,3 +43,7 @@ components:
       out:
         actor: !ref FileWriter
         parameter: filePath
+      writer:
+        actor: !ref FileWriter
+        parameter: outputWriter
+      

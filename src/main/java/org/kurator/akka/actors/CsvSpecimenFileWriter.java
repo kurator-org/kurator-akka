@@ -14,7 +14,7 @@ import fp.util.SpecimenRecord;
 
 public class CsvSpecimenFileWriter extends Transformer {
 
-    public Writer writer;
+    public Writer outputWriter;
     public String filePath = null;
     
     private Boolean headerWritten = false;
@@ -23,15 +23,15 @@ public class CsvSpecimenFileWriter extends Transformer {
     
     public void handleStart() throws Exception {
         
-        if (writer == null) {
-            if (filePath == null) {
-                throw new Exception("No file specified for CsVSpecimenFileWriter.");
-            } else {
-                writer = getFileWriterForPath(filePath);
-            }
+        if (outputWriter == null && filePath != null) {
+            outputWriter = getFileWriterForPath(filePath);
         }
         
-        csvWriter = new CsvWriter(writer, ',');
+        if (outputWriter == null) {
+            throw new Exception("No file or output writer specified for CsVSpecimenFileWriter.");
+        }
+        
+        csvWriter = new CsvWriter(outputWriter, ',');
     }
     
     public void handleEnd() throws Exception {

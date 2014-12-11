@@ -1,5 +1,10 @@
 package org.kurator.akka.actors;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowBuilder;
@@ -13,14 +18,15 @@ public class TestCsvSpecimenFileReader extends KuratorAkkaTestCase {
      public void setUp() {
          
          super.setUp();
-        
+
          wfb = new WorkflowBuilder()
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
     
          reader = wfb.createActorBuilder()
-                 .actorClass(CsvSpecimenFileReader.class)
-                 .parameter("useOrderedSpecimenRecord", true);
+                 .actorClass(CsvStreamReader.class)
+                 .parameter("removeHeaderQuotes", true)
+                 .parameter("recordClass", "org.kurator.akka.data.OrderedSpecimenRecord");
     
          @SuppressWarnings("unused")
          ActorBuilder printer = wfb.createActorBuilder()

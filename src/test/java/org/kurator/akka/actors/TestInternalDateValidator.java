@@ -29,8 +29,9 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
         wfb = new WorkflowBuilder();
    
         csvReader = wfb.createActorBuilder()
-                .actorClass(CsvSpecimenFileReader.class)
-                .parameter("useOrderedSpecimenRecord", true);
+                .actorClass(CsvStreamReader.class)
+                .parameter("removeHeaderQuotes", true)
+                .parameter("recordClass", "org.kurator.akka.data.OrderedSpecimenRecord");
         
         dateValidator = wfb.createActorBuilder()
                 .actorClass(InternalDateValidator.class)
@@ -44,7 +45,7 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
     public void testInternalDateValidator_OneRecord() throws Exception {
 
         csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/one_specimen_record.csv" );
-        csvWriter.parameter("writer", bufferWriter);
+        csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
         wfb.startWorkflow();
@@ -60,7 +61,7 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
     public void testInternalDateValidator_EightRecords() throws Exception {
 
        csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv" );
-       csvWriter.parameter("writer", bufferWriter);
+       csvWriter.parameter("outputWriter", bufferWriter);
        
        wfb.build();
        wfb.startWorkflow();
@@ -82,7 +83,7 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
     public void testInternalDateValidator_MCZ_IPT_FirstRecord() throws Exception {
 
         csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/mcz_ipt_first_record.csv" );
-        csvWriter.parameter("writer", bufferWriter);
+        csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
         wfb.startWorkflow();
@@ -97,7 +98,7 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
     public void testInternalDateValidator_MCZ_IPT_Snippet() throws Exception {
 
         csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/mcz_ipt_snippet.csv" );
-        csvWriter.parameter("writer", bufferWriter);
+        csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
         wfb.startWorkflow();

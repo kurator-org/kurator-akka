@@ -37,7 +37,10 @@ types:
 - id: CsvSpecimenFileReader
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.CsvSpecimenFileReader
+    actorClass: org.kurator.akka.actors.CsvStreamReader
+    defaults:
+      removeHeaderQuotes: true
+      recordClass: org.kurator.akka.data.OrderedSpecimenRecord
 
 - id: CsvSpecimenFileWriter
   type: Actor
