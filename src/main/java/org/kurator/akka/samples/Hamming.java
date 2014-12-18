@@ -1,7 +1,6 @@
 package org.kurator.akka.samples;
 
 import java.io.PrintStream;
-import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.WorkflowBuilder;
@@ -13,7 +12,7 @@ import org.kurator.akka.actors.PrintStreamWriter;
 
 public class Hamming {
 
-    public static void main(String[] args) throws TimeoutException, InterruptedException {
+    public static void main(String[] args) throws Exception {
         int maxHammingValue = Integer.parseInt(args[0]);
         Hamming wf = new Hamming(maxHammingValue);
         wf.run();
@@ -33,7 +32,7 @@ public class Hamming {
         this(maxHammingNumber, System.out, System.lineSeparator());
     }
 
-    public void run() throws TimeoutException, InterruptedException {
+    public void run() throws Exception {
 
         WorkflowBuilder wfb = new WorkflowBuilder()
                 .outputStream(outputStream);
