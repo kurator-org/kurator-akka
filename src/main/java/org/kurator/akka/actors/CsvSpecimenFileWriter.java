@@ -60,7 +60,7 @@ public class CsvSpecimenFileWriter extends Transformer {
         Writer writer = null;
         
         try {        
-            writer = new FileWriter(path, true);
+            writer = new FileWriter(path, false);
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);

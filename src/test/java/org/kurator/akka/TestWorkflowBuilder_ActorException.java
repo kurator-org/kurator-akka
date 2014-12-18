@@ -40,7 +40,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
          wfb.build();
      }
      
-     public void testWorkflowBuilder_NoActorException() throws TimeoutException, InterruptedException {
+     public void testWorkflowBuilder_NoActorException() throws Exception {
          wfb.startWorkflow();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
@@ -54,7 +54,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
          assertEquals("", stderrBuffer.toString());
      }
      
-     public void testWorkflowBuilder_ActorException() throws TimeoutException, InterruptedException {
+     public void testWorkflowBuilder_ActorException() throws Exception {
          wfb.startWorkflow();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
@@ -63,10 +63,17 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
          wfb.tellWorkflow(4);
          wfb.tellWorkflow(5);
          wfb.tellWorkflow(new EndOfStream());
-         wfb.awaitWorkflow();
          
-         assertEquals("1, 2, 3", stdoutBuffer.toString());
+         Exception exception = null;
+         try {
+             wfb.awaitWorkflow();
+         } catch(Exception e) {
+             exception = e;
+         }
+         assertNotNull(exception);
+         assertTrue(exception.getMessage().contains("Exception trigger value was sent to actor"));
          assertTrue(stderrBuffer.toString().contains("Exception trigger value was sent to actor"));
+         assertEquals("1, 2, 3", stdoutBuffer.toString());
      }
      
      public static class TestActor extends Transformer {

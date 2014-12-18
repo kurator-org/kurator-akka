@@ -1,18 +1,19 @@
 package org.kurator.akka.actors;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.Reader;
+import java.io.StringReader;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowBuilder;
 
-public class TestCsvSpecimenFileReader extends KuratorAkkaTestCase {
+public class TestCsvFileReader extends KuratorAkkaTestCase {
 
     private WorkflowBuilder wfb;
-    private ActorBuilder reader;
+    private ActorBuilder readerActor;
+    
+    @SuppressWarnings("unused")
+    private ActorBuilder printerActor;
     
      @Override
      public void setUp() {
@@ -20,35 +21,105 @@ public class TestCsvSpecimenFileReader extends KuratorAkkaTestCase {
          super.setUp();
 
          wfb = new WorkflowBuilder()
-             .outputStream(stdoutStream)
-             .errorStream(stderrStream);
+                 .outputStream(stdoutStream)
+                 .errorStream(stderrStream);
     
-         reader = wfb.createActorBuilder()
-                 .actorClass(CsvStreamReader.class)
-                 .parameter("removeHeaderQuotes", true)
-                 .parameter("recordClass", "org.kurator.akka.data.OrderedSpecimenRecord");
+         readerActor = wfb.createActorBuilder()
+                 .actorClass(CsvFileReader.class);
     
-         @SuppressWarnings("unused")
-         ActorBuilder printer = wfb.createActorBuilder()
+         printerActor = wfb.createActorBuilder()
                  .actorClass(PrintStreamWriter.class)
                  .parameter("separator", EOL)
-                 .listensTo(reader);
+                 .listensTo(readerActor);
      }
-     
-     public void testCsvSpecimenFileReader_MissingInputFile() throws Exception {
 
-         reader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/no_such_file.csv" );
+     public void testCsvFileReader_OneRecord_ExplicitHeaderArray() throws Exception {
+
+         Reader stringReader = new StringReader(
+                 "1,2,3"    + EOL
+         );
+         
+         readerActor.parameter("inputReader", stringReader)
+                    .parameter("headers", new String[] {"A", "B", "C"});
+         
          wfb.build();
          wfb.startWorkflow();
          wfb.awaitWorkflow();
          
-         assertEquals("", stdoutBuffer.toString());
-         assertTrue(stderrBuffer.toString().contains("Input CSV file not found"));
+         String expected = "{A=1, B=2, C=3}";
+         assertEquals("", stderrBuffer.toString());
+         assertEquals(expected, stdoutBuffer.toString());
+     }
+
+     public void testCsvFileReader_OneRecordMissingField_ExplicitHeaderArray() throws Exception {
+
+         Reader stringReader = new StringReader(
+                 "1,2"    + EOL
+         );
+         
+         readerActor.parameter("inputReader", stringReader)
+                    .parameter("headers", new String[] {"A", "B", "C"});
+         
+         wfb.build();
+         wfb.startWorkflow();
+         
+         Exception exception = null;
+         try {
+             wfb.awaitWorkflow();
+         } catch(Exception e) {
+             exception = e;
+         }
+         
+         assertNotNull(exception);
+         assertTrue(exception.getMessage().contains("Too few fields in record"));
+         assertTrue(stderrBuffer.toString().contains("Too few fields in record"));
      }
      
-    public void testCsvSpecimenFileReader_EightLineFile() throws Exception {
+     public void testCsvFileReader_HeaderAndOneRecord() throws Exception {
 
-        reader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv" );
+         Reader stringReader = new StringReader(
+                 "A,B,C"    + EOL +
+                 "1,2,3"    + EOL
+         );
+         
+         readerActor.parameter("inputReader", stringReader);
+         
+         wfb.build();
+         wfb.startWorkflow();
+         wfb.awaitWorkflow();
+         
+         String expected = "{A=1, B=2, C=3}";
+         assertEquals(expected, stdoutBuffer.toString());
+         assertEquals("", stderrBuffer.toString());
+     }
+     
+     public void testCsvFileReader_MissingInputFile() throws Exception {
+
+         readerActor.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/no_such_file.csv" );
+
+         wfb.build();
+         wfb.startWorkflow();
+
+         Exception caught = null;
+         try { 
+             wfb.awaitWorkflow();
+         } catch(Exception e) {
+             caught = e;
+         }
+         
+         String expectedError = "Input CSV file not found";         
+
+         assertNotNull(caught);
+         assertTrue(caught.getMessage().contains(expectedError));
+         
+         assertEquals("", stdoutBuffer.toString());
+         assertTrue(stderrBuffer.toString().contains(expectedError));
+     }
+     
+    public void testCsvFileReader_EightSpecimenRecordFile() throws Exception {
+
+        readerActor.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv");
+
         wfb.build();
         wfb.startWorkflow();
         wfb.awaitWorkflow();
@@ -66,9 +137,10 @@ public class TestCsvSpecimenFileReader extends KuratorAkkaTestCase {
         assertEquals("", stderrBuffer.toString());
     }
     
-    public void testCsvSpecimenFileReader_mcz_ipt_snippet() throws Exception {
+    public void testCsvFileReader_NineMczIptRecords() throws Exception {
 
-        reader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/mcz_ipt_snippet.csv" );
+        readerActor.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/mcz_ipt_snippet.csv");
+
         wfb.build();
         wfb.startWorkflow();
         wfb.awaitWorkflow();

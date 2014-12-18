@@ -48,7 +48,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          repeaterB = wfb.getActorForConfig(repeaterBBuilder);
      }
 
-     public void testIntegerStreamMerger_TwoStreams_NoValues() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_NoValues() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new EndOfStream(), wfb.root());
          repeaterB.tell(new EndOfStream(), wfb.root());
@@ -57,7 +57,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_OneEmpty_DistinctValues() throws TimeoutException, InterruptedException
+     public void testIntegerStreamMerger_TwoStreams_OneEmpty_DistinctValues() throws Exception
      {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(1), wfb.root());
@@ -71,7 +71,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_OneEmpty_IdenticalValues() throws TimeoutException, InterruptedException
+     public void testIntegerStreamMerger_TwoStreams_OneEmpty_IdenticalValues() throws Exception
      {
          wfb.startWorkflow();
          repeaterA.tell(7, wfb.root());
@@ -85,7 +85,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_OneEmpty_ValuesWithDuplicates() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_OneEmpty_ValuesWithDuplicates() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(1), wfb.root());
          repeaterA.tell(new Integer(2), wfb.root());
@@ -102,7 +102,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_DistinctValues_RoundRobin() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_DistinctValues_RoundRobin() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(1), wfb.root());
          repeaterB.tell(new Integer(2), wfb.root());
@@ -115,7 +115,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_DistinctValues_OneStreamFirst() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_DistinctValues_OneStreamFirst() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(1), wfb.root());
          repeaterA.tell(new Integer(3), wfb.root());
@@ -130,7 +130,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_IdenticalValues_RoundRobin() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_IdenticalValues_RoundRobin() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(7), wfb.root());
          repeaterB.tell(new Integer(7), wfb.root());
@@ -143,7 +143,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_IdenticalValues_OneStreamFirst() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_IdenticalValues_OneStreamFirst() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(7), wfb.root());
          repeaterA.tell(new Integer(7), wfb.root());
@@ -158,7 +158,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_RoundRobin() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_RoundRobin() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(1), wfb.root());
          repeaterB.tell(new Integer(2), wfb.root());
@@ -175,7 +175,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_OneStreamFirst() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_OneStreamFirst() throws Exception {
          wfb.startWorkflow();
          repeaterA.tell(new Integer(1), wfb.root());
          repeaterA.tell(new Integer(2), wfb.root());

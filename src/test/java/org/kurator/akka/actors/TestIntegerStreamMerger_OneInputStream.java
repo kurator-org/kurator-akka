@@ -39,7 +39,7 @@ public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase 
          wfb.build();
      }
      
-    public void testIntegerStreamMerger_NoValues() throws TimeoutException, InterruptedException {
+    public void testIntegerStreamMerger_NoValues() throws Exception {
         wfb.startWorkflow();
         wfb.tellWorkflow(new EndOfStream());
         wfb.awaitWorkflow();
@@ -47,7 +47,7 @@ public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase 
         assertEquals("", stderrBuffer.toString());
     }
      
-     public void testIntegerStreamMerger_DistinctValues() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_DistinctValues() throws Exception {
          wfb.startWorkflow();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
@@ -59,7 +59,7 @@ public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase 
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_IdenticalValues() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_IdenticalValues() throws Exception {
          wfb.startWorkflow();
          wfb.tellWorkflow(7);
          wfb.tellWorkflow(7);
@@ -71,7 +71,7 @@ public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase 
          assertEquals("", stderrBuffer.toString());
      }
     
-     public void testIntegerStreamMerger_ValuesWithDuplicates() throws TimeoutException, InterruptedException {
+     public void testIntegerStreamMerger_ValuesWithDuplicates() throws Exception {
          wfb.startWorkflow();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);

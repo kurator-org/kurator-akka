@@ -29,8 +29,7 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
         wfb = new WorkflowBuilder();
    
         csvReader = wfb.createActorBuilder()
-                .actorClass(CsvStreamReader.class)
-                .parameter("removeHeaderQuotes", true)
+                .actorClass(CsvFileReader.class)
                 .parameter("recordClass", "org.kurator.akka.data.OrderedSpecimenRecord");
         
         dateValidator = wfb.createActorBuilder()
