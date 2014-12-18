@@ -37,6 +37,7 @@ public class WorkflowBuilder {
     private Map<String, Object> workflowParameters;
     private PrintStream outStream = System.out;
     private PrintStream errStream = System.err;
+    private Exception lastException = null;
 
     public WorkflowBuilder() {
         
@@ -182,13 +183,14 @@ public class WorkflowBuilder {
                             actors, 
                             inputActor, 
                             outStream,
-                            errStream
+                            errStream,
+                            this
                        ));
         
         return workflowRef;
     }
     
-    public void run() throws TimeoutException, InterruptedException {
+    public void run() throws Exception {
         this.startWorkflow();
         this.awaitWorkflow();
     }
@@ -203,7 +205,14 @@ public class WorkflowBuilder {
         workflowRef.tell(new StartMessage(), system.lookupRoot());
     }
     
-    public void awaitWorkflow() {
-        system.awaitTermination();        
+    public void setLastException(Exception e) {
+        lastException = e;
+    }
+    
+    public void awaitWorkflow() throws Exception {
+        system.awaitTermination();
+        if (lastException != null) {
+            throw(lastException);
+        }
     }
 }
