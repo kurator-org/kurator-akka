@@ -17,9 +17,8 @@ public class TestInternalDateValidation extends KuratorAkkaTestCase {
     private OutputStream outputBuffer;
     private Writer bufferWriter;
    
-    
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
         KuratorAkka.enableLog4J();
         

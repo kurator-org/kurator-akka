@@ -11,7 +11,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
         "-p, --parameter <key=value>             key-valued parameter assignment        "   + EOL;            
     
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
     }
     

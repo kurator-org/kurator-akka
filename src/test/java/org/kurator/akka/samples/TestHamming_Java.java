@@ -1,14 +1,12 @@
 package org.kurator.akka.samples;
 
-import java.util.concurrent.TimeoutException;
-
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.samples.Hamming;
 
 public class TestHamming_Java extends KuratorAkkaTestCase {
     
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
     }
 

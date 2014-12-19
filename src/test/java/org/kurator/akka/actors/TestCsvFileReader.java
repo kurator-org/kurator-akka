@@ -16,7 +16,7 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
     private ActorBuilder printerActor;
     
      @Override
-     public void setUp() {
+     public void setUp() throws Exception {
          
          super.setUp();
 

@@ -16,7 +16,9 @@ public class KuratorAkkaTestCase extends TestCase {
     protected PrintStream stderrStream;
 
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
+        
+        super.setUp();
         
         KuratorAkka.enableLog4J();
         

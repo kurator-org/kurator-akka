@@ -6,7 +6,7 @@ import org.kurator.akka.KuratorAkkaTestCase;
 public class TestHello extends KuratorAkkaTestCase {
     
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
     }
     

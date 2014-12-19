@@ -1,7 +1,5 @@
 package org.kurator.akka;
 
-import java.util.concurrent.TimeoutException;
-
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.WorkflowBuilder;
 import org.kurator.akka.actors.Transformer;
@@ -14,7 +12,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
     private WorkflowBuilder wfb;
 
      @Override
-     public void setUp() {
+     public void setUp() throws Exception {
     
          super.setUp();
          

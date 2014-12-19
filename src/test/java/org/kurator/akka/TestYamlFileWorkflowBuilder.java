@@ -10,7 +10,7 @@ public class TestYamlFileWorkflowBuilder extends KuratorAkkaTestCase {
     static final String RESOURCE_PATH = "classpath:/org/kurator/akka/test/TestYamlFileWorkflowBuilder/";
     
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
     }
     

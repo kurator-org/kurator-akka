@@ -19,7 +19,7 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
     private Writer bufferWriter;
     
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         
         super.setUp();
    

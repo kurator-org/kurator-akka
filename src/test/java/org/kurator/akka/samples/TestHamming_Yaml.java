@@ -10,7 +10,7 @@ public class TestHamming_Yaml extends KuratorAkkaTestCase {
     static final String RESOURCE_PATH = "classpath:/org/kurator/akka/samples/";
 
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
         KuratorAkka.enableLog4J();
     }

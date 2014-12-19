@@ -1,7 +1,5 @@
 package org.kurator.akka.actors;
 
-import java.util.concurrent.TimeoutException;
-
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowBuilder;
@@ -16,7 +14,7 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
     private ActorRef repeaterB;
 
      @Override
-     public void setUp() {
+     public void setUp() throws Exception {
 
          super.setUp();
          

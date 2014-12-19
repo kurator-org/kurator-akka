@@ -9,7 +9,7 @@ import akka.actor.ActorRef;
 public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
     
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
     }
     

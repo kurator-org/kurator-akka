@@ -1,7 +1,5 @@
 package org.kurator.akka.actors;
 
-import java.util.concurrent.TimeoutException;
-
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowBuilder;
@@ -12,7 +10,7 @@ public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase 
     private WorkflowBuilder wfb;
 
      @Override
-     public void setUp() {
+     public void setUp() throws Exception {
 
          super.setUp();
          
