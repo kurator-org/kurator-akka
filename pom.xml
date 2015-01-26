@@ -164,10 +164,19 @@
             		</manifest>
           		</archive>
         	</configuration>
+      	</plugin>      	
+
+		<!-- Build javadocs -->      	
+		<plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-javadoc-plugin</artifactId>
+	        <version>2.10.1</version>
+	        <configuration>
+	        </configuration>
       	</plugin>
 
-    <!-- Make a standalone jar file -->
-       <plugin>
+   		<!-- Make a standalone jar file -->
+       	<plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <configuration>
                 <archive>
