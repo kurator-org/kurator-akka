@@ -40,21 +40,24 @@ public class ActorProducer implements IndirectActorProducer {
     @Override
     public Transformer produce() {
         
+        // create the actor instance from its class
         try {
             actor = actorClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             System.exit(-1);
         }
-        actor.setListenerConfigs(listenerBuilders);
-        actor.setWorkflowRunner(workflowBuilder);
-        actor.outputStream(outStream);
-        actor.errorStream(errStream);
         
+        // configure the actor according to its configuration
+        actor.listeners(listenerBuilders)
+             .runner(workflowBuilder)
+             .outputStream(outStream)
+             .errorStream(errStream);
+
+        // assign values to the actor parameters 
         Map<String,Object> parameterSettings = new HashMap<String,Object>();
         parameterSettings.putAll(defaults);
         parameterSettings.putAll(parameters);
-
         for (Map.Entry<String,Object> setting : parameterSettings.entrySet()) {
             setParameter(setting.getKey(), setting.getValue());
         }
