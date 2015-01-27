@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-public class PrintStreamWriter extends Transformer {
+public class PrintStreamWriter extends AkkaActor {
 
     public String separator = System.lineSeparator();    
     private boolean isFirst = true;

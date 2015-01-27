@@ -13,7 +13,7 @@ import fp.util.CurationStatus;
 import fp.util.SpecimenRecord;
 import fp.util.SpecimenRecordTypeConf;
 
-public class ScientificNameValidator extends Transformer {
+public class ScientificNameValidator extends AkkaActor {
    
     public String serviceClassQN = "fp.services.COLService";
     public boolean insertLSID = true;

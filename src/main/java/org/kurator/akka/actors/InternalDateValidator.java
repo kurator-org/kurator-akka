@@ -17,7 +17,7 @@ import fp.util.CurrationException;
 import fp.util.SpecimenRecord;
 import fp.util.SpecimenRecordTypeConf;
 
-public class InternalDateValidator extends Transformer {
+public class InternalDateValidator extends AkkaActor {
    
     public String singleServiceClassQN = "fp.services.InternalDateValidationService";
 

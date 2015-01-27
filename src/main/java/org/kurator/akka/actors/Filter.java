@@ -2,7 +2,7 @@ package org.kurator.akka.actors;
 
 import org.kurator.akka.messages.EndOfStream;
 
-public class Filter extends Transformer {
+public class Filter extends AkkaActor {
 
     public int max = 1;
     public boolean sendEosOnExceed = false;

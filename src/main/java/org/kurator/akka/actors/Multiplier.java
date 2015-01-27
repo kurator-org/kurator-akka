@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-public class Multiplier extends Transformer {
+public class Multiplier extends AkkaActor {
 
     public int factor = 1;
 

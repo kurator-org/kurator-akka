@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-public abstract class OneShot extends Transformer {
+public abstract class OneShot extends AkkaActor {
 
     public boolean sendEos = true;
     

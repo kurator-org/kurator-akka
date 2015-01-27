@@ -6,22 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.actors.Transformer;
+import org.kurator.akka.actors.AkkaActor;
 
 import akka.actor.IndirectActorProducer;
 
 public class ActorProducer implements IndirectActorProducer {
 
-    private Class<? extends Transformer> actorClass;
+    private Class<? extends AkkaActor> actorClass;
     private Map<String, Object> defaults;
     private Map<String, Object> parameters;
     private List<ActorBuilder> listenerBuilders;
     private WorkflowBuilder workflowBuilder;
-    private Transformer actor;
+    private AkkaActor actor;
     private PrintStream outStream;
     private PrintStream errStream;
 
-    public ActorProducer(Class<? extends Transformer> actorClass, Map<String, Object> defaults, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, 
+    public ActorProducer(Class<? extends AkkaActor> actorClass, Map<String, Object> defaults, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, 
             PrintStream outStream, PrintStream errStream, WorkflowBuilder workflowBuilder) {
         this.actorClass = actorClass;
         this.defaults = defaults;
@@ -33,12 +33,12 @@ public class ActorProducer implements IndirectActorProducer {
     }
 
     @Override
-    public Class<? extends Transformer> actorClass() {
+    public Class<? extends AkkaActor> actorClass() {
         return actorClass;
     }
 
     @Override
-    public Transformer produce() {
+    public AkkaActor produce() {
         
         // create the actor instance from its class
         try {

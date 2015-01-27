@@ -2,7 +2,7 @@ package org.kurator.akka;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.WorkflowBuilder;
-import org.kurator.akka.actors.Transformer;
+import org.kurator.akka.actors.AkkaActor;
 import org.kurator.akka.actors.PrintStreamWriter;
 import org.kurator.akka.actors.Repeater;
 import org.kurator.akka.messages.EndOfStream;
@@ -74,7 +74,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
          assertEquals("1, 2, 3", stdoutBuffer.toString());
      }
      
-     public static class TestActor extends Transformer {
+     public static class TestActor extends AkkaActor {
 
          static public final Integer exceptionTriggerValue = Integer.MIN_VALUE;
          

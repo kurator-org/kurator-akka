@@ -8,12 +8,11 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
-import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
 
-public class IntegerStreamMerger extends Transformer {
+public class IntegerStreamMerger extends AkkaActor {
 
     public int streamCount = 1;
     
@@ -26,13 +25,9 @@ public class IntegerStreamMerger extends Transformer {
     }
 
     @Override
-    public void handleControlMessage(ControlMessage message) {
-        
-        if (message instanceof EndOfStream) {
-            addToInputQueue(this.getSender(), message);
-            fire();
-        }
-        
+    public void handleEndOfStream(EndOfStream message) {
+        addToInputQueue(this.getSender(), message);
+        fire();
     }
     
     @Override

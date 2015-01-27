@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-public class StringAppender extends Transformer {
+public class StringAppender extends AkkaActor {
 
     public String suffix = "";
 

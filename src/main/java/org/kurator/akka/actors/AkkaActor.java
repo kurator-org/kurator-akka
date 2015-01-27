@@ -28,7 +28,7 @@ import akka.actor.UntypedActor;
  * further messages from upstream can be expected. </p>
  */
 
-public abstract class KuratorAkkaActor extends UntypedActor {
+public abstract class AkkaActor extends UntypedActor {
 
     /** Determines if actor automatically terminates when it receives an EndOfStream message.
      *  Defaults to true. */
@@ -47,20 +47,80 @@ public abstract class KuratorAkkaActor extends UntypedActor {
     private Set<ActorRef> listeners = new HashSet<ActorRef>(); 
     private WorkflowBuilder runner;
     
+
+    public AkkaActor listeners(List<ActorBuilder> listenerBuilders) {
+        if (listenerBuilders != null) {
+            this.listenerBuilders = listenerBuilders;
+        }
+        return this;
+    }
+    
+    public AkkaActor runner(WorkflowBuilder runner) {
+        this.runner = runner;
+        return this;
+    }
+    
+    public AkkaActor errorStream(PrintStream errStream) {
+        this.errStream = errStream;
+        return this;
+    }
+    
+    public AkkaActor outputStream(PrintStream outStream) {
+        this.outStream = outStream;
+        return this;
+    }    
+
+    @Override
+    public void onReceive(Object message) throws Exception {
+
+        try {
+            
+            if (message instanceof ControlMessage) {
+                
+                if (message instanceof Initialize) {
+                
+                    for (ActorBuilder listenerConfig : listenerBuilders) {
+                        ActorRef listener = runner.getActorForConfig(listenerConfig);
+                        listeners.add(listener);
+                    }
+                                
+                    getSender().tell(new Response(), getSelf());
+                    
+                    handleInitialize();
+                    
+                } else if (message instanceof StartMessage) {
+                    
+                    handleStart();
+                
+                } else if (message instanceof EndOfStream) {
+                    handleEndOfStream((EndOfStream)message);
+                }            
+            } else {
+                handleDataMessage(message);
+            }
+            
+        } catch (Exception e) {
+            reportException(e);
+            endStreamAndStop();
+        }
+    }
+    
     /** 
-     * Empty default handler for <code>Initialize</code> message.
+     * Empty default handler for <i>Initialize</i> event.  Called when the actor receives a
+     * <code>Initialize</code> message.
      * 
-     * Can be overridden by children classes to perform any tasks that must occur before 
+     * This method can be overridden by child classes to perform any tasks that must occur before 
      * the workflow begins to execute.  A workflow begins executing (and a <code>Start</code> message
      * is sent to each actor) only after <i>all</i> actors in the workflow receive the 
      * <code>Initialize</code> message and return from this handler.
      * 
      * @throws Exception
      */
-    public void handleInitialize() throws Exception {}
+    protected void handleInitialize() throws Exception {}
         
     /** 
-     * Empty default handler for <code>Start</code> message.
+     * Empty default handler for <i>Start</i> event.  Called when the actor receives a
+     * <code>Start</code> message.
      * 
      * <p> Can be overridden by children classes to perform any tasks that must occur once at the beginning 
      * of a workflow run but after all actors have been initialized. Actors that handle the <code>Start</code> 
@@ -78,65 +138,18 @@ public abstract class KuratorAkkaActor extends UntypedActor {
      * 
      * @throws Exception
      */
-    public void handleStart() throws Exception {}
+    protected void handleStart() throws Exception {}
     
-    
-    public void handleControlMessage(ControlMessage message) {}
-    public void handleEnd() throws Exception {}
-    
-    public KuratorAkkaActor errorStream(PrintStream errStream) {
-        this.errStream = errStream;
-        return this;
+    protected void handleEndOfStream(EndOfStream message) throws Exception {
+        if (endOnEos) {
+            handleEnd();
+            endStreamAndStop((EndOfStream)message);
+        }      
     }
     
-    public KuratorAkkaActor outputStream(PrintStream outStream) {
-        this.outStream = outStream;
-        return this;
-    }
+    protected void handleEnd() throws Exception {}
     
-    public KuratorAkkaActor listeners(List<ActorBuilder> listenerBuilders) {
-        if (listenerBuilders != null) {
-            this.listenerBuilders = listenerBuilders;
-        }
-        return this;
-    }
-    
-    public KuratorAkkaActor runner(WorkflowBuilder runner) {
-        this.runner = runner;
-        return this;
-    }
-    
-    @Override
-    public void onReceive(Object message) throws Exception {
-
-        try {
-            
-            if (message instanceof Initialize) {
-                
-                for (ActorBuilder listenerConfig : listenerBuilders) {
-                    ActorRef listener = runner.getActorForConfig(listenerConfig);
-                    listeners.add(listener);
-                }
-                            
-                getSender().tell(new Response(), getSelf());
-                
-                handleInitialize();
-                
-            } else if (message instanceof StartMessage) {
-                
-                handleStart();
-            
-            } else if (message instanceof EndOfStream && endOnEos) {
-    
-                handleEnd();
-                endStreamAndStop((EndOfStream)message);
-            }
-    
-        } catch (Exception e) {
-            reportException(e);
-            endStreamAndStop();
-        }
-    }   
+    protected void handleDataMessage(Object message) throws Exception {}
     
     protected void broadcast(Object message) {
         for (ActorRef listener : listeners) {
@@ -153,7 +166,7 @@ public abstract class KuratorAkkaActor extends UntypedActor {
         endStreamAndStop(new EndOfStream());
     }
     
-    public void stop() {
+    protected void stop() {
         getContext().stop(getSelf());
     }
     
