@@ -1,9 +1,5 @@
 package org.kurator.akka;
 
-/* This file is an adaptation of RestFlow.java in the org.restlow 
- * package as of 28Oct2014.  See licenses/restflow_license.txt for 
- * the copyright notice, license, and git repository URL for RestFlow.
- */
 
 import static java.util.Arrays.asList;
 
@@ -18,7 +14,14 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-public class KuratorAkka {
+/** 
+ * Command-line interface for executing workflows using the kurator-akka framework.  
+ * 
+ * <p>This file is an adaptation of RestFlow.java in the org.restlow 
+ * package as of 28Oct2014.  See <i>licenses/restflow_license.txt</i> for 
+ * the copyright notice, license, and git repository URL for RestFlow.</p>
+ */
+public class KuratorAkkaCLI {
 
     public static void main(String[] args) throws Exception {
         
@@ -90,7 +93,7 @@ public class KuratorAkka {
         
         if (yamlFilePath != null) {
             
-            WorkflowBuilder builder = new YamlFileWorkflowBuilder(yamlFilePath);
+            WorkflowRunner builder = new YamlFileWorkflowBuilder(yamlFilePath);
             
             builder.apply(settings)
                    .outputStream(outStream)
