@@ -152,10 +152,7 @@ public abstract class AkkaActor extends UntypedActor {
     
     /** 
      * Default handler for {@link org.kurator.akka.messages.EndOfStream EndOfStream} message. 
-     * If the {@link #endOnEos} 
-     * property is <i>true</i>, this method calls {@link #handleEnd handleEnd()}, forwards the 
-     * {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to the actor's listeners, then terminates 
-     * the actor.
+     * If the {@link #endOnEos} property is <i>true</i>, this method calls {@link #endStreamAndStop(EndOfStream)}.
      * 
      * <p> This method can be overridden by child classes to provide an alternative response to receiving 
      * an {@link org.kurator.akka.messages.EndOfStream EndOfStream} message. </p>
@@ -164,37 +161,89 @@ public abstract class AkkaActor extends UntypedActor {
      * {@link org.kurator.akka.messages.EndOfStream EndOfStream} message is forwarded to listeners, 
      * the {@link #handleEnd handleEnd()}</code> method should be overridden instead.</p>
      * 
+     * @param eos The received {@link org.kurator.akka.messages.EndOfStream EndOfStream} message.
      * @throws Exception
      */
     protected void handleEndOfStream(EndOfStream eos) throws Exception {
         if (endOnEos) {
-            handleEnd();
             endStreamAndStop(eos);
         }
     }
     
+    
+    /** 
+     * Empty default handler for <i>End</i> event.  Called when the actor has stopped sending 
+     * messages to receivers and before the actor fully stops.
+     *  
+     * @throws Exception
+     */
     protected void handleEnd() throws Exception {}
     
+    
+    /** 
+     * Empty default handler incoming data messages.  Called when the actor receives a message
+     * that is not derived from {@link org.kurator.akka.messages.ControlMessage ControlMessage}.
+     * 
+     * <p>Most actors will override this method to receive incoming messages from other actors.</p>
+     *  
+     * @throws Exception
+     */
     protected void handleDataMessage(Object message) throws Exception {}
     
+    
+    /** 
+     * Sends a message to all of the the actor's listeners.
+     * 
+     * @param message The message to send.
+     */
     protected void broadcast(Object message) {
         for (ActorRef listener : listeners) {
             listener.tell(message, this.getSelf());
         }
     }    
+        
+    /** 
+     * Recommended method for stopping most actors.  It is called by {@link #handleEndOfStream(EndOfStream)}
+     * on arrival of an {@link org.kurator.akka.messages.EndOfStream EndOfStream} message if
+     * the {@link #endOnEos} property is <i>true</i>.
+     * 
+     * <p> This method broadcasts the received {@link org.kurator.akka.messages.EndOfStream EndOfStream} 
+     * message to the actor's listeners, then terminates the actor with a call to {@link #stop()}.
+     * To stop an actor without sending an {@link org.kurator.akka.messages.EndOfStream EndOfStream} message 
+     * to listeners, call the {@link #stop()} method directly.
+     * 
+     * @param eos The {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to broadcast to listeners.
+     * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
+     */
+    protected void endStreamAndStop(EndOfStream eos) throws Exception {
+        broadcast(eos);
+        stop();
+    }
     
-    protected void endStreamAndStop() { 
+    
+    /** 
+     * Stops the actor after sending a new {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to listeners.
+     * Creates a new {@link org.kurator.akka.messages.EndOfStream EndOfStream} and passes it to 
+     * {@link #endStreamAndStop(EndOfStream)}.
+     * 
+     * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
+     */
+    protected void endStreamAndStop() throws Exception {
         endStreamAndStop(new EndOfStream());
     }
     
-    protected void endStreamAndStop(EndOfStream eos) { 
-        broadcast(eos);
-        stop();
-    }    
     
-    protected void stop() {
+    /** 
+     * Terminates the execution of an actor.  Calls {@link #handleEnd handleEnd()}, then uses the Akka API
+     * to shut down the actor.
+     *
+     * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
+     */
+    protected void stop() throws Exception {
+        handleEnd();
         getContext().stop(getSelf());
     }
+    
     
     protected void reportException(Exception e) {
         ActorRef workflowRef = runner.getWorkflowRef();

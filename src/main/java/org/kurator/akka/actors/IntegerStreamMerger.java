@@ -25,7 +25,7 @@ public class IntegerStreamMerger extends AkkaActor {
     }
 
     @Override
-    public void handleEndOfStream(EndOfStream message) {
+    public void handleEndOfStream(EndOfStream message) throws Exception {
         addToInputQueue(this.getSender(), message);
         fire();
     }
@@ -79,7 +79,7 @@ public class IntegerStreamMerger extends AkkaActor {
         return true;
     }
 
-    private void fire() {
+    private void fire() throws Exception {
 
         while (isReadyToFire()) {
 
