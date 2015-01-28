@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
 
@@ -13,9 +13,9 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     private OutputStream outputBuffer;
-    private ActorBuilder csvReader;
-    private ActorBuilder csvWriter;
-    private ActorBuilder sciNameValidator;
+    private ActorConfig csvReader;
+    private ActorConfig csvWriter;
+    private ActorConfig sciNameValidator;
     private Writer bufferWriter;
     
     @Override
@@ -28,15 +28,15 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
        
         wr = new WorkflowRunner();
    
-        csvReader = wr.createActorBuilder()
+        csvReader = wr.configureNewActor()
                 .actorClass(CsvFileReader.class)
                 .parameter("recordClass", "org.kurator.akka.data.OrderedSpecimenRecord");
         
-        sciNameValidator = wr.createActorBuilder()
+        sciNameValidator = wr.configureNewActor()
                 .actorClass(ScientificNameValidator.class)
                 .listensTo(csvReader);
         
-        csvWriter = wr.createActorBuilder()
+        csvWriter = wr.configureNewActor()
                 .actorClass(CsvSpecimenFileWriter.class)
                 .listensTo(sciNameValidator);
     }

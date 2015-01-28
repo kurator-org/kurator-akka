@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.ActorConfig;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
@@ -47,14 +47,14 @@ public abstract class AkkaActor extends UntypedActor {
     protected PrintStream errStream = System.err;
 
     // private fields
-    private List<ActorBuilder> listenerBuilders = new LinkedList<ActorBuilder>();
+    private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
     
 
-    public AkkaActor listeners(List<ActorBuilder> listenerBuilders) {
-        if (listenerBuilders != null) {
-            this.listenerBuilders = listenerBuilders;
+    public AkkaActor listeners(List<ActorConfig> listenerConfigs) {
+        if (listenerConfigs != null) {
+            this.listenerConfigs = listenerConfigs;
         }
         return this;
     }
@@ -83,7 +83,7 @@ public abstract class AkkaActor extends UntypedActor {
                 
                 if (message instanceof Initialize) {
                 
-                    for (ActorBuilder listenerConfig : listenerBuilders) {
+                    for (ActorConfig listenerConfig : listenerConfigs) {
                         ActorRef listener = runner.getActorForConfig(listenerConfig);
                         listeners.add(listener);
                     }

@@ -1,7 +1,7 @@
 components:
 
 - id: Repeater
-  className: org.kurator.akka.ActorBuilder
+  className: org.kurator.akka.ActorConfig
   singleton: true
   properties:
     actorClass: org.kurator.akka.actors.Repeater
@@ -9,7 +9,7 @@ components:
     - !ref Filter
   
 - id: Filter
-  className: org.kurator.akka.ActorBuilder
+  className: org.kurator.akka.ActorConfig
   singleton: true
   properties:
     actorClass: org.kurator.akka.actors.Filter
@@ -20,7 +20,7 @@ components:
       sendEosOnExceed: true
 
 - id: Printer
-  className: org.kurator.akka.ActorBuilder
+  className: org.kurator.akka.ActorConfig
   singleton: true
   properties:
     actorClass: org.kurator.akka.actors.PrintStreamWriter

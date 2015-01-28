@@ -30,10 +30,10 @@ public class WorkflowRunner {
     private WorkflowConfiguration workflowConfiguration;
     private final ActorSystem system;
     private ActorRef inputActor = null;
-    private Map<ActorBuilder,ActorRef> actorRefForActorConfig = new HashMap<ActorBuilder, ActorRef>();
+    private Map<ActorConfig,ActorRef> actorRefForActorConfig = new HashMap<ActorConfig, ActorRef>();
     private ActorRef workflowRef;
-    private ActorBuilder inputActorBuilder;
-    private List<ActorBuilder> actorConfigurations;
+    private ActorConfig inputActorConfig;
+    private List<ActorConfig> actorConfigs;
     private Map<String, Object> workflowParameters;
     private PrintStream outStream = System.out;
     private PrintStream errStream = System.err;
@@ -53,12 +53,12 @@ public class WorkflowRunner {
         this.system = ActorSystem.create("Workflow",  config);
     }
 
-    public ActorBuilder createActorBuilder() {
-        if (actorConfigurations == null) {
-            actorConfigurations = new LinkedList<ActorBuilder>();
+    public ActorConfig configureNewActor() {
+        if (actorConfigs == null) {
+            actorConfigs = new LinkedList<ActorConfig>();
         }
-        ActorBuilder actor = new ActorBuilder();
-        actorConfigurations.add(actor);
+        ActorConfig actor = new ActorConfig();
+        actorConfigs.add(actor);
         return actor;
     }
     
@@ -72,8 +72,8 @@ public class WorkflowRunner {
         return this;
     }
 
-    public WorkflowRunner inputActor(ActorBuilder inputActorBuilder) {
-        this.inputActorBuilder = inputActorBuilder;
+    public WorkflowRunner inputActor(ActorConfig inputActorConfig) {
+        this.inputActorConfig = inputActorConfig;
         return this;
     }
     
@@ -89,7 +89,7 @@ public class WorkflowRunner {
         return system;
     }
     
-    public ActorRef getActorForConfig(ActorBuilder config) {
+    public ActorRef getActorForConfig(ActorConfig config) {
         return actorRefForActorConfig.get(config);
     }
     
@@ -104,9 +104,9 @@ public class WorkflowRunner {
         }
         workflowConfiguration = (WorkflowConfiguration) context.getBean(workflowNames[0]);
         
-        inputActorBuilder = workflowConfiguration.getInputActor(); 
+        inputActorConfig = workflowConfiguration.getInputActor(); 
 
-        actorConfigurations = workflowConfiguration.getActors();
+        actorConfigs = workflowConfiguration.getActors();
         
         workflowParameters = workflowConfiguration.getParameters();
     }
@@ -134,7 +134,7 @@ public class WorkflowRunner {
             throw new Exception("Workflow does not take parameter named " + settingName);
         }
                     
-        ActorBuilder actor = (ActorBuilder) workflowParameter.get("actor");
+        ActorConfig actor = (ActorConfig) workflowParameter.get("actor");
         String actorParameterName = (String) workflowParameter.get("parameter");
 
         actor.parameter(actorParameterName, settingValue);
@@ -144,15 +144,15 @@ public class WorkflowRunner {
 
     
     public ActorRef build() {
-        return build(actorConfigurations);
+        return build(actorConfigs);
     }
     
-    public ActorRef build(List<ActorBuilder> actorConfigurations) {
+    public ActorRef build(List<ActorConfig> actorConfigurations) {
         
         Set<ActorRef> actors = new HashSet<ActorRef>();
         if (actorConfigurations.size() > 0) {
             int actorIndex = 0;
-            for (ActorBuilder actorConfig : actorConfigurations) {
+            for (ActorConfig actorConfig : actorConfigurations) {
                 String actorName = actorConfig.getName();
                 if (actorName == null) {
                     actorName = actorConfig.actorClass().getName().toString() + "_" + actorIndex;
@@ -171,7 +171,7 @@ public class WorkflowRunner {
             
                 actors.add(actor);
                 actorRefForActorConfig.put(actorConfig, actor);
-                if (inputActorBuilder == actorConfig) inputActor = actor;
+                if (inputActorConfig == actorConfig) inputActor = actor;
                 actorIndex++;
             }
         }

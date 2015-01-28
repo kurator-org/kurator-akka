@@ -2,7 +2,7 @@ package org.kurator.akka.samples;
 
 import java.io.PrintStream;
 
-import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.ActorConfig;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.actors.ConstantSource;
 import org.kurator.akka.actors.Filter;
@@ -37,45 +37,45 @@ public class Hamming {
         WorkflowRunner wr = new WorkflowRunner()
                 .outputStream(outputStream);
         
-        ActorBuilder oneShot = wr.createActorBuilder()
+        ActorConfig oneShot = wr.configureNewActor()
                 .name("oneShot")
                 .actorClass(ConstantSource.class)
                 .parameter("value", 1)
                 .parameter("sendEos", false);
         
-        ActorBuilder filter = wr.createActorBuilder()
+        ActorConfig filter = wr.configureNewActor()
                 .name("filter")
                 .actorClass(Filter.class)
                 .parameter("max", maxHammingNumber)
                 .parameter("sendEosOnExceed", true)
                 .listensTo(oneShot);
         
-        ActorBuilder multiplyByTwo = wr.createActorBuilder()
+        ActorConfig multiplyByTwo = wr.configureNewActor()
                 .name("multiplyByTwo")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 2)
                 .listensTo(filter);
 
-        ActorBuilder multiplyByThree = wr.createActorBuilder()
+        ActorConfig multiplyByThree = wr.configureNewActor()
                 .name("multiplyByThree")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 3)
                 .listensTo(filter);
         
-        ActorBuilder multiplyByFive = wr.createActorBuilder()
+        ActorConfig multiplyByFive = wr.configureNewActor()
                 .name("multiplyByFive")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 5)
                 .listensTo(filter);
         
-        ActorBuilder mergeTwoThree = wr.createActorBuilder()
+        ActorConfig mergeTwoThree = wr.configureNewActor()
                 .name("mergeTwoThree")
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
                 .listensTo(multiplyByTwo)
                 .listensTo(multiplyByThree);
            
-        ActorBuilder mergeTwoThreeFive = wr.createActorBuilder()
+        ActorConfig mergeTwoThreeFive = wr.configureNewActor()
                 .name("mergeTwoThreeFive")
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
@@ -83,7 +83,7 @@ public class Hamming {
                 .listensTo(mergeTwoThree);
         
         @SuppressWarnings("unused")
-        ActorBuilder printStreamWriter = wr.createActorBuilder()
+        ActorConfig printStreamWriter = wr.configureNewActor()
                 .name("printStreamWriter")
                 .actorClass(PrintStreamWriter.class)
                 .parameter("separator", separator)

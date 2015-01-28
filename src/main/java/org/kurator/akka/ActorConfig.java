@@ -8,18 +8,18 @@ import java.util.Map;
 import org.kurator.akka.actors.AkkaActor;
 import org.springframework.beans.factory.BeanNameAware;
 
-public class ActorBuilder implements BeanNameAware {
+public class ActorConfig implements BeanNameAware {
 
     private Class<? extends AkkaActor> actorClass;
-    private List<ActorBuilder> listeners;
+    private List<ActorConfig> listeners;
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     protected String actorName = null;
 
-    public ActorBuilder() {
+    public ActorConfig() {
     }
 
-    public ActorBuilder actorClass(Class<? extends AkkaActor> actorClass) {
+    public ActorConfig actorClass(Class<? extends AkkaActor> actorClass) {
         this.actorClass = actorClass;
         return this;
     }
@@ -29,7 +29,7 @@ public class ActorBuilder implements BeanNameAware {
         actorName = name;
     }
 
-    public ActorBuilder name(String name) {
+    public ActorConfig name(String name) {
         actorName = name;
         return this;
     }
@@ -47,20 +47,20 @@ public class ActorBuilder implements BeanNameAware {
         return actorClass;
     }
     
-    public ActorBuilder listener(ActorBuilder listener) {
+    public ActorConfig listener(ActorConfig listener) {
         if (listeners == null) {
-            listeners = new LinkedList<ActorBuilder>();
+            listeners = new LinkedList<ActorConfig>();
         }
         listeners.add(listener);
         return this;
     }
 
-    public ActorBuilder listensTo(ActorBuilder sender) {
+    public ActorConfig listensTo(ActorConfig sender) {
         sender.listener(this);
         return this;
     }
         
-    public ActorBuilder parameter(String parameter, Object value) {
+    public ActorConfig parameter(String parameter, Object value) {
         if (parameters == null) {
             parameters = new HashMap<String,Object>();
         }
@@ -85,18 +85,17 @@ public class ActorBuilder implements BeanNameAware {
         return parameters;
     }
     
-    public void setListeners(List<ActorBuilder> listeners) {
+    public void setListeners(List<ActorConfig> listeners) {
         this.listeners = listeners;
     }
     
-    public List<ActorBuilder> getListeners() {        
+    public List<ActorConfig> getListeners() {        
         return listeners;
     }
     
-    public void setListensTo(List<ActorBuilder> senders) {
-        for (ActorBuilder sender : senders) {
+    public void setListensTo(List<ActorConfig> senders) {
+        for (ActorConfig sender : senders) {
             sender.listener(this);
         }
     }
-
 }

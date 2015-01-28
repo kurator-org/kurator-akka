@@ -3,17 +3,17 @@ package org.kurator.akka.actors;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
 
 public class TestCsvFileReader extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
-    private ActorBuilder readerActor;
+    private ActorConfig readerActor;
     
     @SuppressWarnings("unused")
-    private ActorBuilder printerActor;
+    private ActorConfig printerActor;
     
      @Override
      public void setUp() throws Exception {
@@ -24,10 +24,10 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
                  .outputStream(stdoutStream)
                  .errorStream(stderrStream);
     
-         readerActor = wr.createActorBuilder()
+         readerActor = wr.configureNewActor()
                  .actorClass(CsvFileReader.class);
     
-         printerActor = wr.createActorBuilder()
+         printerActor = wr.configureNewActor()
                  .actorClass(PrintStreamWriter.class)
                  .parameter("separator", EOL)
                  .listensTo(readerActor);

@@ -36,7 +36,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "components:"                                           + EOL +
                 ""                                                      + EOL +
                 "- id: Repeater"                                        + EOL +
-                "  className: org.kurator.akka.ActorBuilder"            + EOL +
+                "  className: org.kurator.akka.ActorConfig"             + EOL +
                 "  singleton: true"                                     + EOL +
                 "  properties:"                                         + EOL +
                 "    actorClass: org.kurator.akka.actors.Repeater"      + EOL +
@@ -67,7 +67,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "components:"                                                   + EOL +
                 ""                                                              + EOL +
                 "- id: Repeater"                                                + EOL +
-                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
+                "  className: org.kurator.akka.ActorConfig"              + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClass: org.kurator.akka.actors.Repeater"              + EOL +
@@ -75,7 +75,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    - !ref Printer"                                            + EOL +
                 ""                                                              + EOL +
                 "- id: Printer"                                                 + EOL +
-                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
+                "  className: org.kurator.akka.ActorConfig"                     + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClass: org.kurator.akka.actors.PrintStreamWriter"     + EOL +
@@ -110,7 +110,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "components:"                                                   + EOL +
                 ""                                                              + EOL +
                 "- id: Repeater"                                                + EOL +
-                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
+                "  className: org.kurator.akka.ActorConfig"                     + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClass: org.kurator.akka.actors.Repeater"              + EOL +
@@ -118,7 +118,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    - !ref Filter"                                             + EOL +
                 ""                                                              + EOL +
                 "- id: Filter"                                                  + EOL +
-                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
+                "  className: org.kurator.akka.ActorConfig"                     + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClass: org.kurator.akka.actors.Filter"                + EOL +
@@ -129,7 +129,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "      sendEosOnExceed: true"                                   + EOL +
                 ""                                                              + EOL +
                 "- id: Printer"                                                 + EOL +
-                "  className: org.kurator.akka.ActorBuilder"                    + EOL +
+                "  className: org.kurator.akka.ActorConfig"                     + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actorClass: org.kurator.akka.actors.PrintStreamWriter"     + EOL +

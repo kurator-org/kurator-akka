@@ -1,7 +1,7 @@
 types:
 
 - id: Actor
-  className: org.kurator.akka.ActorBuilder
+  className: org.kurator.akka.ActorConfig
   singleton: true
 
 - id: Workflow

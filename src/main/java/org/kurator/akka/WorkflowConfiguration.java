@@ -6,24 +6,24 @@ import java.util.Map;
 
 public class WorkflowConfiguration {
     
-    List<ActorBuilder> actorConfigurations = new LinkedList<ActorBuilder>();
-    ActorBuilder inputActorConfiguration;
+    List<ActorConfig> actors = new LinkedList<ActorConfig>();
+    ActorConfig inputActor;
     Map<String,Object> settings;
     
-    public void setActors(List<ActorBuilder> actorConfigurations) {
-        this.actorConfigurations = actorConfigurations;
+    public void setActors(List<ActorConfig> actors) {
+        this.actors = actors;
     }
     
-    public List<ActorBuilder> getActors() {
-        return actorConfigurations;
+    public List<ActorConfig> getActors() {
+        return actors;
     }
     
-    public void setInputActor(ActorBuilder inputActor) {
-        inputActorConfiguration = inputActor;
+    public void setInputActor(ActorConfig inputActor) {
+        this.inputActor = inputActor;
     }
     
-    public ActorBuilder getInputActor() {
-        return inputActorConfiguration;
+    public ActorConfig getInputActor() {
+        return inputActor;
     }
     
     public void setParameters(Map<String,Object> settings) {

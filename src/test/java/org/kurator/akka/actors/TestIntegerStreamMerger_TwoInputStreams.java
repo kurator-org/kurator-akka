@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
@@ -22,20 +22,20 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
     
-         ActorBuilder repeaterABuilder = wr.createActorBuilder()
+         ActorConfig repeaterABuilder = wr.configureNewActor()
                  .actorClass(Repeater.class);
     
-         ActorBuilder repeaterBBuilder = wr.createActorBuilder()
+         ActorConfig repeaterBBuilder = wr.configureNewActor()
                  .actorClass(Repeater.class);
 
-         ActorBuilder merge = wr.createActorBuilder()
+         ActorConfig merge = wr.configureNewActor()
                  .actorClass(IntegerStreamMerger.class)
                  .parameter("streamCount", 2)
                  .listensTo(repeaterABuilder)
                  .listensTo(repeaterBBuilder);
         
          @SuppressWarnings("unused")
-         ActorBuilder printer = wr.createActorBuilder()
+         ActorConfig printer = wr.configureNewActor()
                  .actorClass(PrintStreamWriter.class)
                  .parameter("separator", ", ")
                  .listensTo(merge);

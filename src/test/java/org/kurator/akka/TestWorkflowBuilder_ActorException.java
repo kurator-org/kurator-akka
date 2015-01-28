@@ -1,6 +1,6 @@
 package org.kurator.akka;
 
-import org.kurator.akka.ActorBuilder;
+import org.kurator.akka.ActorConfig;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.actors.AkkaActor;
 import org.kurator.akka.actors.PrintStreamWriter;
@@ -20,15 +20,15 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
 
-         ActorBuilder repeater = wr.createActorBuilder()
+         ActorConfig repeater = wr.configureNewActor()
                  .actorClass(Repeater.class);
     
-         ActorBuilder testActor = wr.createActorBuilder()
+         ActorConfig testActor = wr.configureNewActor()
                  .actorClass(TestActor.class)
                  .listensTo(repeater);
         
          @SuppressWarnings("unused")
-         ActorBuilder printer = wr.createActorBuilder()
+         ActorConfig printer = wr.configureNewActor()
                  .actorClass(PrintStreamWriter.class)
                  .parameter("separator", ", ")
                  .listensTo(testActor);

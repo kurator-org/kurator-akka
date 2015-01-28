@@ -15,18 +15,18 @@ public class ActorProducer implements IndirectActorProducer {
     private Class<? extends AkkaActor> actorClass;
     private Map<String, Object> defaults;
     private Map<String, Object> parameters;
-    private List<ActorBuilder> listenerBuilders;
+    private List<ActorConfig> listeners;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
     private PrintStream outStream;
     private PrintStream errStream;
 
-    public ActorProducer(Class<? extends AkkaActor> actorClass, Map<String, Object> defaults, Map<String, Object> parameters, List<ActorBuilder> listenerConfigs, 
+    public ActorProducer(Class<? extends AkkaActor> actorClass, Map<String, Object> defaults, Map<String, Object> parameters, List<ActorConfig> listeners, 
             PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
         this.actorClass = actorClass;
         this.defaults = defaults;
         this.parameters = parameters;
-        this.listenerBuilders = listenerConfigs;
+        this.listeners = listeners;
         this.workflowRunner = workflowRunner;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -49,7 +49,7 @@ public class ActorProducer implements IndirectActorProducer {
         }
         
         // configure the actor according to its configuration
-        actor.listeners(listenerBuilders)
+        actor.listeners(listeners)
              .runner(workflowRunner)
              .outputStream(outStream)
              .errorStream(errStream);
