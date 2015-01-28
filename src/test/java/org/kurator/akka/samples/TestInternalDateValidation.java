@@ -8,7 +8,7 @@ import java.io.Writer;
 import org.kurator.akka.KuratorAkkaCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
-import org.kurator.akka.YamlFileWorkflowBuilder;
+import org.kurator.akka.YamlFileWorkflowRunner;
 
 public class TestInternalDateValidation extends KuratorAkkaTestCase {
 
@@ -28,11 +28,11 @@ public class TestInternalDateValidation extends KuratorAkkaTestCase {
     
     public void testInternalDataValidation_OneSpecimenRecord() throws Exception {        
 
-        WorkflowRunner builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "internal_date_validation.yaml");
-        builder.apply("in", "src/main/resources/org/kurator/akka/samples/data/one_specimen_record.csv");
-        builder.apply("writer", bufferWriter);
-        builder.build();
-        builder.run();
+        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "internal_date_validation.yaml");
+        wr.apply("in", "src/main/resources/org/kurator/akka/samples/data/one_specimen_record.csv");
+        wr.apply("writer", bufferWriter);
+        wr.build();
+        wr.run();
         
         String expected = 
             "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id,eventDate,dateComment,dateStatus,dateSource" + EOL +

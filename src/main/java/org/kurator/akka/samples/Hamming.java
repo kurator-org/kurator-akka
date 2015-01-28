@@ -34,48 +34,48 @@ public class Hamming {
 
     public void run() throws Exception {
 
-        WorkflowRunner wfb = new WorkflowRunner()
+        WorkflowRunner wr = new WorkflowRunner()
                 .outputStream(outputStream);
         
-        ActorBuilder oneShot = wfb.createActorBuilder()
+        ActorBuilder oneShot = wr.createActorBuilder()
                 .name("oneShot")
                 .actorClass(ConstantSource.class)
                 .parameter("value", 1)
                 .parameter("sendEos", false);
         
-        ActorBuilder filter = wfb.createActorBuilder()
+        ActorBuilder filter = wr.createActorBuilder()
                 .name("filter")
                 .actorClass(Filter.class)
                 .parameter("max", maxHammingNumber)
                 .parameter("sendEosOnExceed", true)
                 .listensTo(oneShot);
         
-        ActorBuilder multiplyByTwo = wfb.createActorBuilder()
+        ActorBuilder multiplyByTwo = wr.createActorBuilder()
                 .name("multiplyByTwo")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 2)
                 .listensTo(filter);
 
-        ActorBuilder multiplyByThree = wfb.createActorBuilder()
+        ActorBuilder multiplyByThree = wr.createActorBuilder()
                 .name("multiplyByThree")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 3)
                 .listensTo(filter);
         
-        ActorBuilder multiplyByFive = wfb.createActorBuilder()
+        ActorBuilder multiplyByFive = wr.createActorBuilder()
                 .name("multiplyByFive")
                 .actorClass(Multiplier.class)
                 .parameter("factor", 5)
                 .listensTo(filter);
         
-        ActorBuilder mergeTwoThree = wfb.createActorBuilder()
+        ActorBuilder mergeTwoThree = wr.createActorBuilder()
                 .name("mergeTwoThree")
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
                 .listensTo(multiplyByTwo)
                 .listensTo(multiplyByThree);
            
-        ActorBuilder mergeTwoThreeFive = wfb.createActorBuilder()
+        ActorBuilder mergeTwoThreeFive = wr.createActorBuilder()
                 .name("mergeTwoThreeFive")
                 .actorClass(IntegerStreamMerger.class)
                 .parameter("streamCount", 2)
@@ -83,7 +83,7 @@ public class Hamming {
                 .listensTo(mergeTwoThree);
         
         @SuppressWarnings("unused")
-        ActorBuilder printStreamWriter = wfb.createActorBuilder()
+        ActorBuilder printStreamWriter = wr.createActorBuilder()
                 .name("printStreamWriter")
                 .actorClass(PrintStreamWriter.class)
                 .parameter("separator", separator)
@@ -91,7 +91,7 @@ public class Hamming {
         
         filter.listensTo(mergeTwoThreeFive);
         
-        wfb.build();
-        wfb.run();
+        wr.build();
+        wr.run();
     }
 }

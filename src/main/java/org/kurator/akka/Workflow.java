@@ -30,15 +30,15 @@ public class Workflow extends UntypedActor {
     @SuppressWarnings("unused")
     private final PrintStream stdoutStream;
     private final PrintStream stderrStream;
-    private final WorkflowRunner workflowBuilder;
+    private final WorkflowRunner workflowRunner;
     
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
-    public Workflow(ActorSystem actorSystem, PrintStream stdoutStream, PrintStream stderrStream, WorkflowRunner workflowBuilder) {
+    public Workflow(ActorSystem actorSystem, PrintStream stdoutStream, PrintStream stderrStream, WorkflowRunner workflowRunner) {
         this.actorSystem = actorSystem;
         this.stdoutStream = stdoutStream;
         this.stderrStream = stderrStream;
-        this.workflowBuilder = workflowBuilder;
+        this.workflowRunner = workflowRunner;
     }
     
     public void setInput(ActorRef inputActor) {
@@ -103,7 +103,7 @@ public class Workflow extends UntypedActor {
             stderrStream.println(sender() + " threw an uncaught exception:");
             Exception e = em.getException();
             e.printStackTrace(stderrStream);
-            workflowBuilder.setLastException(e);
+            workflowRunner.setLastException(e);
             return;
         }
         

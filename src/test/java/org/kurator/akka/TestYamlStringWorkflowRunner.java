@@ -1,12 +1,12 @@
 package org.kurator.akka;
 
 import org.kurator.akka.WorkflowRunner;
-import org.kurator.akka.YamlStringWorkflowBuilder;
+import org.kurator.akka.YamlStringWorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;
 
-public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
+public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
     
     @Override
     public void setUp() throws Exception {
@@ -22,7 +22,7 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
                 "  singleton: true"                                     + EOL; 
         
-        ActorRef workflowRef = new YamlStringWorkflowBuilder(definition)
+        ActorRef workflowRef = new YamlStringWorkflowRunner(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream)
             .build();
@@ -49,16 +49,16 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    - !ref Repeater"                                   + EOL +
                 "    inputActor: !ref Repeater"                         + EOL;
         
-        WorkflowRunner builder = new YamlStringWorkflowBuilder(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
             
-        builder.build();
+        wr.build();
 
-        builder.start();        
-        builder.tellWorkflow(1);
-        builder.tellWorkflow(new EndOfStream());
-        builder.await();
+        wr.start();        
+        wr.tellWorkflow(1);
+        wr.tellWorkflow(new EndOfStream());
+        wr.await();
     }
     
     public void testTwoActorWorkflow() throws Exception {
@@ -89,19 +89,19 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowRunner builder = new YamlStringWorkflowBuilder(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
                 
-        builder.build();
+        wr.build();
 
-        builder.start();
+        wr.start();
         
-        builder.tellWorkflow(1);
-        builder.tellWorkflow(2);
-        builder.tellWorkflow(new EndOfStream());
+        wr.tellWorkflow(1);
+        wr.tellWorkflow(2);
+        wr.tellWorkflow(new EndOfStream());
         
-        builder.await();
+        wr.await();
     }
 
     public void testThreeActorWorkflow() throws Exception {
@@ -144,25 +144,25 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowRunner builder = new YamlStringWorkflowBuilder(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
         
-        builder.build();
+        wr.build();
 
-        builder.start();
+        wr.start();
         
-        builder.tellWorkflow(1);
-        builder.tellWorkflow(2);
-        builder.tellWorkflow(3);
-        builder.tellWorkflow(4);
-        builder.tellWorkflow(5);
-        builder.tellWorkflow(6);
-        builder.tellWorkflow(4);
-        builder.tellWorkflow(3);
-        builder.tellWorkflow(new EndOfStream());
+        wr.tellWorkflow(1);
+        wr.tellWorkflow(2);
+        wr.tellWorkflow(3);
+        wr.tellWorkflow(4);
+        wr.tellWorkflow(5);
+        wr.tellWorkflow(6);
+        wr.tellWorkflow(4);
+        wr.tellWorkflow(3);
+        wr.tellWorkflow(new EndOfStream());
         
-        builder.await();
+        wr.await();
     }
     
 }

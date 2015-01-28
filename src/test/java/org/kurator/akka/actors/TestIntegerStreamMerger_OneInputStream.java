@@ -7,80 +7,80 @@ import org.kurator.akka.messages.EndOfStream;
 
 public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase {
 
-    private WorkflowRunner wfb;
+    private WorkflowRunner wr;
 
      @Override
      public void setUp() throws Exception {
 
          super.setUp();
          
-         wfb = new WorkflowRunner()
+         wr = new WorkflowRunner()
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
     
-         ActorBuilder repeater = wfb.createActorBuilder()
+         ActorBuilder repeater = wr.createActorBuilder()
                  .actorClass(Repeater.class);
     
-         ActorBuilder merge = wfb.createActorBuilder()
+         ActorBuilder merge = wr.createActorBuilder()
                  .actorClass(IntegerStreamMerger.class)
                  .parameter("streamCount", 1)
                  .listensTo(repeater);
         
          @SuppressWarnings("unused")
-         ActorBuilder printer = wfb.createActorBuilder()
+         ActorBuilder printer = wr.createActorBuilder()
                  .actorClass(PrintStreamWriter.class)
                  .parameter("separator", ", ")
                  .listensTo(merge);
         
-         wfb.inputActor(repeater);
+         wr.inputActor(repeater);
          
-         wfb.build();
+         wr.build();
      }
      
     public void testIntegerStreamMerger_NoValues() throws Exception {
-        wfb.start();
-        wfb.tellWorkflow(new EndOfStream());
-        wfb.await();
+        wr.start();
+        wr.tellWorkflow(new EndOfStream());
+        wr.await();
         assertEquals("", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
     }
      
      public void testIntegerStreamMerger_DistinctValues() throws Exception {
-         wfb.start();
-         wfb.tellWorkflow(1);
-         wfb.tellWorkflow(2);
-         wfb.tellWorkflow(3);
-         wfb.tellWorkflow(4);
-         wfb.tellWorkflow(new EndOfStream());
-         wfb.await();
+         wr.start();
+         wr.tellWorkflow(1);
+         wr.tellWorkflow(2);
+         wr.tellWorkflow(3);
+         wr.tellWorkflow(4);
+         wr.tellWorkflow(new EndOfStream());
+         wr.await();
          assertEquals("1, 2, 3, 4", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_IdenticalValues() throws Exception {
-         wfb.start();
-         wfb.tellWorkflow(7);
-         wfb.tellWorkflow(7);
-         wfb.tellWorkflow(7);
-         wfb.tellWorkflow(7);
-         wfb.tellWorkflow(new EndOfStream());
-         wfb.await();
+         wr.start();
+         wr.tellWorkflow(7);
+         wr.tellWorkflow(7);
+         wr.tellWorkflow(7);
+         wr.tellWorkflow(7);
+         wr.tellWorkflow(new EndOfStream());
+         wr.await();
          assertEquals("7", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_ValuesWithDuplicates() throws Exception {
-         wfb.start();
-         wfb.tellWorkflow(1);
-         wfb.tellWorkflow(2);
-         wfb.tellWorkflow(2);
-         wfb.tellWorkflow(3);
-         wfb.tellWorkflow(3);
-         wfb.tellWorkflow(4);
-         wfb.tellWorkflow(5);
-         wfb.tellWorkflow(5);
-         wfb.tellWorkflow(new EndOfStream());
-         wfb.await();
+         wr.start();
+         wr.tellWorkflow(1);
+         wr.tellWorkflow(2);
+         wr.tellWorkflow(2);
+         wr.tellWorkflow(3);
+         wr.tellWorkflow(3);
+         wr.tellWorkflow(4);
+         wr.tellWorkflow(5);
+         wr.tellWorkflow(5);
+         wr.tellWorkflow(new EndOfStream());
+         wr.await();
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }

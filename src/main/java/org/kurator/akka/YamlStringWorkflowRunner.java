@@ -1,15 +1,20 @@
 package org.kurator.akka;
 
+import java.io.InputStream;
+import java.io.StringBufferInputStream;
+
 import org.restflow.yaml.spring.YamlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 
-public class YamlFileWorkflowBuilder extends WorkflowRunner {
-
-    public YamlFileWorkflowBuilder(String definitionFilePath) throws Exception {
+@SuppressWarnings("deprecation")
+public class YamlStringWorkflowRunner extends WorkflowRunner {
+    
+    public YamlStringWorkflowRunner(String definitionString) throws Exception {
         super();
         GenericApplicationContext context = new GenericApplicationContext();
         YamlBeanDefinitionReader reader = new YamlBeanDefinitionReader(context);
-        reader.registerBeanDefinitions(definitionFilePath);
+        InputStream stream = new StringBufferInputStream(definitionString);
+        reader.loadBeanDefinitions(stream, "-");
         super.loadWorkflowFromSpringContext(context);
     }
 }

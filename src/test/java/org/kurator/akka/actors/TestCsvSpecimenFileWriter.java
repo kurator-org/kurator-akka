@@ -11,7 +11,7 @@ import org.kurator.akka.WorkflowRunner;
 
 public class TestCsvSpecimenFileWriter extends KuratorAkkaTestCase {
 
-    private WorkflowRunner wfb;
+    private WorkflowRunner wr;
     private OutputStream outputBuffer;
     private ActorBuilder csvReader;
     private ActorBuilder csvWriter;
@@ -25,13 +25,13 @@ public class TestCsvSpecimenFileWriter extends KuratorAkkaTestCase {
          outputBuffer = new ByteArrayOutputStream();
          bufferWriter = new OutputStreamWriter(outputBuffer);
         
-         wfb = new WorkflowRunner();
+         wr = new WorkflowRunner();
     
-         csvReader = wfb.createActorBuilder()
+         csvReader = wr.createActorBuilder()
                  .actorClass(CsvFileReader.class)
                  .parameter("recordClass", "org.kurator.akka.data.OrderedSpecimenRecord");
          
-         csvWriter = wfb.createActorBuilder()
+         csvWriter = wr.createActorBuilder()
                  .actorClass(CsvSpecimenFileWriter.class)
                  .listensTo(csvReader);
      }
@@ -40,9 +40,9 @@ public class TestCsvSpecimenFileWriter extends KuratorAkkaTestCase {
 
         csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv" );
         csvWriter.parameter("outputWriter", bufferWriter);
-        wfb.build();
-        wfb.start();
-        wfb.await();
+        wr.build();
+        wr.start();
+        wr.await();
         
         String expected = 
             "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id" + EOL +

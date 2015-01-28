@@ -9,62 +9,62 @@ import org.kurator.akka.messages.EndOfStream;
 
 public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
 
-    private WorkflowRunner wfb;
+    private WorkflowRunner wr;
 
      @Override
      public void setUp() throws Exception {
     
          super.setUp();
          
-         wfb = new WorkflowRunner()
+         wr = new WorkflowRunner()
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
 
-         ActorBuilder repeater = wfb.createActorBuilder()
+         ActorBuilder repeater = wr.createActorBuilder()
                  .actorClass(Repeater.class);
     
-         ActorBuilder testActor = wfb.createActorBuilder()
+         ActorBuilder testActor = wr.createActorBuilder()
                  .actorClass(TestActor.class)
                  .listensTo(repeater);
         
          @SuppressWarnings("unused")
-         ActorBuilder printer = wfb.createActorBuilder()
+         ActorBuilder printer = wr.createActorBuilder()
                  .actorClass(PrintStreamWriter.class)
                  .parameter("separator", ", ")
                  .listensTo(testActor);
         
-         wfb.inputActor(repeater);
+         wr.inputActor(repeater);
          
-         wfb.build();
+         wr.build();
      }
      
      public void testWorkflowBuilder_NoActorException() throws Exception {
-         wfb.start();
-         wfb.tellWorkflow(1);
-         wfb.tellWorkflow(2);
-         wfb.tellWorkflow(3);
-         wfb.tellWorkflow(4);
-         wfb.tellWorkflow(5);
-         wfb.tellWorkflow(new EndOfStream());
-         wfb.await();
+         wr.start();
+         wr.tellWorkflow(1);
+         wr.tellWorkflow(2);
+         wr.tellWorkflow(3);
+         wr.tellWorkflow(4);
+         wr.tellWorkflow(5);
+         wr.tellWorkflow(new EndOfStream());
+         wr.await();
 
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
      
      public void testWorkflowBuilder_ActorException() throws Exception {
-         wfb.start();
-         wfb.tellWorkflow(1);
-         wfb.tellWorkflow(2);
-         wfb.tellWorkflow(3);
-         wfb.tellWorkflow(TestActor.exceptionTriggerValue);
-         wfb.tellWorkflow(4);
-         wfb.tellWorkflow(5);
-         wfb.tellWorkflow(new EndOfStream());
+         wr.start();
+         wr.tellWorkflow(1);
+         wr.tellWorkflow(2);
+         wr.tellWorkflow(3);
+         wr.tellWorkflow(TestActor.exceptionTriggerValue);
+         wr.tellWorkflow(4);
+         wr.tellWorkflow(5);
+         wr.tellWorkflow(new EndOfStream());
          
          Exception exception = null;
          try {
-             wfb.await();
+             wr.await();
          } catch(Exception e) {
              exception = e;
          }

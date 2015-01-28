@@ -3,7 +3,7 @@ package org.kurator.akka.samples;
 import org.kurator.akka.KuratorAkkaCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
-import org.kurator.akka.YamlFileWorkflowBuilder;
+import org.kurator.akka.YamlFileWorkflowRunner;
 
 public class TestHamming_Yaml extends KuratorAkkaTestCase {
 
@@ -16,12 +16,12 @@ public class TestHamming_Yaml extends KuratorAkkaTestCase {
     }
     
     public void testHammingYaml() throws Exception {        
-        WorkflowRunner builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "hamming.yaml");
-        builder.apply("max", 100);
-        builder.apply("separator", ", ");
-        builder.outputStream(stdoutStream);
-        builder.build();
-        builder.run();
+        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "hamming.yaml");
+        wr.apply("max", 100);
+        wr.apply("separator", ", ");
+        wr.outputStream(stdoutStream);
+        wr.build();
+        wr.run();
         assertEquals( "1, 2, 3, 4, 5, 6, 8, 9, 10, "
                     + "12, 15, 16, 18, 20, 24, 25, "
                     + "27, 30, 32, 36, 40, 45, 48, "

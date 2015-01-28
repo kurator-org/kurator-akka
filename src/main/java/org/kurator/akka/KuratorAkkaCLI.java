@@ -93,14 +93,14 @@ public class KuratorAkkaCLI {
         
         if (yamlFilePath != null) {
             
-            WorkflowRunner builder = new YamlFileWorkflowBuilder(yamlFilePath);
+            WorkflowRunner runner = new YamlFileWorkflowRunner(yamlFilePath);
             
-            builder.apply(settings)
+            runner.apply(settings)
                    .outputStream(outStream)
                    .errorStream(errStream)
                    .build();
             
-            builder.run();
+            runner.run();
         }
         
         return 0;
