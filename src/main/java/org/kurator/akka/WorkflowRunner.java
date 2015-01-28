@@ -27,7 +27,7 @@ import akka.actor.Props;
 
 public class WorkflowRunner {
 
-    private WorkflowConfiguration workflowConfiguration;
+    private WorkflowConfig workflowConfig;
     private final ActorSystem system;
     private ActorRef inputActor = null;
     private Map<ActorConfig,ActorRef> actorRefForActorConfig = new HashMap<ActorConfig, ActorRef>();
@@ -98,17 +98,17 @@ public class WorkflowRunner {
         context.refresh();
 
         // get the workflow configuration bean
-        String workflowNames[] = context.getBeanNamesForType(Class.forName("org.kurator.akka.WorkflowConfiguration"));
+        String workflowNames[] = context.getBeanNamesForType(Class.forName("org.kurator.akka.WorkflowConfig"));
         if (workflowNames.length != 1) {
-            throw new Exception("Workflow definition must contain at exactly one instance of WorkflowConfiguration.");
+            throw new Exception("Workflow definition must contain at exactly one instance of WorkflowConfig.");
         }
-        workflowConfiguration = (WorkflowConfiguration) context.getBean(workflowNames[0]);
+        workflowConfig = (WorkflowConfig) context.getBean(workflowNames[0]);
         
-        inputActorConfig = workflowConfiguration.getInputActor(); 
+        inputActorConfig = workflowConfig.getInputActor(); 
 
-        actorConfigs = workflowConfiguration.getActors();
+        actorConfigs = workflowConfig.getActors();
         
-        workflowParameters = workflowConfiguration.getParameters();
+        workflowParameters = workflowConfig.getParameters();
     }
 
     

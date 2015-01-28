@@ -28,7 +28,7 @@ components:
       separator: ', '
 
 - id: ThreeActorWorkflow
-  className: org.kurator.akka.WorkflowConfiguration
+  className: org.kurator.akka.WorkflowConfig
   singleton: true
   properties:
     actors:

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowConfiguration {
+public class WorkflowConfig {
     
     List<ActorConfig> actors = new LinkedList<ActorConfig>();
     ActorConfig inputActor;

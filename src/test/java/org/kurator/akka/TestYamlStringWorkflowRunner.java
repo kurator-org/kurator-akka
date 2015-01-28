@@ -19,7 +19,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "components:"                                           + EOL +
                 ""                                                      + EOL +
                 "- id: EmptyWorkflow"                                   + EOL +
-                "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
+                "  className: org.kurator.akka.WorkflowConfig"          + EOL +
                 "  singleton: true"                                     + EOL; 
         
         ActorRef workflowRef = new YamlStringWorkflowRunner(definition)
@@ -42,7 +42,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    actorClass: org.kurator.akka.actors.Repeater"      + EOL +
                 ""                                                      + EOL +
                 "- id: OneActorWorkflow"                                + EOL +
-                "  className: org.kurator.akka.WorkflowConfiguration"   + EOL +
+                "  className: org.kurator.akka.WorkflowConfig"          + EOL +
                 "  singleton: true"                                     + EOL +
                 "  properties:"                                         + EOL +
                 "    actors:"                                           + EOL +
@@ -81,7 +81,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    actorClass: org.kurator.akka.actors.PrintStreamWriter"     + EOL +
                 ""                                                              + EOL +
                 "- id: TwoActorWorkflow"                                        + EOL +
-                "  className: org.kurator.akka.WorkflowConfiguration"           + EOL +
+                "  className: org.kurator.akka.WorkflowConfig"                  + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actors:"                                                   + EOL +
@@ -135,7 +135,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    actorClass: org.kurator.akka.actors.PrintStreamWriter"     + EOL +
                 ""                                                              + EOL +
                 "- id: ThreeActorWorkflow"                                      + EOL +
-                "  className: org.kurator.akka.WorkflowConfiguration"           + EOL +
+                "  className: org.kurator.akka.WorkflowConfig"                  + EOL +
                 "  singleton: true"                                             + EOL +
                 "  properties:"                                                 + EOL +
                 "    actors:"                                                   + EOL +

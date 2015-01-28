@@ -7,7 +7,7 @@ components:
     actorClass: org.kurator.akka.actors.PrintStreamWriter
 
 - id: OneActorWorkflow
-  className: org.kurator.akka.WorkflowConfiguration
+  className: org.kurator.akka.WorkflowConfig
   singleton: true
   properties:
     actors:

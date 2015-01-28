@@ -5,6 +5,6 @@ types:
   singleton: true
 
 - id: Workflow
-  className: org.kurator.akka.WorkflowConfiguration
+  className: org.kurator.akka.WorkflowConfig
   singleton: false
 
