@@ -1,8 +1,8 @@
 package org.kurator.akka.samples;
 
-import org.kurator.akka.KuratorAkka;
+import org.kurator.akka.KuratorAkkaCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
-import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.YamlFileWorkflowBuilder;
 
 public class TestHamming_Yaml extends KuratorAkkaTestCase {
@@ -12,11 +12,11 @@ public class TestHamming_Yaml extends KuratorAkkaTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        KuratorAkka.enableLog4J();
+        KuratorAkkaCLI.enableLog4J();
     }
     
     public void testHammingYaml() throws Exception {        
-        WorkflowBuilder builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "hamming.yaml");
+        WorkflowRunner builder = new YamlFileWorkflowBuilder(RESOURCE_PATH + "hamming.yaml");
         builder.apply("max", 100);
         builder.apply("separator", ", ");
         builder.outputStream(stdoutStream);

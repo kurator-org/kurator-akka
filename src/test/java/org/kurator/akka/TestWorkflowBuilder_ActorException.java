@@ -1,7 +1,7 @@
 package org.kurator.akka;
 
 import org.kurator.akka.ActorBuilder;
-import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.actors.AkkaActor;
 import org.kurator.akka.actors.PrintStreamWriter;
 import org.kurator.akka.actors.Repeater;
@@ -9,14 +9,14 @@ import org.kurator.akka.messages.EndOfStream;
 
 public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
 
-    private WorkflowBuilder wfb;
+    private WorkflowRunner wfb;
 
      @Override
      public void setUp() throws Exception {
     
          super.setUp();
          
-         wfb = new WorkflowBuilder()
+         wfb = new WorkflowRunner()
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
 
@@ -39,21 +39,21 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
      }
      
      public void testWorkflowBuilder_NoActorException() throws Exception {
-         wfb.startWorkflow();
+         wfb.start();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
          wfb.tellWorkflow(3);
          wfb.tellWorkflow(4);
          wfb.tellWorkflow(5);
          wfb.tellWorkflow(new EndOfStream());
-         wfb.awaitWorkflow();
+         wfb.await();
 
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
      
      public void testWorkflowBuilder_ActorException() throws Exception {
-         wfb.startWorkflow();
+         wfb.start();
          wfb.tellWorkflow(1);
          wfb.tellWorkflow(2);
          wfb.tellWorkflow(3);
@@ -64,7 +64,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
          
          Exception exception = null;
          try {
-             wfb.awaitWorkflow();
+             wfb.await();
          } catch(Exception e) {
              exception = e;
          }

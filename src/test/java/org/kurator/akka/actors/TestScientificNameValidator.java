@@ -7,11 +7,11 @@ import java.io.Writer;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.KuratorAkkaTestCase;
-import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.WorkflowRunner;
 
 public class TestScientificNameValidator extends KuratorAkkaTestCase {
 
-    private WorkflowBuilder wfb;
+    private WorkflowRunner wfb;
     private OutputStream outputBuffer;
     private ActorBuilder csvReader;
     private ActorBuilder csvWriter;
@@ -26,7 +26,7 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
         outputBuffer = new ByteArrayOutputStream();
         bufferWriter = new OutputStreamWriter(outputBuffer);
        
-        wfb = new WorkflowBuilder();
+        wfb = new WorkflowRunner();
    
         csvReader = wfb.createActorBuilder()
                 .actorClass(CsvFileReader.class)
@@ -47,8 +47,8 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
         csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
-        wfb.startWorkflow();
-        wfb.awaitWorkflow();
+        wfb.start();
+        wfb.await();
         
         String expected = 
             "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id,scientificName,scientificNameAuthorship,scinComment,scinStatus,scinSource" + EOL +
@@ -63,8 +63,8 @@ public class TestScientificNameValidator extends KuratorAkkaTestCase {
        csvWriter.parameter("outputWriter", bufferWriter);
        
        wfb.build();
-       wfb.startWorkflow();
-       wfb.awaitWorkflow();
+       wfb.start();
+       wfb.await();
        
        String expected = 
            "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id,scientificName,scientificNameAuthorship,scinComment,scinStatus,scinSource" + EOL +

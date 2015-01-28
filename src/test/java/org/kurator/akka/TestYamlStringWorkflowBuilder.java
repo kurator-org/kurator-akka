@@ -1,6 +1,6 @@
 package org.kurator.akka;
 
-import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.YamlStringWorkflowBuilder;
 import org.kurator.akka.messages.EndOfStream;
 
@@ -49,16 +49,16 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    - !ref Repeater"                                   + EOL +
                 "    inputActor: !ref Repeater"                         + EOL;
         
-        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
+        WorkflowRunner builder = new YamlStringWorkflowBuilder(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
             
         builder.build();
 
-        builder.startWorkflow();        
+        builder.start();        
         builder.tellWorkflow(1);
         builder.tellWorkflow(new EndOfStream());
-        builder.awaitWorkflow();
+        builder.await();
     }
     
     public void testTwoActorWorkflow() throws Exception {
@@ -89,19 +89,19 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
+        WorkflowRunner builder = new YamlStringWorkflowBuilder(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
                 
         builder.build();
 
-        builder.startWorkflow();
+        builder.start();
         
         builder.tellWorkflow(1);
         builder.tellWorkflow(2);
         builder.tellWorkflow(new EndOfStream());
         
-        builder.awaitWorkflow();
+        builder.await();
     }
 
     public void testThreeActorWorkflow() throws Exception {
@@ -144,13 +144,13 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowBuilder builder = new YamlStringWorkflowBuilder(definition)
+        WorkflowRunner builder = new YamlStringWorkflowBuilder(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
         
         builder.build();
 
-        builder.startWorkflow();
+        builder.start();
         
         builder.tellWorkflow(1);
         builder.tellWorkflow(2);
@@ -162,7 +162,7 @@ public class TestYamlStringWorkflowBuilder extends KuratorAkkaTestCase {
         builder.tellWorkflow(3);
         builder.tellWorkflow(new EndOfStream());
         
-        builder.awaitWorkflow();
+        builder.await();
     }
     
 }

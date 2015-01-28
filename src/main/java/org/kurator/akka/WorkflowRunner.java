@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.messages.Initialize;
-import org.kurator.akka.messages.StartMessage;
+import org.kurator.akka.messages.Start;
 import org.springframework.context.support.GenericApplicationContext;
 
 import com.typesafe.config.Config;
@@ -25,7 +25,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 
-public class WorkflowBuilder {
+public class WorkflowRunner {
 
     private WorkflowConfiguration workflowConfiguration;
     private final ActorSystem system;
@@ -39,7 +39,7 @@ public class WorkflowBuilder {
     private PrintStream errStream = System.err;
     private Exception lastException = null;
 
-    public WorkflowBuilder() {
+    public WorkflowRunner() {
         
         // create a configuration for the actor system that disables all logging from Akka
         Config config = ConfigFactory.load()
@@ -62,17 +62,17 @@ public class WorkflowBuilder {
         return actor;
     }
     
-    public WorkflowBuilder outputStream(PrintStream outStream) {
+    public WorkflowRunner outputStream(PrintStream outStream) {
         this.outStream = outStream;
         return this;
     }
 
-    public WorkflowBuilder errorStream(PrintStream errStream) {
+    public WorkflowRunner errorStream(PrintStream errStream) {
         this.errStream = errStream;
         return this;
     }
 
-    public WorkflowBuilder inputActor(ActorBuilder inputActorBuilder) {
+    public WorkflowRunner inputActor(ActorBuilder inputActorBuilder) {
         this.inputActorBuilder = inputActorBuilder;
         return this;
     }
@@ -112,7 +112,7 @@ public class WorkflowBuilder {
     }
 
     
-    public WorkflowBuilder apply(Map<String, Object> workflowSettings) throws Exception {
+    public WorkflowRunner apply(Map<String, Object> workflowSettings) throws Exception {
         
         for (Map.Entry<String, Object> setting : workflowSettings.entrySet()) {
             String settingName = setting.getKey();
@@ -123,7 +123,7 @@ public class WorkflowBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public WorkflowBuilder apply(String settingName, Object settingValue) throws Exception {
+    public WorkflowRunner apply(String settingName, Object settingValue) throws Exception {
         
         Map<String,Object> workflowParameter = null;
         if (workflowParameters != null) {
@@ -190,29 +190,31 @@ public class WorkflowBuilder {
         return workflowRef;
     }
     
-    public void run() throws Exception {
-        this.startWorkflow();
-        this.awaitWorkflow();
-    }
     
     public void tellWorkflow(Object message) {
         workflowRef.tell(message, system.lookupRoot());
     }
     
-    public void startWorkflow() throws TimeoutException, InterruptedException {
+    public void start() throws TimeoutException, InterruptedException {
         Future<Object> future = ask(workflowRef, new Initialize(), Constants.TIMEOUT);
         future.ready(Constants.TIMEOUT_DURATION, null);
-        workflowRef.tell(new StartMessage(), system.lookupRoot());
+        workflowRef.tell(new Start(), system.lookupRoot());
     }
     
-    public void setLastException(Exception e) {
-        lastException = e;
-    }
-    
-    public void awaitWorkflow() throws Exception {
+    public void await() throws Exception {
         system.awaitTermination();
         if (lastException != null) {
             throw(lastException);
         }
     }
+
+    public void run() throws Exception {
+        this.start();
+        this.await();
+    }
+
+    public void setLastException(Exception e) {
+        lastException = e;
+    }
+    
 }

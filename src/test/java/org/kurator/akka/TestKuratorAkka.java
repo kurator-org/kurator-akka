@@ -17,7 +17,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
     
     public void testKuratorAkka_NoArgs() throws Exception {
         String[] args = {};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stdoutBuffer.toString());
         assertEquals(
             "Error: No workflow definition file was provided"   + EOL +
@@ -27,7 +27,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
 
     public void testKuratorAkka_HelpOption() throws Exception {
         String[] args = {"--help"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stdoutBuffer.toString());
         assertEquals(
             EXPECTED_HELP_OUTPUT,
@@ -36,7 +36,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
 
     public void testKuratorAkka_HelpOption_Abbreviation() throws Exception {
         String[] args = {"-h"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stdoutBuffer.toString());
         assertEquals(
             EXPECTED_HELP_OUTPUT,
@@ -45,7 +45,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
     
     public void testKuratorAkka_FileOption_NoArgument() throws Exception {
         String[] args = {"-f"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stdoutBuffer.toString());
         assertEquals(
             "Error parsing command-line options:"               + EOL +
@@ -58,7 +58,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
         String[] args = {"-f", "classpath:/org/kurator/akka/samples/no_such_file.yaml"};
         Exception exception = null;
         try {
-            KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+            KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         } catch (Exception e) {
             exception = e;
         }
@@ -71,7 +71,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
         String[] args = {"-f", "file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml"};
         Exception exception = null;
         try {
-            KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+            KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         } catch (Exception e) {
             exception = e;
         }
@@ -82,7 +82,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
     
     public void testKuratorAkka_FileOption_ClasspathScheme_HammingWorkflow() throws Exception {
         String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals(
             "1"         + EOL +
             "2"         + EOL +
@@ -109,7 +109,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
     
     public void testKuratorAkka_FileOption_FileScheme_HammingWorkflow() throws Exception {
         String[] args = {"-f", "file:src/main/resources/org/kurator/akka/samples/hamming.yaml"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals(
             "1"         + EOL +
             "2"         + EOL +
@@ -135,7 +135,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
  
     public void testKuratorAkka_FileOption_ImplicitFileScheme_HammingWorkflow() throws Exception {
         String[] args = {"-f", "src/main/resources/org/kurator/akka/samples/hamming.yaml"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals(
             "1"         + EOL +
             "2"         + EOL +
@@ -161,7 +161,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
     
     public void testKuratorAkka_InputOption_HammingWorkflow() throws Exception {
         String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml", "--parameter", "max=5"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals(
             "1"         + EOL +
             "2"         + EOL +
@@ -174,7 +174,7 @@ public class TestKuratorAkka extends KuratorAkkaTestCase {
 
     public void testKuratorAkka_InputOption_Abbreviated_HammingWorkflow() throws Exception {
         String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml", "-p", "max=5"};
-        KuratorAkka.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals(
             "1"         + EOL +
             "2"         + EOL +

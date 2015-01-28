@@ -13,7 +13,7 @@ import java.util.concurrent.TimeoutException;
 import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Response;
-import org.kurator.akka.messages.StartMessage;
+import org.kurator.akka.messages.Start;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -30,11 +30,11 @@ public class Workflow extends UntypedActor {
     @SuppressWarnings("unused")
     private final PrintStream stdoutStream;
     private final PrintStream stderrStream;
-    private final WorkflowBuilder workflowBuilder;
+    private final WorkflowRunner workflowBuilder;
     
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
-    public Workflow(ActorSystem actorSystem, PrintStream stdoutStream, PrintStream stderrStream, WorkflowBuilder workflowBuilder) {
+    public Workflow(ActorSystem actorSystem, PrintStream stdoutStream, PrintStream stderrStream, WorkflowRunner workflowBuilder) {
         this.actorSystem = actorSystem;
         this.stdoutStream = stdoutStream;
         this.stderrStream = stderrStream;
@@ -91,7 +91,7 @@ public class Workflow extends UntypedActor {
             return;
         }
 
-        if (message instanceof StartMessage) {
+        if (message instanceof Start) {
             for (ActorRef a : actors) {
                 a.tell(message, getSelf());
             }

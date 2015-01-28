@@ -3,7 +3,7 @@ package org.kurator.akka.samples;
 import java.io.PrintStream;
 
 import org.kurator.akka.ActorBuilder;
-import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.actors.ConstantSource;
 import org.kurator.akka.actors.Filter;
 import org.kurator.akka.actors.IntegerStreamMerger;
@@ -34,7 +34,7 @@ public class Hamming {
 
     public void run() throws Exception {
 
-        WorkflowBuilder wfb = new WorkflowBuilder()
+        WorkflowRunner wfb = new WorkflowRunner()
                 .outputStream(outputStream);
         
         ActorBuilder oneShot = wfb.createActorBuilder()

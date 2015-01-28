@@ -7,11 +7,11 @@ import java.io.Writer;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.KuratorAkkaTestCase;
-import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.WorkflowRunner;
 
 public class TestCsvSpecimenFileWriter extends KuratorAkkaTestCase {
 
-    private WorkflowBuilder wfb;
+    private WorkflowRunner wfb;
     private OutputStream outputBuffer;
     private ActorBuilder csvReader;
     private ActorBuilder csvWriter;
@@ -25,7 +25,7 @@ public class TestCsvSpecimenFileWriter extends KuratorAkkaTestCase {
          outputBuffer = new ByteArrayOutputStream();
          bufferWriter = new OutputStreamWriter(outputBuffer);
         
-         wfb = new WorkflowBuilder();
+         wfb = new WorkflowRunner();
     
          csvReader = wfb.createActorBuilder()
                  .actorClass(CsvFileReader.class)
@@ -41,8 +41,8 @@ public class TestCsvSpecimenFileWriter extends KuratorAkkaTestCase {
         csvReader.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv" );
         csvWriter.parameter("outputWriter", bufferWriter);
         wfb.build();
-        wfb.startWorkflow();
-        wfb.awaitWorkflow();
+        wfb.start();
+        wfb.await();
         
         String expected = 
             "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id" + EOL +

@@ -7,11 +7,11 @@ import java.io.Writer;
 
 import org.kurator.akka.ActorBuilder;
 import org.kurator.akka.KuratorAkkaTestCase;
-import org.kurator.akka.WorkflowBuilder;
+import org.kurator.akka.WorkflowRunner;
 
 public class TestInternalDateValidator extends KuratorAkkaTestCase {
 
-    private WorkflowBuilder wfb;
+    private WorkflowRunner wfb;
     private OutputStream writeBuffer;
     private ActorBuilder csvReader;
     private ActorBuilder dateValidator;
@@ -26,7 +26,7 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
         writeBuffer = new ByteArrayOutputStream();
         bufferWriter = new OutputStreamWriter(writeBuffer);
        
-        wfb = new WorkflowBuilder();
+        wfb = new WorkflowRunner();
    
         csvReader = wfb.createActorBuilder()
                 .actorClass(CsvFileReader.class)
@@ -47,8 +47,8 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
         csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
-        wfb.startWorkflow();
-        wfb.awaitWorkflow();
+        wfb.start();
+        wfb.await();
         
         String expected = 
             "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id,eventDate,dateComment,dateStatus,dateSource" + EOL +
@@ -63,8 +63,8 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
        csvWriter.parameter("outputWriter", bufferWriter);
        
        wfb.build();
-       wfb.startWorkflow();
-       wfb.awaitWorkflow();
+       wfb.start();
+       wfb.await();
        
        String expected = 
            "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id,eventDate,dateComment,dateStatus,dateSource" + EOL +
@@ -85,8 +85,8 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
         csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
-        wfb.startWorkflow();
-        wfb.awaitWorkflow();
+        wfb.start();
+        wfb.await();
         
         String expected = 
             "id,type,modified,language,rightsHolder,references,institutionID,institutionCode,collectionCode,ownerInstitutionCode,basisOfRecord,informationWithheld,dynamicProperties,catalogNumber,recordNumber,recordedBy,individualCount,sex,lifeStage,preparations,disposition,otherCatalogNumbers,associatedMedia,associatedOccurrences,associatedSequences,associatedTaxa,samplingProtocol,eventDate,startDayOfYear,year,month,day,verbatimEventDate,habitat,fieldNumber,higherGeography,continent,waterBody,islandGroup,island,country,stateProvince,county,locality,verbatimElevation,minimumElevationInMeters,maximumElevationInMeters,minimumDepthInMeters,maximumDepthInMeters,verbatimLatitude,verbatimLongitude,verbatimCoordinateSystem,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,coordinatePrecision,georeferencedBy,georeferenceProtocol,georeferenceSources,geo referenceRemarks,earliestEraOrLowestErathem,latestEraOrHighestErathem,earliestPeriodOrLowestSystem,latestPeriodOrHighestSystem,earliestEpochOrLowestSeries,latestEpochOrHighestSeries,earliestAgeOrLowestStage,latestAgeOrHighestStage,lithostratigraphicTerms,group,formation,member,bed,identifiedBy,dateIdentified,identificationRemarks,identificationQualifier,identificationVerificationStatus,typeStatus,scientificName,higherClassification,kingdom,phylum,class,order,family,genus,specificEpithet,infraspecificEpithet,taxonRank,verbatimTaxonRank,scientificNameAuthorship,nomenclaturalCode,dateComment,dateStatus,dateSource" + EOL +
@@ -100,8 +100,8 @@ public class TestInternalDateValidator extends KuratorAkkaTestCase {
         csvWriter.parameter("outputWriter", bufferWriter);
         
         wfb.build();
-        wfb.startWorkflow();
-        wfb.awaitWorkflow();
+        wfb.start();
+        wfb.await();
         
         String expected = 
             "id,type,modified,language,rightsHolder,references,institutionID,institutionCode,collectionCode,ownerInstitutionCode,basisOfRecord,informationWithheld,dynamicProperties,catalogNumber,recordNumber,recordedBy,individualCount,sex,lifeStage,preparations,disposition,otherCatalogNumbers,associatedMedia,associatedOccurrences,associatedSequences,associatedTaxa,samplingProtocol,eventDate,startDayOfYear,year,month,day,verbatimEventDate,habitat,fieldNumber,higherGeography,continent,waterBody,islandGroup,island,country,stateProvince,county,locality,verbatimElevation,minimumElevationInMeters,maximumElevationInMeters,minimumDepthInMeters,maximumDepthInMeters,verbatimLatitude,verbatimLongitude,verbatimCoordinateSystem,decimalLatitude,decimalLongitude,geodeticDatum,coordinateUncertaintyInMeters,coordinatePrecision,georeferencedBy,georeferenceProtocol,georeferenceSources,geo referenceRemarks,earliestEraOrLowestErathem,latestEraOrHighestErathem,earliestPeriodOrLowestSystem,latestPeriodOrHighestSystem,earliestEpochOrLowestSeries,latestEpochOrHighestSeries,earliestAgeOrLowestStage,latestAgeOrHighestStage,lithostratigraphicTerms,group,formation,member,bed,identifiedBy,dateIdentified,identificationRemarks,identificationQualifier,identificationVerificationStatus,typeStatus,scientificName,higherClassification,kingdom,phylum,class,order,family,genus,specificEpithet,infraspecificEpithet,taxonRank,verbatimTaxonRank,scientificNameAuthorship,nomenclaturalCode,dateComment,dateStatus,dateSource" + EOL +
