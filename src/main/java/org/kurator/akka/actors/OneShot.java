@@ -17,10 +17,4 @@ public abstract class OneShot extends AkkaActor {
             stop();
         }
     }
-    
-    @Override
-    public final void onReceive(Object message) throws Exception {
-
-        super.onReceive(message);
-    }
 }

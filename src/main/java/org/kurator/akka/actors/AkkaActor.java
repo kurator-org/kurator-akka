@@ -38,12 +38,14 @@ public abstract class AkkaActor extends UntypedActor {
     
     /** Stream used by actor instead of writing to <code>System.out</code> directly. 
      * Defaults to <code>System.out</code>. 
-     * Non-default value assigned via {@link #outputStream outputStream()} method. */
+     * <p>Non-default value assigned can be assigned via the {@link #outputStream outputStream()} method.<p>
+     */
     protected PrintStream outStream = System.out;
 
     /** Stream used by actor instead of writing to <code>System.err</code> directly. 
      * Defaults to <code>System.err</code>. 
-     * Non-default value assigned via {@link #errorStream errorStream()} method. */
+     * <p>Non-default value can be assigned via the {@link #errorStream errorStream()} method.</p>
+     */
     protected PrintStream errStream = System.err;
 
     // private fields
@@ -51,7 +53,19 @@ public abstract class AkkaActor extends UntypedActor {
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
     
-
+    /** 
+     * Specifies the list of listeners for this actor in the current workflow.
+     * 
+     * <p>The input parameter is given in terms of {@link org.kurator.akka.ActorConfig ActorConfig} 
+     * instances (rather than {@link akka.actor.ActorRef ActorRef} instances)
+     * because the actors may not have been constructed yet.  The ActorRef corresponding
+     * to each ActorConfig is looked up and the list of listeners in terms of ActorRef 
+     * instances composed by {@link #onReceive(Object) onReceive()} when the 
+     * {@link org.kurator.akka.messages.Initialize Initialize} message is received.</p>
+     * 
+     * @param listenerConfigs The list of actor configurations corresponding to this actor's listeners.
+     * @return this AkkaActor
+     */
     public AkkaActor listeners(List<ActorConfig> listenerConfigs) {
         if (listenerConfigs != null) {
             this.listenerConfigs = listenerConfigs;
@@ -59,26 +73,76 @@ public abstract class AkkaActor extends UntypedActor {
         return this;
     }
     
+    /** 
+     * Specifies the {@link org.kurator.akka.WorkflowRunner WorkflowRunner} for the current workflow.
+     * 
+     * <p>The workflow runner is used for accessing the mapping of listener {@link org.kurator.akka.ActorConfig ActorConfig} 
+     * instances to {@link akka.actor.ActorRef ActorRef} instances, and for reporting exceptions to the runner.</p>
+     * 
+     * @param runner The {@link org.kurator.akka.WorkflowRunner WorkflowRunner}.
+     * @return this AkkaActor
+     */
     public AkkaActor runner(WorkflowRunner runner) {
         this.runner = runner;
         return this;
     }
     
+    
+    /** 
+     * Specifies the output stream to be used by an actor that needs
+     * to write to <code>stderr</code>. The value is stored in {@link #errStream}.
+     * 
+     * <p>Child classes should write error messages to {@link #errStream} instead of 
+     * writing to <code>System.err</code> directly.</p>
+     * 
+     * @param errStream The PrintStream to use for writing to <code>stderr</code>.
+     * @return this AkkaActor
+     */   
     public AkkaActor errorStream(PrintStream errStream) {
         this.errStream = errStream;
         return this;
     }
     
+    /** 
+     * Specifies the output stream to be used by an actor that needs
+     * to write to <code>stdout</code>. The value is stored in {@link #outStream}.
+     * 
+     * <p>Child classes should send output to {@link #outStream} instead of 
+     * writing to <code>System.out</code> directly.</p>
+     * 
+     * @param outStream The PrintStream to use for writing to <code>stdout</code>.
+     * @return this AkkaActor
+     */
     public AkkaActor outputStream(PrintStream outStream) {
         this.outStream = outStream;
         return this;
     }    
 
+    /** 
+     * Initial handler for all messages received by this actor via the Akka framework.  
+     * 
+     * <p> This method may not be overridden by child classes.  Non-default responses to
+     * messages can provided by overriding one or more of {@link #handleInitialize()}, 
+     * {@link #handleStart()}, {@link #handleEndOfStream(EndOfStream) handleEndOfStream()}, 
+     * {@link #handleEnd()}, and {@link #handleDataMessage(Object)}.</p>
+     * 
+     * <p>This method is responsible calling the more specific message and event handlers, and for
+     * initializing the list of listeners using the listener configurations assigned
+     * via the {@link #listeners(List)} method.</p>
+     * 
+     * <p>This method catches exceptions thrown by overridden message and event handlers,
+     * reports these exceptions to the parent workflow via {@link #reportException(Exception) reportException()},
+     * then stops the actor with a call to {@link #endStreamAndStop()} .</p>
+     * 
+     * @param message The received message.
+     * @throws Exception if any of the other message and event handlers throw one.
+     */
     @Override
-    public void onReceive(Object message) throws Exception {
+    public final void onReceive(Object message) throws Exception {
 
         try {
             
+            // handle control messages (subclasses of ControlMessage)
             if (message instanceof ControlMessage) {
                 
                 if (message instanceof Initialize) {
@@ -99,6 +163,8 @@ public abstract class AkkaActor extends UntypedActor {
                 } else if (message instanceof EndOfStream) {
                     handleEndOfStream((EndOfStream)message);
                 }            
+                
+            // all other messages are assumed to be data
             } else {
                 handleDataMessage(message);
             }
@@ -196,14 +262,15 @@ public abstract class AkkaActor extends UntypedActor {
      * 
      * @param message The message to send.
      */
-    protected void broadcast(Object message) {
+    protected final void broadcast(Object message) {
         for (ActorRef listener : listeners) {
             listener.tell(message, this.getSelf());
         }
     }    
         
     /** 
-     * Recommended method for stopping most actors.  It is called by {@link #handleEndOfStream(EndOfStream)}
+     * Stops the actor after sending the provided {@link org.kurator.akka.messages.EndOfStream EndOfStream} 
+     * message to listeners.  It is called by {@link #handleEndOfStream(EndOfStream)}
      * on arrival of an {@link org.kurator.akka.messages.EndOfStream EndOfStream} message if
      * the {@link #endOnEos} property is <i>true</i>.
      * 
@@ -215,7 +282,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param eos The {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to broadcast to listeners.
      * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
      */
-    protected void endStreamAndStop(EndOfStream eos) throws Exception {
+    protected final void endStreamAndStop(EndOfStream eos) throws Exception {
         broadcast(eos);
         stop();
     }
@@ -228,10 +295,10 @@ public abstract class AkkaActor extends UntypedActor {
      * 
      * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
      */
-    protected void endStreamAndStop() throws Exception {
+    protected final void endStreamAndStop() throws Exception {
         endStreamAndStop(new EndOfStream());
     }
-    
+
     
     /** 
      * Terminates the execution of an actor.  Calls {@link #handleEnd handleEnd()}, then uses the Akka API
@@ -239,15 +306,29 @@ public abstract class AkkaActor extends UntypedActor {
      *
      * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
      */
-    protected void stop() throws Exception {
+    protected final void stop() throws Exception {
         handleEnd();
         getContext().stop(getSelf());
     }
     
     
-    protected void reportException(Exception e) {
+    /** 
+     * Used to report exceptions that are caught by this actor.  
+     * 
+     * <p>Child classes are expected to catch exceptions that occur while performing 
+     * computations in response to incoming messages.  Exceptions that cannot be handled
+     * silently should be reported via this method.</p>
+     * 
+     * <p>Exceptions that are not caught (or are thrown) by overridden message and event 
+     * handlers are caught by {@link #onReceive(Object) onReceive()} which also reports the 
+     * exception to the parent workflow via this method. However, any exception caught by 
+     * {@link #onReceive(Object) onReceive()} also causes the actor to stop.</p>
+     * 
+     * @param exception The reported exception.
+     */
+    protected final void reportException(Exception exception) {
         ActorRef workflowRef = runner.getWorkflowRef();
-        ExceptionMessage em = new ExceptionMessage(e);
+        ExceptionMessage em = new ExceptionMessage(exception);
         workflowRef.tell(em, this.getSelf());
     }
 }
