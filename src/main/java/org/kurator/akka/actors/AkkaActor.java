@@ -263,7 +263,7 @@ public abstract class AkkaActor extends UntypedActor {
     
     
     /** 
-     * Empty default handler incoming data messages.  Called when the actor receives a message
+     * Empty default handler for incoming data messages.  Called when the actor receives a message
      * that is not derived from {@link org.kurator.akka.messages.ControlMessage ControlMessage}.
      * 
      * <p>Most actors will override this method to receive incoming data from other actors.</p>
