@@ -31,25 +31,21 @@ public class IntegerStreamMerger extends AkkaActor {
     }
     
     @Override
-    public void handleDataMessage(Object message) throws Exception {
+    public void handleData(Object value) throws Exception {
 
         ActorRef sender = this.getSender();
 
-        if (message instanceof Integer) {
+        if (value instanceof Integer) {
 
-            Integer inputValue = (Integer) message;
+            Integer intValue = (Integer) value;
 
             // discard input value if not greater than the last value broadcast
-            if (inputValue <= lastSent) {
+            if (intValue <= lastSent) {
                 return;
             }
 
             // store received value in message queue corresponding to sender
-            addToInputQueue(sender, message);
-
-        } else if (message instanceof EndOfStream) {
-
-            addToInputQueue(sender, message);
+            addToInputQueue(sender, value);
         }
 
         // fire if actor is ready

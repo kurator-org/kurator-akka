@@ -6,13 +6,13 @@ public class PrintStreamWriter extends AkkaActor {
     private boolean isFirst = true;
     
     @Override
-    public void handleDataMessage(Object message) throws Exception {
+    public void handleData(Object value) throws Exception {
         
         if (isFirst) {
             isFirst = false;
         } else {
             outStream.print(separator);
         }
-        outStream.print(message);
+        outStream.print(value);
     }
 }

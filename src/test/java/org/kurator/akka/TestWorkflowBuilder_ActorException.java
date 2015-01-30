@@ -79,7 +79,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
          static public final Integer exceptionTriggerValue = Integer.MIN_VALUE;
          
          @Override
-         public void handleDataMessage(Object message) throws Exception {
+         public void handleData(Object message) throws Exception {
 
              if (message instanceof Integer) {
                  if (((Integer)message) == exceptionTriggerValue) {

@@ -95,11 +95,11 @@ public class InternalDateValidator extends AkkaActor {
         return "CollectionEventOutlierFinder";
     }
     
-    public void handleDataMessage(Object message) throws Exception {
+    public void handleData(Object value) throws Exception {
 
-       if (message instanceof SpecimenRecord) {
+       if (value instanceof SpecimenRecord) {
             
-            SpecimenRecord inputSpecimenRecord = (SpecimenRecord) message;
+            SpecimenRecord inputSpecimenRecord = (SpecimenRecord) value;
             
             String eventDate = inputSpecimenRecord.get(eventDateLabel);
             String collector = inputSpecimenRecord.get(collectorLabel);

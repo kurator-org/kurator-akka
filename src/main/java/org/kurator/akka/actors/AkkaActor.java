@@ -133,7 +133,7 @@ public abstract class AkkaActor extends UntypedActor {
      * <p> This method may not be overridden by child classes.  Non-default responses to
      * messages can provided by overriding one or more of {@link #handleInitialize()}, 
      * {@link #handleStart()}, {@link #handleEndOfStream(EndOfStream) handleEndOfStream()}, 
-     * {@link #handleEnd()}, and {@link #handleDataMessage(Object) handleDataMessage()}.</p>
+     * {@link #handleEnd()}, and {@link #handleData(Object) handleDataMessage()}.</p>
      * 
      * <p>This method is responsible calling the more specific message and event handlers, and for
      * initializing the list of listeners using the listener configurations assigned
@@ -176,12 +176,13 @@ public abstract class AkkaActor extends UntypedActor {
                 
                 } else if (message instanceof EndOfStream) {
                     
+                    // invoke the EndOfStream message handler
                     handleEndOfStream((EndOfStream)message);
                 }            
                 
             // allow child classes to handle non-control messages
             } else {
-                handleDataMessage(message);
+                handleData(message);
             }
             
         } catch (Exception e) {
@@ -265,11 +266,12 @@ public abstract class AkkaActor extends UntypedActor {
      * Empty default handler incoming data messages.  Called when the actor receives a message
      * that is not derived from {@link org.kurator.akka.messages.ControlMessage ControlMessage}.
      * 
-     * <p>Most actors will override this method to receive incoming messages from other actors.</p>
+     * <p>Most actors will override this method to receive incoming data from other actors.</p>
      *  
+     * @param value The received data value.
      * @throws Exception
      */
-    protected void handleDataMessage(Object message) throws Exception {}
+    protected void handleData(Object value) throws Exception {}
     
     
     /** 

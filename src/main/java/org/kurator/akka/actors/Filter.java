@@ -10,15 +10,15 @@ public class Filter extends AkkaActor {
     private boolean eosSent = false;
 
     @Override
-    public void handleDataMessage(Object message) throws Exception {
+    public void handleData(Object value) throws Exception {
 
         if (eosSent)
             return;
 
-        if (message instanceof Integer) {
-            Integer value = (Integer) message;
-            if (value <= max) {
-                broadcast(value);
+        if (value instanceof Integer) {
+            Integer intValue = (Integer) value;
+            if (intValue <= max) {
+                broadcast(intValue);
             } else if (sendEosOnExceed) {
                 eosSent = true;
                 broadcast(new EndOfStream());

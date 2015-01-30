@@ -39,11 +39,11 @@ public class CsvSpecimenFileWriter extends AkkaActor {
     }
     
     @Override
-    public void handleDataMessage(Object message) throws Exception {
+    public void handleData(Object value) throws Exception {
 
-        if (message instanceof SpecimenRecord) {
+        if (value instanceof SpecimenRecord) {
         
-            SpecimenRecord record = (SpecimenRecord) message;
+            SpecimenRecord record = (SpecimenRecord) value;
             if (!headerWritten) {
                 writeHeaderToFile(record);
                 headerWritten = true;
