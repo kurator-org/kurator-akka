@@ -57,8 +57,8 @@ public class CsvFileReader extends OneShot {
             headers = csvReader.getHeaders();
         }
         
-        while (csvReader.readRecord())
-        {   
+        while (csvReader.readRecord()) {
+            
             if (csvReader.getColumnCount() < headers.length)  {
                 throw new Exception("Too few fields in record: " + csvReader.getRawRecord());
             }

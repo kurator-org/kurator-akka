@@ -9,7 +9,7 @@ components:
   properties:
     parameters:
       value: 1
-      sendEos: false
+      sendEosOnEnd: false
 
 - id: Filter
   type: FilterActor

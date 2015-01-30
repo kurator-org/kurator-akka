@@ -41,7 +41,7 @@ public class Hamming {
                 .name("oneShot")
                 .actorClass(ConstantSource.class)
                 .parameter("value", 1)
-                .parameter("sendEos", false);
+                .parameter("sendEosOnEnd", false);
         
         ActorConfig filter = wr.configureNewActor()
                 .name("filter")

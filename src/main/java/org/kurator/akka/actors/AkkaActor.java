@@ -19,7 +19,7 @@ import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 
 /** 
- * Base class for all actors that can run within the kurator-akka framework.
+ * Base class for all actors that can run within the Kurator-Akka workflow framework.
  * 
  * <p> This class standardizes the actor lifecycle and maintains the list of listeners for each actor.
  * It also provides the option of automatically stopping an actor when an 
@@ -31,10 +31,16 @@ import akka.actor.UntypedActor;
  */
 public abstract class AkkaActor extends UntypedActor {
 
-    /** Determines if actor automatically terminates when it receives an 
+    /** Determines if this actor automatically terminates when it receives an 
      * {@link org.kurator.akka.messages.EndOfStream EndOfStream} message.
      * Defaults to <i>true</i>. */
     public boolean endOnEos = true;
+
+    /** Determines if this actor automatically sends an 
+     * {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to
+     * all of its listeners just before it stops executing.
+     * Defaults to <i>true</i>. */
+    public boolean sendEosOnEnd = true;
     
     /** Stream used by actor instead of writing to <code>System.out</code> directly. 
      * Defaults to <code>System.out</code>. 
@@ -79,7 +85,8 @@ public abstract class AkkaActor extends UntypedActor {
      * <p>The workflow runner is used for accessing the mapping of listener {@link org.kurator.akka.ActorConfig ActorConfig} 
      * instances to {@link akka.actor.ActorRef ActorRef} instances, and for reporting exceptions to the runner.</p>
      * 
-     * @param runner The {@link org.kurator.akka.WorkflowRunner WorkflowRunner}.
+     * @param runner The {@link org.kurator.akka.WorkflowRunner WorkflowRunner} that built and is currently 
+     *               executing the workflow containing this actor.
      * @return this AkkaActor
      */
     public AkkaActor runner(WorkflowRunner runner) {
@@ -103,6 +110,7 @@ public abstract class AkkaActor extends UntypedActor {
         return this;
     }
     
+    
     /** 
      * Specifies the output stream to be used by an actor that needs
      * to write to <code>stdout</code>. The value is stored in {@link #outStream}.
@@ -118,20 +126,22 @@ public abstract class AkkaActor extends UntypedActor {
         return this;
     }    
 
+    
     /** 
      * Initial handler for all messages received by this actor via the Akka framework.  
      * 
      * <p> This method may not be overridden by child classes.  Non-default responses to
      * messages can provided by overriding one or more of {@link #handleInitialize()}, 
      * {@link #handleStart()}, {@link #handleEndOfStream(EndOfStream) handleEndOfStream()}, 
-     * {@link #handleEnd()}, and {@link #handleDataMessage(Object)}.</p>
+     * {@link #handleEnd()}, and {@link #handleDataMessage(Object) handleDataMessage()}.</p>
      * 
      * <p>This method is responsible calling the more specific message and event handlers, and for
      * initializing the list of listeners using the listener configurations assigned
-     * via the {@link #listeners(List)} method.</p>
+     * via the {@link #listeners(List) listeners()} method.</p>
      * 
-     * <p>This method catches exceptions thrown by overridden message and event handlers,
-     * reports these exceptions to the parent workflow via {@link #reportException(Exception) reportException()},
+     * <p>This method catches exceptions thrown by overridden message and event handlers.  If such
+     * an exception is caught, the method reports the exception to the parent workflow via 
+     * {@link #reportException(Exception) reportException()},
      * then stops the actor with a call to {@link #endStreamAndStop()} .</p>
      * 
      * @param message The received message.
@@ -147,24 +157,29 @@ public abstract class AkkaActor extends UntypedActor {
                 
                 if (message instanceof Initialize) {
                 
+                    // compose the list of listeners from the configured list of listener configurations
                     for (ActorConfig listenerConfig : listenerConfigs) {
                         ActorRef listener = runner.getActorForConfig(listenerConfig);
                         listeners.add(listener);
                     }
                                 
-                    getSender().tell(new Response(), getSelf());
-                    
+                    // invoke the Initialize event handler
                     handleInitialize();
+
+                    // send a reply to this message
+                    getSender().tell(new Response(), getSelf());
                     
                 } else if (message instanceof Start) {
                     
+                    // invoke the Start event handler
                     handleStart();
                 
                 } else if (message instanceof EndOfStream) {
+                    
                     handleEndOfStream((EndOfStream)message);
                 }            
                 
-            // all other messages are assumed to be data
+            // allow child classes to handle non-control messages
             } else {
                 handleDataMessage(message);
             }
@@ -201,8 +216,8 @@ public abstract class AkkaActor extends UntypedActor {
      * 
      * <p> Note that if an actor is a listener of another actor in the workflow then it is <i>not</i> guaranteed 
      * to receive the {@link org.kurator.akka.messages.Start Start} message before receiving messages from other actors. 
-     * This method thus is most useful when (a) an actor is not a listener, or (b) when the actor occurs in a workflow cycle 
-     * such that the messages it receives are produced in response to the messages that it sends.</p>
+     * This method thus is most useful when <b>(a)</b> an actor is not a listener, or <b>(b)</b> when the actor occurs 
+     * in a workflow cycle such that the messages it receives are produced in response to the messages that it sends.</p>
      * 
      * <p> Note also that if an actor is not a listener of any other actor then it may delay returning from
      * this method until the actor has performed all of its activity for the workflow run. Thus, an actor serving
@@ -269,48 +284,47 @@ public abstract class AkkaActor extends UntypedActor {
     }    
         
     /** 
-     * Stops the actor after sending the provided {@link org.kurator.akka.messages.EndOfStream EndOfStream} 
-     * message to listeners.  It is called by {@link #handleEndOfStream(EndOfStream)}
+     * Stops the actor after (optionally) broadcasting the provided {@link org.kurator.akka.messages.EndOfStream EndOfStream} 
+     * message to listeners.  It is called by {@link #handleEndOfStream(EndOfStream) handleEndOfStream()}
      * on arrival of an {@link org.kurator.akka.messages.EndOfStream EndOfStream} message if
      * the {@link #endOnEos} property is <i>true</i>.
      * 
-     * <p> This method broadcasts the received {@link org.kurator.akka.messages.EndOfStream EndOfStream} 
-     * message to the actor's listeners, then terminates the actor with a call to {@link #stop()}.
-     * To stop an actor without sending an {@link org.kurator.akka.messages.EndOfStream EndOfStream} message 
-     * to listeners, call the {@link #stop()} method directly.
+     * <p> This method broadcasts the received {@link org.kurator.akka.messages.EndOfStream EndOfStream}
+     * message (a new {@link org.kurator.akka.messages.EndOfStream EndOfStream} instance is created
+     * if <code>eos</code> is <code>null</code>) to the actor's listeners if the {@link #sendEosOnEnd} 
+     * property is <i>true</i>.
+     * The method then calls {@link #handleEnd handleEnd()} and terminates the actor.
      * 
      * @param eos The {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to broadcast to listeners.
+     *            Can be <code>null</code> (see above).
      * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
      */
     protected final void endStreamAndStop(EndOfStream eos) throws Exception {
-        broadcast(eos);
-        stop();
+        
+        // optionally send an EndOfStream message to listeners
+        if (sendEosOnEnd) {
+            broadcast(eos != null ? eos :  new EndOfStream());
+        }
+    
+        // call the End event handler
+        handleEnd();
+        
+        // stop the actor
+        getContext().stop(getSelf());
     }
     
     
     /** 
      * Stops the actor after sending a new {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to listeners.
-     * Creates a new {@link org.kurator.akka.messages.EndOfStream EndOfStream} and passes it to 
-     * {@link #endStreamAndStop(EndOfStream)}.
+     * 
+     * <p>Calling this method is the primary means of shutting down an actor if {@link #endOnEos} is <i>false</i>.
+     * </p>
      * 
      * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
      */
     protected final void endStreamAndStop() throws Exception {
-        endStreamAndStop(new EndOfStream());
+        endStreamAndStop(null);
     }
-
-    
-    /** 
-     * Terminates the execution of an actor.  Calls {@link #handleEnd handleEnd()}, then uses the Akka API
-     * to shut down the actor.
-     *
-     * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
-     */
-    protected final void stop() throws Exception {
-        handleEnd();
-        getContext().stop(getSelf());
-    }
-    
     
     /** 
      * Used to report exceptions that are caught by this actor.  
