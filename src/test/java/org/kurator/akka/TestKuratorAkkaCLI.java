@@ -1,6 +1,6 @@
 package org.kurator.akka;
 
-public class TestKuratorAkka extends KuratorAkkaTestCase {
+public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
 
     private static String EXPECTED_HELP_OUTPUT =
         ""                                                                                  + EOL +

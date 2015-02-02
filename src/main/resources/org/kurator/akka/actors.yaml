@@ -34,28 +34,6 @@ types:
   properties:
     actorClass: org.kurator.akka.actors.PrintStreamWriter
 
-- id: CsvSpecimenFileReader
-  type: Actor
-  properties:
-    actorClass: org.kurator.akka.actors.CsvFileReader
-    defaults:
-      recordClass: org.kurator.validation.data.OrderedSpecimenRecord
-
-- id: CsvSpecimenFileWriter
-  type: Actor
-  properties:
-    actorClass: org.kurator.validation.actors.CsvSpecimenFileWriter
-
-- id: ScientificNameValidator
-  type: Actor
-  properties:
-    actorClass: org.kurator.validation.actors.ScientificNameValidator
-    
-- id: InternalDateValidator
-  type: Actor
-  properties:
-    actorClass: org.kurator.validation.actors.InternalDateValidator   
-
 - id: StringAppender
   type: Actor
   properties:
