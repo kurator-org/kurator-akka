@@ -6,8 +6,7 @@ imports:
 components:
 
 - id: Repeater
-  type: RepeaterActor
-  properties:
+  type: PythonRepeater
 
 - id: MultiplyByTwo
   type: PythonMultiplier
@@ -16,10 +15,8 @@ components:
       - !ref Repeater
 
 - id: Printer
-  type: PrinterActor
+  type: PythonPrinter
   properties:
-    parameters: 
-      separator: ','
     listensTo:
       - !ref MultiplyByTwo
        

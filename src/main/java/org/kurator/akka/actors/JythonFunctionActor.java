@@ -36,6 +36,10 @@ public class JythonFunctionActor extends AkkaActor {
             interpreter.execfile(path);
         }
         
+        // set output streams of interpreter to that set for this actor
+        interpreter.setOut(super.outStream);
+        interpreter.setErr(super.errStream);
+        
         // expand wrapper function template using custom function name
         String wrapper = String.format(wrapperFormat, function);
         interpreter.exec(wrapper);
