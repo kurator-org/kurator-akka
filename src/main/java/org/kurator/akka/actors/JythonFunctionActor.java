@@ -1,6 +1,5 @@
-package org.kurator.akka.jython;
+package org.kurator.akka.actors;
 
-import org.kurator.akka.actors.AkkaActor;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;

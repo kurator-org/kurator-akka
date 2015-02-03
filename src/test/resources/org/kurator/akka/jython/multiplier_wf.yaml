@@ -1,0 +1,33 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+- classpath:/org/kurator/akka/jython/jython_actors.yaml
+
+components:
+
+- id: Repeater
+  type: RepeaterActor
+  properties:
+
+- id: MultiplyByTwo
+  type: PythonMultiplier
+  properties:
+    listensTo:
+      - !ref Repeater
+
+- id: Printer
+  type: PrinterActor
+  properties:
+    parameters: 
+      separator: ','
+    listensTo:
+      - !ref MultiplyByTwo
+       
+- id: ThreeActorWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref Repeater
+      - !ref MultiplyByTwo
+      - !ref Printer
+    inputActor: !ref Repeater

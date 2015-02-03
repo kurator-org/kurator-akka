@@ -1,9 +1,10 @@
-package org.kurator.akka.jython;
+package org.kurator.akka.actors;
 
 import org.junit.Test;
 import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
+import org.kurator.akka.actors.JythonFunctionActor;
 import org.kurator.akka.actors.PrintStreamWriter;
 import org.kurator.akka.actors.Repeater;
 import org.kurator.akka.messages.EndOfStream;
@@ -30,7 +31,7 @@ public class TestJythonFunctionActor extends KuratorAkkaTestCase {
          
          jythonActor = wr.configureNewActor()
              .actorClass(JythonFunctionActor.class)
-             .parameter("path", "src/main/resources/org/kurator/akka/python/multiplier.py")
+             .parameter("path", "src/test/resources/org/kurator/akka/jython/multiplier.py")
              .parameter("function", "multiplier")
              .listensTo(repeater);
     

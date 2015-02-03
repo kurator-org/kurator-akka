@@ -1,0 +1,12 @@
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+
+types:
+
+- id: PythonMultiplier
+  type: PythonFunctionActor
+  properties:
+    parameters:
+      path: src/test/resources/org/kurator/akka/jython/multiplier.py
+      function: multiplier
