@@ -31,6 +31,7 @@ public class TestJythonFunctionActor extends KuratorAkkaTestCase {
          jythonActor = wr.configureNewActor()
              .actorClass(JythonFunctionActor.class)
              .parameter("path", "src/main/resources/org/kurator/akka/python/multiplier.py")
+             .parameter("function", "multiplier")
              .listensTo(repeater);
     
         wr.configureNewActor()

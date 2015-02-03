@@ -30,6 +30,9 @@ import akka.actor.UntypedActor;
  * further messages from upstream can be expected. </p>
  */
 public abstract class AkkaActor extends UntypedActor {
+    
+    /** Shorthand for platform-specific end-of-line character sequence. */
+    public static final String EOL = System.getProperty("line.separator");
 
     /** Determines if this actor automatically terminates when it receives an 
      * {@link org.kurator.akka.messages.EndOfStream EndOfStream} message.
@@ -58,6 +61,10 @@ public abstract class AkkaActor extends UntypedActor {
     private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
+
+    
+    
+
     
     /** 
      * Specifies the list of listeners for this actor in the current workflow.

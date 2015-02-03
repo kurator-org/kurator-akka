@@ -1,4 +1,5 @@
 
-def function():
-  global output
-  output = 2 * input
+
+
+def multiplier(i):
+  return 2 * i

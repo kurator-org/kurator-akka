@@ -9,12 +9,18 @@ public class JythonFunctionActor extends AkkaActor {
 
     public Class<? extends Object> inputType = Integer.class;
     public Class<? extends Object> outputType = Integer.class;
-    public String inputName = "input";
-    public String outputName = "output";
-    public String function = "function()";
+    public String function = "function";
     public String path = null;
     public String start = null;
     public String end = null;
+    
+    private static final String inputName = "_KURATOR_INPUT_";
+    private static final String outputName = "_KURATOR_OUTPUT_";
+    private static final String wrapperFormat = 
+           "def wrapper():"                                 + EOL +
+           "  global " + inputName                          + EOL +
+           "  global " + outputName                         + EOL +
+           "  " + outputName + " = %s(" + inputName + ")"   + EOL;
 
     private PythonInterpreter interpreter;
     private PyObject none;
@@ -30,6 +36,10 @@ public class JythonFunctionActor extends AkkaActor {
         if (path != null) {
             interpreter.execfile(path);
         }
+        
+        // expand wrapper function template using custom function name
+        String wrapper = String.format(wrapperFormat, function);
+        interpreter.exec(wrapper);
         
         // cache a python None object
         none = interpreter.eval("None");
@@ -55,7 +65,7 @@ public class JythonFunctionActor extends AkkaActor {
         interpreter.set(inputName, input);
         
         // call the python function
-        interpreter.eval(function);
+        interpreter.eval("wrapper()");
         
         // extract the function output
         Object output = interpreter.get(outputName, outputType);
