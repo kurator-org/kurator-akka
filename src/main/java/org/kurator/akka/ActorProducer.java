@@ -56,24 +56,42 @@ public class ActorProducer implements IndirectActorProducer {
 
         // assign values to the actor parameters 
         Map<String,Object> parameterSettings = new HashMap<String,Object>();
+        Map<String,Object> unappliedSettings = new HashMap<String,Object>();
         parameterSettings.putAll(defaults);
         parameterSettings.putAll(parameters);
         for (Map.Entry<String,Object> setting : parameterSettings.entrySet()) {
-            setParameter(setting.getKey(), setting.getValue());
+            String name = setting.getKey();
+            Object value = setting.getValue();
+            boolean parameterWasSet = false;
+            try {
+                 parameterWasSet = (setParameter(name, value));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            
+            if (!parameterWasSet) {
+                unappliedSettings.put(name, value);
+            }
         }
+        
+        actor.settings(unappliedSettings);
             
         return actor;
     }
     
     
-    private void setParameter(String name, Object value) {        
+    private boolean setParameter(String name, Object value) throws IllegalAccessException {        
+
+        boolean parameterWasSet = false;
         try {
             Field field = actor.getClass().getField(name);
             field.setAccessible(true);
             field.set(actor, value);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-        } 
+            parameterWasSet = true;
+        } catch (NoSuchFieldException e) {
+            parameterWasSet = false;
+        }
+        
+        return parameterWasSet;
     }
 }

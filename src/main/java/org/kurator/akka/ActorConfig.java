@@ -75,8 +75,7 @@ public class ActorConfig implements BeanNameAware {
     public Map<String, Object> getDefaults() {
         return defaults;
     }
-    
-    
+
     public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }

@@ -13,12 +13,16 @@ components:
   properties:
     listensTo:
       - !ref Repeater
+    parameters:
+      factor: 2
 
 - id: Printer
   type: PythonPrinter
   properties:
     listensTo:
       - !ref MultiplyByTwo
+    parameters:
+      delimiter: ","
        
 - id: ThreeActorWorkflow
   type: Workflow

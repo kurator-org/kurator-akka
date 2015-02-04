@@ -7,20 +7,21 @@ types:
 - id: PythonRepeater
   type: PythonFunctionActor
   properties:
-    parameters:
+    defaults:
       path: src/test/resources/org/kurator/akka/jython/repeater.py
       function: repeat
 
 - id: PythonMultiplier
   type: PythonFunctionActor
   properties:
-    parameters:
+    defaults:
       path: src/test/resources/org/kurator/akka/jython/multiplier.py
       function: multiplier
       
 - id: PythonPrinter
   type: PythonFunctionActor
   properties:
-    parameters:
+    defaults:
       path: src/test/resources/org/kurator/akka/jython/printer.py
       function: printMessage
+      start: start

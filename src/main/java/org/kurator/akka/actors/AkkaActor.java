@@ -4,6 +4,7 @@ import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.kurator.akka.ActorConfig;
@@ -61,10 +62,7 @@ public abstract class AkkaActor extends UntypedActor {
     private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
-
-    
-    
-
+    protected  Map<String,Object> settings;
     
     /** 
      * Specifies the list of listeners for this actor in the current workflow.
@@ -354,4 +352,8 @@ public abstract class AkkaActor extends UntypedActor {
         ExceptionMessage em = new ExceptionMessage(exception);
         workflowRef.tell(em, this.getSelf());
     }
+
+    public void settings(Map<String, Object> settings) {
+        this.settings = settings;
+    }    
 }

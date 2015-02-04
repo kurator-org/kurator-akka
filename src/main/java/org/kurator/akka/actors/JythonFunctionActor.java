@@ -1,5 +1,7 @@
 package org.kurator.akka.actors;
 
+import java.util.Map;
+
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
@@ -51,9 +53,17 @@ public class JythonFunctionActor extends AkkaActor {
     @Override
     protected void handleStart() {
 
+        if (settings != null) {
+            for(Map.Entry<String, Object> setting : settings.entrySet()) {
+                String name = setting.getKey();
+                Object value = setting.getValue();
+                interpreter.set(name, value);
+            }
+        }
+        
         // call script start function if defined
         if (start != null) {
-            interpreter.eval(start);
+            interpreter.eval(start + "()");
         }
     }
 
@@ -62,6 +72,7 @@ public class JythonFunctionActor extends AkkaActor {
         
         // reset output variable to null
         interpreter.set(outputName, none);
+        
         
         // stage input value
         Object input = inputType.cast(value);
@@ -82,7 +93,7 @@ public class JythonFunctionActor extends AkkaActor {
         
         // call script end function if defined
         if (end != null) {
-            interpreter.eval(end);
+            interpreter.eval(end + "()");
         }
         
         // shut down the interpreter
