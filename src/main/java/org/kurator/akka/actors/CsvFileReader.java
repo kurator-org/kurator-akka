@@ -3,23 +3,21 @@ package org.kurator.akka.actors;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.kurator.akka.data.GenericRecord;
 
 import com.csvreader.CsvReader;
 
 public class CsvFileReader extends OneShot {
-
-    @SuppressWarnings("serial")
-    static public class DefaultRecordType extends LinkedHashMap<String,String> {}
 
     public Reader inputReader = null;
     public String filePath = null;
     public String recordClass = null;
     public String[] headers = null;
 
-    private Class<? extends Map<String, String>> _recordClass = DefaultRecordType.class;
+    private Class<? extends Map<String, String>> _recordClass = GenericRecord.class;
             
     @SuppressWarnings("unchecked")
     @Override
