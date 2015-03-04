@@ -15,7 +15,13 @@ public class CsvFileWriter extends AkkaActor {
 
     public Writer outputWriter;
     public String filePath = null;
-
+    public boolean quoteValuesContainingDelimiter = true;
+    public boolean quoteAllValues = false;
+    public boolean quoteEmptyValues = false;
+    public boolean trimValues = false;
+    public char quoteCharacter = '"';
+    public char fieldDelimiter = ',';
+    
     private Boolean headerWritten = false;
     private List<String> headers = new ArrayList<String>();
     private CsvWriter csvWriter;
@@ -32,7 +38,10 @@ public class CsvFileWriter extends AkkaActor {
                     "No file or output writer specified for CsVSpecimenFileWriter.");
         }
 
-        csvWriter = new CsvWriter(outputWriter, ',');
+        csvWriter = new CsvWriter(outputWriter, fieldDelimiter);
+        csvWriter.setForceQualifier(quoteAllValues);
+        csvWriter.setTextQualifier(quoteCharacter);
+        csvWriter.setUseTextQualifier(quoteValuesContainingDelimiter);
     }
 
     @Override
@@ -48,15 +57,15 @@ public class CsvFileWriter extends AkkaActor {
             @SuppressWarnings("unchecked")
             Map<String,String> record = (Map<String,String>) value;
             if (!headerWritten) {
-                writeHeaderToFile(record);
+                writeHeader(record);
                 headerWritten = true;
             }
 
-            writeRecordValuesToFile(record);
+            writeRecord(record);
         }
     }
 
-    private void writeHeaderToFile(Map<String,String> record) throws IOException {
+    private void writeHeader(Map<String,String> record) throws IOException {
 
         for (String label : record.keySet()) {
             csvWriter.write(label);
@@ -66,10 +75,19 @@ public class CsvFileWriter extends AkkaActor {
         csvWriter.endRecord();
     }
 
-    private void writeRecordValuesToFile(Map<String,String> record) throws IOException {
+    private void writeRecord(Map<String,String> record) throws IOException {
 
         for (String header : headers) {
-            csvWriter.write(record.get(header));
+            String value = record.get(header);
+            if (value == null) value = "";
+            if (trimValues) value = value.trim();
+            if (value.isEmpty()) {
+                csvWriter.setUseTextQualifier(this.quoteEmptyValues);
+                csvWriter.write(value);
+                csvWriter.setUseTextQualifier(quoteValuesContainingDelimiter);
+            } else {
+                csvWriter.write(value);
+            }
         }
 
         csvWriter.endRecord();
