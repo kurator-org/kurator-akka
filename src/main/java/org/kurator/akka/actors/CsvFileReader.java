@@ -12,6 +12,11 @@ import org.kurator.akka.data.GenericRecord;
 
 public class CsvFileReader extends OneShot {
 
+    public boolean stripQuotes = true;
+    public char fieldDelimiter = ',';
+    public char quoteCharacter = '"';
+    public boolean trimWhitespace = true;
+
     public Reader inputReader = null;
     public String filePath = null;
     public String recordClass = null;
@@ -46,8 +51,12 @@ public class CsvFileReader extends OneShot {
             throw new Exception("No file or input reader specified for CsvStreamReader.");
         }
 
-        CsvReader csvReader = new CsvReader(inputReader);
+        CsvReader csvReader = new CsvReader(inputReader, fieldDelimiter);
         
+        csvReader.setUseTextQualifier(stripQuotes);
+        csvReader.setTextQualifier(quoteCharacter);
+        csvReader.setTrimWhitespace(trimWhitespace);
+       
         if (headers!=null) {
             csvReader.setHeaders(headers);
         } else {
