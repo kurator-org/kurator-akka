@@ -38,3 +38,13 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.StringAppender
+
+- id: CsvFileReader
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.CsvFileReader
+    
+- id: CsvFileWriter
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.CsvFileWriter

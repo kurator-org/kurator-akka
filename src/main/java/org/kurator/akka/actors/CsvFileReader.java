@@ -6,9 +6,9 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.data.GenericRecord;
-
 import com.csvreader.CsvReader;
+
+import org.kurator.akka.data.GenericRecord;
 
 public class CsvFileReader extends OneShot {
 
@@ -18,7 +18,7 @@ public class CsvFileReader extends OneShot {
     public String[] headers = null;
 
     private Class<? extends Map<String, String>> _recordClass = GenericRecord.class;
-            
+
     @SuppressWarnings("unchecked")
     @Override
     public void handleInitialize() throws Exception {
