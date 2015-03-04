@@ -48,3 +48,10 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.CsvFileWriter
+
+- id: RequiredFieldsRecordFilter
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.RequiredFieldsRecordFilter
+
+      
