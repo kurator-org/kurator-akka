@@ -54,4 +54,7 @@ types:
   properties:
     actorClass: org.kurator.akka.actors.RequiredFieldsRecordSelector
 
-      
+- id: MapRecordProjector
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.MapRecordProjector      

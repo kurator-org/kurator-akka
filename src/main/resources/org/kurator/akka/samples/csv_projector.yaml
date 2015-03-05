@@ -1,0 +1,47 @@
+# This workflow reads a CSV file and outputs to another CSV file the 
+# records that have non-empty values for one more required fields.
+#
+# Example command-line usage:
+# kurator -f csv_projector.yaml -p in=specimen_records.csv -p out=filtered_records.csv -p fields=[county,year]
+
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: CsvReader
+  type: CsvFileReader
+  properties:
+
+- id: RecordProjector
+  type: MapRecordProjector
+  properties:
+    listensTo:
+      - !ref CsvReader
+
+- id: CsvWriter
+  type: CsvFileWriter
+  properties:
+    listensTo:
+      - !ref RecordProjector
+      
+- id: CsvRecordProjector
+  type: Workflow
+  properties:
+    actors:
+      - !ref CsvReader
+      - !ref RecordProjector
+      - !ref CsvWriter
+    parameters:
+      in:
+        actor: !ref CsvReader
+        parameter: filePath
+      fields:
+        actor: !ref RecordProjector
+        parameter: fields
+      out:
+        actor: !ref CsvWriter
+        parameter: filePath
+
+        
