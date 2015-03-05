@@ -1,21 +1,16 @@
 package org.kurator.akka.actors;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.kurator.akka.data.Util;
 
 public class RequiredFieldsRecordFilter extends MapRecordFilter {
 
-	public String[] requiredFields;
+	public List<String> requiredFields = new ArrayList<String>();
 	public boolean disallowEmptyFields = true;
 	
-	@Override
-	public void handleInitialize() {
-	    if (requiredFields == null) {
-	       requiredFields = new String[] {};
-	    }
-	}
-
     public boolean accepts(Map<? extends String, ? extends String> record) {
     	for (String key : requiredFields) {
     		if (!record.containsKey(key)) return false;

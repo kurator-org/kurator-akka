@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.Arrays;
 
 import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
@@ -77,7 +78,7 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
                  "1,2,"     + EOL
          );
          csvReader.parameter("inputReader", stringReader);
-         recordFilter.parameter("requiredFields", new String[] {"A"});
+         recordFilter.parameter("requiredFields", Arrays.asList(new String[] {"A"}));
          
          wr.build();
          wr.start();
@@ -103,7 +104,7 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
                  "1,2,"     + EOL
          );
          csvReader.parameter("inputReader", stringReader);
-         recordFilter.parameter("requiredFields", new String[] {"A", "C"});
+         recordFilter.parameter("requiredFields", Arrays.asList(new String[] {"A", "C"}));
          
          wr.build();
          wr.start();
