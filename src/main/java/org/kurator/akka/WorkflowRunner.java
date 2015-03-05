@@ -4,12 +4,12 @@ package org.kurator.akka;
 import static akka.pattern.Patterns.ask;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.messages.Initialize;
@@ -31,13 +31,14 @@ public class WorkflowRunner {
     private final ActorSystem system;
     private ActorRef inputActor = null;
     private Map<ActorConfig,ActorRef> actorRefForActorConfig = new HashMap<ActorConfig, ActorRef>();
+    private Map<String,ActorConfig> actorConfigForActorName = new HashMap<String, ActorConfig>();
     private ActorRef workflowRef;
     private ActorConfig inputActorConfig;
-    private List<ActorConfig> actorConfigs;
     private Map<String, Object> workflowParameters;
     private PrintStream outStream = System.out;
     private PrintStream errStream = System.err;
     private Exception lastException = null;
+    private int actorIndex = 0;
 
     public WorkflowRunner() {
         
@@ -53,13 +54,21 @@ public class WorkflowRunner {
         this.system = ActorSystem.create("Workflow",  config);
     }
 
-    public ActorConfig configureNewActor() {
-        if (actorConfigs == null) {
-            actorConfigs = new LinkedList<ActorConfig>();
-        }
-        ActorConfig actor = new ActorConfig();
-        actorConfigs.add(actor);
+    public ActorConfig actor(Class<? extends AkkaActor> actorClass) {
+        ActorConfig actor = new ActorConfig().actorClass(actorClass);
+        addActorConfig(actor);
         return actor;
+    }
+    
+    private ActorConfig addActorConfig(ActorConfig actorConfig) {
+        String actorName = actorConfig.actorName;
+        if (actorName == null) {
+            actorName = actorConfig.actorClass().getName().toString() + "_" + actorIndex;
+            actorConfig.actorName = actorName;
+        }
+        actorConfigForActorName.put(actorName, actorConfig);
+        actorIndex++;
+        return actorConfig;
     }
     
     public WorkflowRunner outputStream(PrintStream outStream) {
@@ -106,8 +115,10 @@ public class WorkflowRunner {
         
         inputActorConfig = workflowConfig.getInputActor(); 
 
-        actorConfigs = workflowConfig.getActors();
-        
+        for (ActorConfig actor : workflowConfig.getActors()) {
+            addActorConfig(actor);
+        }
+
         workflowParameters = workflowConfig.getParameters();
     }
 
@@ -130,34 +141,37 @@ public class WorkflowRunner {
             workflowParameter = (Map<String, Object>) workflowParameters.get(settingName);
         }
             
-        if (workflowParameter == null) {
-            throw new Exception("Workflow does not take parameter named " + settingName);
+        if (workflowParameter != null) {
+            ActorConfig actor = (ActorConfig) workflowParameter.get("actor");
+            String actorParameterName = (String) workflowParameter.get("parameter");
+            actor.parameter(actorParameterName, settingValue);
+            return this;
         }
-                    
-        ActorConfig actor = (ActorConfig) workflowParameter.get("actor");
-        String actorParameterName = (String) workflowParameter.get("parameter");
-
-        actor.parameter(actorParameterName, settingValue);
         
-        return this;
+        StringTokenizer nameComponents = new StringTokenizer(settingName, ".");
+        if (nameComponents.countTokens() > 1) {
+            String actorName = nameComponents.nextToken();
+            String parameterName = nameComponents.nextToken();
+            ActorConfig actor = actorConfigForActorName.get(actorName);
+            
+            if (actor == null) {
+                throw new Exception("Workflow contains no actor with name " + actorName);
+            }
+            
+            actor.parameter(parameterName, settingValue);
+            return this;
+        }
+        
+        throw new Exception("Workflow does not take parameter named " + settingName);
     }
-
     
     public ActorRef build() {
-        return build(actorConfigs);
-    }
-    
-    public ActorRef build(List<ActorConfig> actorConfigurations) {
         
+        Collection<ActorConfig> actorConfigs = actorConfigForActorName.values();
         Set<ActorRef> actors = new HashSet<ActorRef>();
-        if (actorConfigurations.size() > 0) {
-            int actorIndex = 0;
-            for (ActorConfig actorConfig : actorConfigurations) {
-                String actorName = actorConfig.getName();
-                if (actorName == null) {
-                    actorName = actorConfig.actorClass().getName().toString() + "_" + actorIndex;
-                }
-                
+        if (actorConfigs.size() > 0) {
+            for (ActorConfig actorConfig : actorConfigs) {
+                String actorName = actorConfig.getName();                
                 ActorRef actor =  system.actorOf(Props.create(
                                     ActorProducer.class, 
                                     actorConfig.actorClass(), 
@@ -172,7 +186,6 @@ public class WorkflowRunner {
                 actors.add(actor);
                 actorRefForActorConfig.put(actorConfig, actor);
                 if (inputActorConfig == actorConfig) inputActor = actor;
-                actorIndex++;
             }
         }
     

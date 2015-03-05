@@ -26,18 +26,15 @@ public class TestJythonFunctionActor extends KuratorAkkaTestCase {
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
          
-         ActorConfig repeater = wr.configureNewActor()
-              .actorClass(Repeater.class);
+         ActorConfig repeater = wr.actor(Repeater.class);
          
-         jythonActor = wr.configureNewActor()
-             .actorClass(JythonFunctionActor.class)
+         jythonActor = wr.actor(JythonFunctionActor.class)
              .parameter("path", "src/test/resources/org/kurator/akka/jython/multiplier.py")
              .parameter("function", "multiplier")
              .parameter("factor", 2)
              .listensTo(repeater);
     
-        wr.configureNewActor()
-             .actorClass(PrintStreamWriter.class)
+        wr.actor(PrintStreamWriter.class)
              .parameter("separator", ",")
              .listensTo(jythonActor);
         

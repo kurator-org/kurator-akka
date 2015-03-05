@@ -22,21 +22,17 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
     
-         ActorConfig repeaterABuilder = wr.configureNewActor()
-                 .actorClass(Repeater.class);
+         ActorConfig repeaterABuilder = wr.actor(Repeater.class);
     
-         ActorConfig repeaterBBuilder = wr.configureNewActor()
-                 .actorClass(Repeater.class);
+         ActorConfig repeaterBBuilder = wr.actor(Repeater.class);
 
-         ActorConfig merge = wr.configureNewActor()
-                 .actorClass(IntegerStreamMerger.class)
+         ActorConfig merge = wr.actor(IntegerStreamMerger.class)
                  .parameter("streamCount", 2)
                  .listensTo(repeaterABuilder)
                  .listensTo(repeaterBBuilder);
         
          @SuppressWarnings("unused")
-         ActorConfig printer = wr.configureNewActor()
-                 .actorClass(PrintStreamWriter.class)
+         ActorConfig printer = wr.actor(PrintStreamWriter.class)
                  .parameter("separator", ", ")
                  .listensTo(merge);
         

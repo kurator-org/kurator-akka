@@ -35,7 +35,7 @@ public class CsvFileWriter extends AkkaActor {
 
         if (outputWriter == null) {
             throw new Exception(
-                    "No file or output writer specified for CsVSpecimenFileWriter.");
+                    "No file or output writer specified for CsvFileWriter.");
         }
 
         csvWriter = new CsvWriter(outputWriter, fieldDelimiter);

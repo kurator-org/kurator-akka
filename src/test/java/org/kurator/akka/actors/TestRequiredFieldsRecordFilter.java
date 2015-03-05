@@ -35,15 +35,12 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
                  .outputStream(stdoutStream)
                  .errorStream(stderrStream);
     
-         csvReader = wr.configureNewActor()
-                 .actorClass(CsvFileReader.class);
+         csvReader = wr.actor(CsvFileReader.class);
     
-         recordFilter = wr.configureNewActor()
-                 .actorClass(RequiredFieldsRecordFilter.class)
+         recordFilter = wr.actor(RequiredFieldsRecordFilter.class)
                  .listensTo(csvReader);
 
-         csvWriter = wr.configureNewActor()
-                 .actorClass(CsvFileWriter.class)
+         csvWriter = wr.actor(CsvFileWriter.class)
                  .parameter("outputWriter", bufferWriter)
                  .listensTo(recordFilter);
      }

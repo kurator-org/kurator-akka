@@ -19,18 +19,15 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
 
-         ActorConfig repeater = wr.configureNewActor()
-                 .actorClass(Repeater.class);
+         ActorConfig repeater = wr.actor(Repeater.class);
     
-         ActorConfig testActor = wr.configureNewActor()
-                 .actorClass(TestActor.class)
-                 .listensTo(repeater);
+         ActorConfig testActor = wr.actor(TestActor.class)
+             .listensTo(repeater);
         
          @SuppressWarnings("unused")
-         ActorConfig printer = wr.configureNewActor()
-                 .actorClass(PrintStreamWriter.class)
-                 .parameter("separator", ", ")
-                 .listensTo(testActor);
+         ActorConfig printer = wr.actor(PrintStreamWriter.class)
+             .parameter("separator", ", ")
+             .listensTo(testActor);
         
          wr.inputActor(repeater);
          

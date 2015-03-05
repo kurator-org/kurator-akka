@@ -37,16 +37,11 @@ components:
       in:
         actor: !ref CsvReader
         parameter: filePath
-      reader:
-        actor: !ref CsvReader
-        parameter: inputReader
       required:
         actor: !ref RecordFilter
         parameter: requiredFields
       out:
         actor: !ref CsvWriter
         parameter: filePath
-      writer:
-        actor: !ref CsvWriter
-        parameter: outputWriter
+
         

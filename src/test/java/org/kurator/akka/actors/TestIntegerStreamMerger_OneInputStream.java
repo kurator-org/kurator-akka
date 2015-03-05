@@ -18,17 +18,14 @@ public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase 
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
     
-         ActorConfig repeater = wr.configureNewActor()
-                 .actorClass(Repeater.class);
+         ActorConfig repeater = wr.actor(Repeater.class);
     
-         ActorConfig merge = wr.configureNewActor()
-                 .actorClass(IntegerStreamMerger.class)
+         ActorConfig merge = wr.actor(IntegerStreamMerger.class)
                  .parameter("streamCount", 1)
                  .listensTo(repeater);
         
          @SuppressWarnings("unused")
-         ActorConfig printer = wr.configureNewActor()
-                 .actorClass(PrintStreamWriter.class)
+         ActorConfig printer = wr.actor(PrintStreamWriter.class)
                  .parameter("separator", ", ")
                  .listensTo(merge);
         
