@@ -4,37 +4,44 @@ imports:
 
 components:
 
-- id: IntegerSource
-  type: ConstantSourceActor
-
-- id: Filter
-  type: FilterActor
+- id: CsvReader
+  type: CsvFileReader
   properties:
     parameters:
-      max: 100
-    listensTo:
-      - !ref IntegerSource
+      filePath:
 
-- id: Printer
-  type: PrinterActor
+- id: RecordFilter
+  type: RequiredFieldsRecordFilter
   properties:
     listensTo:
-      - !ref Filter
+      - !ref CsvReader
+
+- id: CsvWriter
+  type: CsvFileWriter
+  properties:
     parameters:
-      separator: ', '
+      filePath:
+    listensTo:
+      - !ref RecordFilter
       
-- id: IntegerFilter
+- id: CsvRecordFilter
   type: Workflow
   properties:
     actors:
-      - !ref IntegerSource
-      - !ref Filter
-      - !ref Printer
+      - !ref CsvReader
+      - !ref RecordFilter
+      - !ref CsvWriter
     parameters:
-      max:
-        actor: !ref Filter
-        parameter: max
-      values:
-        actor: !ref IntegerSource
-        parameter: values
+      in:
+        actor: !ref CsvReader
+        parameter: filePath
+      required:
+        actor: !ref RecordFilter
+        parameter: requiredFields
+      out:
+        actor: !ref CsvWriter
+        parameter: filePath
+      outWriter:
+        actor: !ref CsvWriter
+        parameter: outputWriter
         
