@@ -4,17 +4,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class GenericRecord extends LinkedHashMap<String,String> {
+public class GenericMapRecord extends LinkedHashMap<String,String> {
 
-    public GenericRecord() {
+    public GenericMapRecord() {
         super();
     }
 	
-	public GenericRecord(Map<? extends String, ? extends String> map) {
+	public GenericMapRecord(Map<? extends String, ? extends String> map) {
         super(map);
     }
     
-	public GenericRecord(String[] values) {
+	public GenericMapRecord(String[] values) {
 		super();
 		int fieldCount = values.length / 2;
 		for (int i = 0; i < fieldCount; ++ i) {

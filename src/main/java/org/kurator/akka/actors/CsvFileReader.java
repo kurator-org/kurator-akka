@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.csvreader.CsvReader;
 
-import org.kurator.akka.data.GenericRecord;
+import org.kurator.akka.data.GenericMapRecord;
 
 public class CsvFileReader extends OneShot {
 
@@ -23,7 +23,7 @@ public class CsvFileReader extends OneShot {
     public String recordClass = null;
     public String[] headers = null;
 
-    private Class<? extends Map<String, String>> _recordClass = GenericRecord.class;
+    private Class<? extends Map<String, String>> _recordClass = GenericMapRecord.class;
 
     @SuppressWarnings("unchecked")
     @Override
