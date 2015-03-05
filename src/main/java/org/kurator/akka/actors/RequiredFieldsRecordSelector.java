@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.kurator.akka.data.Util;
 
-public class RequiredFieldsRecordFilter extends MapRecordFilter {
+public class RequiredFieldsRecordSelector extends MapRecordSelector {
 
 	public List<String> requiredFields = new ArrayList<String>();
 	public boolean disallowEmptyFields = true;

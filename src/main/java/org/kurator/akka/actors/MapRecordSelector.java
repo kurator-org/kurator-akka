@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.kurator.akka.AkkaActor;
 
-public abstract class MapRecordFilter extends AkkaActor {
+public abstract class MapRecordSelector extends AkkaActor {
 
     public abstract boolean accepts(Map<? extends String, ? extends String> record);
     

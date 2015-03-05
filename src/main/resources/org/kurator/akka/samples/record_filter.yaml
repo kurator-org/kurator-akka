@@ -14,8 +14,8 @@ components:
   type: CsvFileReader
   properties:
 
-- id: RecordFilter
-  type: RequiredFieldsRecordFilter
+- id: RecordSelector
+  type: RequiredFieldsRecordSelector
   properties:
     listensTo:
       - !ref CsvReader
@@ -24,21 +24,21 @@ components:
   type: CsvFileWriter
   properties:
     listensTo:
-      - !ref RecordFilter
+      - !ref RecordSelector
       
 - id: CsvRecordFilter
   type: Workflow
   properties:
     actors:
       - !ref CsvReader
-      - !ref RecordFilter
+      - !ref RecordSelector
       - !ref CsvWriter
     parameters:
       in:
         actor: !ref CsvReader
         parameter: filePath
       required:
-        actor: !ref RecordFilter
+        actor: !ref RecordSelector
         parameter: requiredFields
       out:
         actor: !ref CsvWriter
