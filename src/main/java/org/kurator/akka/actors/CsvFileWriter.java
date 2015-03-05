@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.csvreader.CsvWriter;
 
-import org.kurator.akka.actors.AkkaActor;
+import org.kurator.akka.AkkaActor;
 
 public class CsvFileWriter extends AkkaActor {
 

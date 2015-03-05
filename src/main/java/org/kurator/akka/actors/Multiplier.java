@@ -1,5 +1,7 @@
 package org.kurator.akka.actors;
 
+import org.kurator.akka.AkkaActor;
+
 public class Multiplier extends AkkaActor {
 
     public int factor = 1;

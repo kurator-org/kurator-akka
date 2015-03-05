@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
+import org.kurator.akka.AkkaActor;
 import org.kurator.akka.messages.EndOfStream;
 
 import akka.actor.ActorRef;

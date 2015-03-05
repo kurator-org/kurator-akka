@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.actors.AkkaActor;
 import org.springframework.beans.factory.BeanNameAware;
 
 public class ActorConfig implements BeanNameAware {

@@ -1,5 +1,7 @@
 package org.kurator.akka.actors;
 
+import org.kurator.akka.AkkaActor;
+
 public class StringAppender extends AkkaActor {
 
     public String suffix = "";

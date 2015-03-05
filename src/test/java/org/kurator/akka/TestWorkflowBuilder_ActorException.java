@@ -2,7 +2,6 @@ package org.kurator.akka;
 
 import org.kurator.akka.ActorConfig;
 import org.kurator.akka.WorkflowRunner;
-import org.kurator.akka.actors.AkkaActor;
 import org.kurator.akka.actors.PrintStreamWriter;
 import org.kurator.akka.actors.Repeater;
 import org.kurator.akka.messages.EndOfStream;

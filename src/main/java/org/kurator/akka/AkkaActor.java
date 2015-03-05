@@ -1,4 +1,4 @@
-package org.kurator.akka.actors;
+package org.kurator.akka;
 
 import java.io.PrintStream;
 import java.util.HashSet;
@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.kurator.akka.ActorConfig;
-import org.kurator.akka.WorkflowRunner;
+import org.kurator.akka.actors.OneShot;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.messages.ExceptionMessage;

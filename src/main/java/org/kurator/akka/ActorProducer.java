@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.actors.AkkaActor;
-
 import akka.actor.IndirectActorProducer;
 
 public class ActorProducer implements IndirectActorProducer {

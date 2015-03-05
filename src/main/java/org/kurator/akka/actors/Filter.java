@@ -1,5 +1,6 @@
 package org.kurator.akka.actors;
 
+import org.kurator.akka.AkkaActor;
 import org.kurator.akka.messages.EndOfStream;
 
 public class Filter extends AkkaActor {
