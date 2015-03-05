@@ -2,6 +2,7 @@ package org.kurator.akka;
 
 import static akka.pattern.Patterns.ask;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,16 +29,18 @@ public class Workflow extends UntypedActor {
     ActorRef inputActor;
 
     @SuppressWarnings("unused")
-    private final PrintStream stdoutStream;
-    private final PrintStream stderrStream;
+    private final InputStream inStream;
+    private final PrintStream outStream;
+    private final PrintStream errStream;
     private final WorkflowRunner workflowRunner;
     
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
-    public Workflow(ActorSystem actorSystem, PrintStream stdoutStream, PrintStream stderrStream, WorkflowRunner workflowRunner) {
+    public Workflow(ActorSystem actorSystem, InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
         this.actorSystem = actorSystem;
-        this.stdoutStream = stdoutStream;
-        this.stderrStream = stderrStream;
+        this.inStream = inStream;
+        this.outStream = outStream;
+        this.errStream = errStream;
         this.workflowRunner = workflowRunner;
     }
     
@@ -100,9 +103,9 @@ public class Workflow extends UntypedActor {
         
         if (message instanceof ExceptionMessage) {
             ExceptionMessage em = (ExceptionMessage)message;
-            stderrStream.println(sender() + " threw an uncaught exception:");
+            errStream.println(sender() + " threw an uncaught exception:");
             Exception e = em.getException();
-            e.printStackTrace(stderrStream);
+            e.printStackTrace(errStream);
             workflowRunner.setLastException(e);
             return;
         }

@@ -3,6 +3,7 @@ package org.kurator.akka;
 
 import static akka.pattern.Patterns.ask;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class WorkflowRunner {
     private ActorRef workflowRef;
     private ActorConfig inputActorConfig;
     private Map<String, Object> workflowParameters;
+    private InputStream inStream = System.in;
     private PrintStream outStream = System.out;
     private PrintStream errStream = System.err;
     private Exception lastException = null;
@@ -69,6 +71,11 @@ public class WorkflowRunner {
         actorConfigForActorName.put(actorName, actorConfig);
         actorIndex++;
         return actorConfig;
+    }
+
+    public WorkflowRunner inputStream(InputStream inStream) {
+        this.inStream = inStream;
+        return this;
     }
     
     public WorkflowRunner outputStream(PrintStream outStream) {
@@ -177,7 +184,8 @@ public class WorkflowRunner {
                                     actorConfig.actorClass(), 
                                     actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
-                                    actorConfig.getListeners(), 
+                                    actorConfig.getListeners(),
+                                    inStream,
                                     outStream,
                                     errStream,
                                     this
@@ -195,6 +203,7 @@ public class WorkflowRunner {
                             system, 
                             actors, 
                             inputActor, 
+                            inStream,
                             outStream,
                             errStream,
                             this

@@ -1,5 +1,6 @@
 package org.kurator.akka;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -16,16 +17,18 @@ public class ActorProducer implements IndirectActorProducer {
     private List<ActorConfig> listeners;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
+    private InputStream inStream;
     private PrintStream outStream;
     private PrintStream errStream;
 
     public ActorProducer(Class<? extends AkkaActor> actorClass, Map<String, Object> defaults, Map<String, Object> parameters, List<ActorConfig> listeners, 
-            PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
+            InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
         this.actorClass = actorClass;
         this.defaults = defaults;
         this.parameters = parameters;
         this.listeners = listeners;
         this.workflowRunner = workflowRunner;
+        this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
     }
@@ -49,6 +52,7 @@ public class ActorProducer implements IndirectActorProducer {
         // configure the actor according to its configuration
         actor.listeners(listeners)
              .runner(workflowRunner)
+             .inputStream(inStream)
              .outputStream(outStream)
              .errorStream(errStream);
 

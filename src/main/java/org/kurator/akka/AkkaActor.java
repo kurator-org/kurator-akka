@@ -1,5 +1,6 @@
 package org.kurator.akka;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -43,6 +44,12 @@ public abstract class AkkaActor extends UntypedActor {
      * all of its listeners just before it stops executing.
      * Defaults to <i>true</i>. */
     public boolean sendEosOnEnd = true;
+    
+    /** Stream used by actor instead of reading from <code>System.in</code> directly. 
+     * Defaults to <code>System.in</code>. 
+     * <p>Non-default value assigned can be assigned via the {@link #inputStream inputStream()} method.<p>
+     */
+    protected InputStream inStream = System.in;
     
     /** Stream used by actor instead of writing to <code>System.out</code> directly. 
      * Defaults to <code>System.out</code>. 
@@ -112,7 +119,21 @@ public abstract class AkkaActor extends UntypedActor {
         this.errStream = errStream;
         return this;
     }
-    
+
+    /** 
+     * Specifies the input stream to be used by an actor that needs
+     * to read from <code>stdin</code>. The value is stored in {@link #inStream}.
+     * 
+     * <p>Child classes should read input from {@link #inStream} instead of 
+     * reading from <code>System.in</code> directly.</p>
+     * 
+     * @param inStream The InputStream to use for reading from <code>stdin</code>.
+     * @return this AkkaActor
+     */
+    public AkkaActor inputStream(InputStream inStream) {
+        this.inStream = inStream;
+        return this;
+    }
     
     /** 
      * Specifies the output stream to be used by an actor that needs

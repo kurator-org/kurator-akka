@@ -1,5 +1,6 @@
 package org.kurator.akka;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ public class WorkflowProducer implements IndirectActorProducer {
     private ActorSystem system;
     private Set<ActorRef> actors;
     private ActorRef inputActor;
+    private InputStream inStream;
     private PrintStream outStream;
     private PrintStream errStream;
     private WorkflowRunner workflowRunner;
@@ -23,9 +25,10 @@ public class WorkflowProducer implements IndirectActorProducer {
     }
 
     public WorkflowProducer(ActorSystem system, Set<ActorRef> actors, ActorRef inputActor,
-            PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
+            InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
        this(system, actors);
        this.inputActor = inputActor;
+       this.inStream = inStream;
        this.outStream = outStream;
        this.errStream = errStream;
        this.workflowRunner = workflowRunner;
@@ -38,7 +41,7 @@ public class WorkflowProducer implements IndirectActorProducer {
 
     @Override
     public Workflow produce() {
-        Workflow workflow = new Workflow(system, outStream, errStream, workflowRunner);        
+        Workflow workflow = new Workflow(system, inStream, outStream, errStream, workflowRunner);        
         workflow.setActors(actors);
         workflow.setInput(inputActor);
         return workflow;
