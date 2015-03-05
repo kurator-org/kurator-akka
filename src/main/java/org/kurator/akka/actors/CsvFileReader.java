@@ -2,6 +2,7 @@ package org.kurator.akka.actors;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +44,14 @@ public class CsvFileReader extends OneShot {
     @Override
     public void fireOnce() throws Exception {
         
-        if (inputReader == null && filePath != null) {
-            inputReader = getFileReaderForPath(filePath);
+        if (inputReader == null) {
+            if (filePath != null) {
+                inputReader = getFileReaderForPath(filePath);
+            } else {
+                inputReader = new InputStreamReader(inStream);
+            }
         }
         
-        if (inputReader == null) {
-            throw new Exception("No file or input reader specified for CsvStreamReader.");
-        }
-
         CsvReader csvReader = new CsvReader(inputReader, fieldDelimiter);
         
         csvReader.setUseTextQualifier(stripQuotes);

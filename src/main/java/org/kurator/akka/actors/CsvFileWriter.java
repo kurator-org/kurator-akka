@@ -2,6 +2,7 @@ package org.kurator.akka.actors;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +30,12 @@ public class CsvFileWriter extends AkkaActor {
     @Override
     public void handleStart() throws Exception {
 
-        if (outputWriter == null && filePath != null) {
-            outputWriter = new FileWriter(filePath, false);
-        }
-
         if (outputWriter == null) {
-            throw new Exception(
-                    "No file or output writer specified for CsvFileWriter.");
+            if (filePath != null) {
+                outputWriter = new FileWriter(filePath, false);
+            } else {
+                outputWriter = new OutputStreamWriter(outStream);
+            }
         }
 
         csvWriter = new CsvWriter(outputWriter, fieldDelimiter);
