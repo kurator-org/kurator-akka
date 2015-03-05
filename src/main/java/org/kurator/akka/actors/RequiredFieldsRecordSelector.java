@@ -11,7 +11,7 @@ public class RequiredFieldsRecordSelector extends MapRecordSelector {
 	public List<String> requiredFields = new ArrayList<String>();
 	public boolean disallowEmptyFields = true;
 	
-    public boolean accepts(Map<? extends String, ? extends String> record) {
+    public boolean selects(Map<? extends String, ? extends String> record) {
     	for (String key : requiredFields) {
     		if (!record.containsKey(key)) return false;
     		if (disallowEmptyFields && !Util.hasContent(record.get(key))) return false;
