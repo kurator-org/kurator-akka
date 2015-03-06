@@ -30,6 +30,7 @@ public class Workflow extends UntypedActor {
 
     @SuppressWarnings("unused")
     private final InputStream inStream;
+    @SuppressWarnings("unused")
     private final PrintStream outStream;
     private final PrintStream errStream;
     private final WorkflowRunner workflowRunner;

@@ -58,33 +58,32 @@ public class CsvFileReader extends OneShot {
                 .withQuote(quote)
                 .withHeader(headers);
         
-        CSVParser csvParser = new CSVParser(inputReader, csvFormat);
+        try (CSVParser csvParser = new CSVParser(inputReader, csvFormat)) {
         
-        Map<String,Integer> csvHeader = csvParser.getHeaderMap();
-        headers = new String[csvHeader.size()];
-        int i = 0;
-        for (String header: csvHeader.keySet()) {
-            headers[i++] = header;
-        }
-        
-        for (Iterator<CSVRecord> iterator = csvParser.iterator();iterator.hasNext();) {
-
-            CSVRecord csvRecord = iterator.next();
-            
-            if (!csvRecord.isConsistent()) {
-              throw new Exception("Wrong number of fields in record " + csvRecord.getRecordNumber());                    
+            Map<String,Integer> csvHeader = csvParser.getHeaderMap();
+            headers = new String[csvHeader.size()];
+            int i = 0;
+            for (String header: csvHeader.keySet()) {
+                headers[i++] = header;
             }
             
-            Map<String, String> record = _recordClass.newInstance();
-            
-            for (String header : headers) {
-                String value = csvRecord.get(header);                
-                record.put(header, value);
+            for (Iterator<CSVRecord> iterator = csvParser.iterator();iterator.hasNext();) {
+    
+                CSVRecord csvRecord = iterator.next();
+                
+                if (!csvRecord.isConsistent()) {
+                  throw new Exception("Wrong number of fields in record " + csvRecord.getRecordNumber());                    
+                }
+                
+                Map<String, String> record = _recordClass.newInstance();
+                
+                for (String header : headers) {
+                    String value = csvRecord.get(header);                
+                    record.put(header, value);
+                }
+                broadcast(record);
             }
-            broadcast(record);
         }
-
-        csvParser.close();
     }
 
     private Reader getFileReaderForPath(String path) throws FileNotFoundException {
