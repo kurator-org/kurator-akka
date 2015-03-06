@@ -2,7 +2,7 @@
 # records that have non-empty values for one more required fields.
 #
 # Example command-line usage:
-# kurator -f csv_projector.yaml -p in=specimen_records.csv -p out=filtered_records.csv -p fields=[county,year]
+# kurator -f csv_projector.yaml -p in=records.csv -p out=projection.csv -p fields=[county,year]
 
 imports:
 

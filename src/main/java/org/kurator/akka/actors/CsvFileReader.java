@@ -4,24 +4,25 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.csvreader.CsvReader;
-
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.kurator.akka.data.GenericMapRecord;
 
 public class CsvFileReader extends OneShot {
 
-    public boolean stripQuotes = true;
     public char fieldDelimiter = ',';
-    public char quoteCharacter = '"';
+    public Character quote = null;
     public boolean trimWhitespace = true;
 
     public Reader inputReader = null;
     public String filePath = null;
     public String recordClass = null;
-    public String[] headers = null;
+    public String[] headers = new String[]{};
 
     private Class<? extends Map<String, String>> _recordClass = GenericMapRecord.class;
 
@@ -52,41 +53,38 @@ public class CsvFileReader extends OneShot {
             }
         }
         
-        CsvReader csvReader = new CsvReader(inputReader, fieldDelimiter);
+        CSVFormat csvFormat = CSVFormat.newFormat(fieldDelimiter)
+                .withIgnoreSurroundingSpaces(trimWhitespace)
+                .withQuote(quote)
+                .withHeader(headers);
         
-        csvReader.setUseTextQualifier(stripQuotes);
-        csvReader.setTextQualifier(quoteCharacter);
-        csvReader.setTrimWhitespace(trimWhitespace);
-       
-        if (headers!=null) {
-            csvReader.setHeaders(headers);
-        } else {
-            csvReader.readHeaders();
-            headers = csvReader.getHeaders();
+        CSVParser csvParser = new CSVParser(inputReader, csvFormat);
+        
+        Map<String,Integer> csvHeader = csvParser.getHeaderMap();
+        headers = new String[csvHeader.size()];
+        int i = 0;
+        for (String header: csvHeader.keySet()) {
+            headers[i++] = header;
         }
         
-        while (csvReader.readRecord()) {
+        for (Iterator<CSVRecord> iterator = csvParser.iterator();iterator.hasNext();) {
+
+            CSVRecord csvRecord = iterator.next();
             
-            if (csvReader.getColumnCount() < headers.length)  {
-                throw new Exception("Too few fields in record: " + csvReader.getRawRecord());
+            if (!csvRecord.isConsistent()) {
+              throw new Exception("Wrong number of fields in record " + csvRecord.getRecordNumber());                    
             }
             
             Map<String, String> record = _recordClass.newInstance();
             
             for (String header : headers) {
-                
-                String value = csvReader.get(header);
-                
-                if (value == null) {
-                    throw new Exception("No value in record for required field " + header + ": " +csvReader.getRawRecord());                    
-                }
-                
+                String value = csvRecord.get(header);                
                 record.put(header, value);
             }
             broadcast(record);
         }
 
-        csvReader.close();
+        csvParser.close();
     }
 
     private Reader getFileReaderForPath(String path) throws FileNotFoundException {

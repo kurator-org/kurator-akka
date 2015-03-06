@@ -69,8 +69,7 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
          }
          
          assertNotNull(exception);
-         assertTrue(exception.getMessage().contains("Too few fields in record"));
-         assertTrue(stderrBuffer.toString().contains("Too few fields in record"));
+         assertEquals("Wrong number of fields in record 1", exception.getMessage());
      }
      
      public void testCsvFileReader_HeaderAndOneRecord() throws Exception {
