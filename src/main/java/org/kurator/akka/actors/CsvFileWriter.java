@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,17 +14,18 @@ import org.kurator.akka.AkkaActor;
 
 public class CsvFileWriter extends AkkaActor {
 
-    public Writer outputWriter;
+    public Writer outputWriter = null;
     public String filePath = null;
     public boolean quoteValuesContainingDelimiter = true;
     public boolean quoteAllValues = false;
     public boolean quoteEmptyValues = false;
     public boolean trimValues = false;
+    public boolean showHeader = true;
     public char quoteCharacter = '"';
     public char fieldDelimiter = ',';
+    public List<String> headers = null;
     
-    private Boolean headerWritten = false;
-    private List<String> headers = new ArrayList<String>();
+    private Boolean headerReady = false;
     private CsvWriter csvWriter;
 
     @Override
@@ -56,22 +57,27 @@ public class CsvFileWriter extends AkkaActor {
 
             @SuppressWarnings("unchecked")
             Map<String,String> record = (Map<String,String>) value;
-            if (!headerWritten) {
-                writeHeader(record);
-                headerWritten = true;
+            if (!headerReady) {
+                if (headers== null) buildHeader(record);
+                headerReady = true;
+                if (showHeader) writeHeader(record);
             }
 
             writeRecord(record);
         }
     }
 
-    private void writeHeader(Map<String,String> record) throws IOException {
-
+    private void buildHeader(Map<String,String> record) {
+        headers = new LinkedList<String>();
         for (String label : record.keySet()) {
-            csvWriter.write(label);
             headers.add(label);
         }
-
+    }
+    
+    private void writeHeader(Map<String,String> record) throws IOException {
+        for (String label : headers) {
+            csvWriter.write(label);
+        }
         csvWriter.endRecord();
     }
 
