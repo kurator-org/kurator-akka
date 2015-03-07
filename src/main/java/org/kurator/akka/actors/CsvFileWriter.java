@@ -4,11 +4,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-import com.csvreader.CsvWriter;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 
 import org.kurator.akka.AkkaActor;
 
@@ -18,15 +18,14 @@ public class CsvFileWriter extends AkkaActor {
     public String filePath = null;
     public boolean quoteValuesContainingDelimiter = true;
     public boolean quoteAllValues = false;
-    public boolean quoteEmptyValues = false;
+    public String recordSeparator = System.getProperty("line.separator");
     public boolean trimValues = false;
-    public boolean showHeader = true;
+    public boolean showHeader = false;
     public char quoteCharacter = '"';
     public char fieldDelimiter = ',';
-    public List<String> headers = null;
+    public String[] headers = null;
     
-    private Boolean headerReady = false;
-    private CsvWriter csvWriter;
+    private CSVPrinter csvPrinter = null;
 
     @Override
     public void handleStart() throws Exception {
@@ -38,16 +37,6 @@ public class CsvFileWriter extends AkkaActor {
                 outputWriter = new OutputStreamWriter(outStream);
             }
         }
-
-        csvWriter = new CsvWriter(outputWriter, fieldDelimiter);
-        csvWriter.setForceQualifier(quoteAllValues);
-        csvWriter.setTextQualifier(quoteCharacter);
-        csvWriter.setUseTextQualifier(quoteValuesContainingDelimiter);
-    }
-
-    @Override
-    public void handleEnd() throws Exception {
-        csvWriter.close();
     }
 
     @Override
@@ -57,45 +46,47 @@ public class CsvFileWriter extends AkkaActor {
 
             @SuppressWarnings("unchecked")
             Map<String,String> record = (Map<String,String>) value;
-            if (!headerReady) {
+            
+            if (csvPrinter == null) {
                 if (headers== null) buildHeader(record);
-                headerReady = true;
-                if (showHeader) writeHeader(record);
+                createCsvPrinter();
             }
 
-            writeRecord(record);
+            csvPrinter.printRecord(record.values());
         }
     }
 
-    private void buildHeader(Map<String,String> record) {
-        headers = new LinkedList<String>();
-        for (String label : record.keySet()) {
-            headers.add(label);
-        }
+    @Override
+    public void handleEnd() throws Exception {
+        csvPrinter.close();
     }
     
-    private void writeHeader(Map<String,String> record) throws IOException {
-        for (String label : headers) {
-            csvWriter.write(label);
+    private void createCsvPrinter() throws IOException {
+        
+        QuoteMode quoteModePolicy;
+        if (quoteAllValues) {
+            quoteModePolicy = QuoteMode.ALL;
+        } else if (quoteValuesContainingDelimiter) {
+            quoteModePolicy = QuoteMode.MINIMAL;
+        } else {
+            quoteModePolicy = QuoteMode.NONE;
         }
-        csvWriter.endRecord();
+            
+        CSVFormat csvFormat = CSVFormat.newFormat(fieldDelimiter)
+                .withQuoteMode(quoteModePolicy)
+                .withQuote(quoteCharacter)
+                .withRecordSeparator(recordSeparator)
+                .withSkipHeaderRecord(!showHeader)
+                .withHeader(headers);
+        
+        csvPrinter = new CSVPrinter(outputWriter, csvFormat);
     }
-
-    private void writeRecord(Map<String,String> record) throws IOException {
-
-        for (String header : headers) {
-            String value = record.get(header);
-            if (value == null) value = "";
-            if (trimValues) value = value.trim();
-            if (value.isEmpty()) {
-                csvWriter.setUseTextQualifier(this.quoteEmptyValues);
-                csvWriter.write(value);
-                csvWriter.setUseTextQualifier(quoteValuesContainingDelimiter);
-            } else {
-                csvWriter.write(value);
-            }
+    
+    private void buildHeader(Map<String,String> record) {
+        headers = new String[record.size()];
+        int i = 0;
+        for (String label : record.keySet()) {
+            headers[i++] = label;
         }
-
-        csvWriter.endRecord();
     }
 }

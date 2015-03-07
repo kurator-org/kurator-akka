@@ -47,20 +47,26 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
 
      public void testCsvFileReader_NoRequiredFields() throws Exception {
 
-         String expected =
+         Reader stringReader = new StringReader(
                  "A,B,C"    + EOL +
                  "1,2,3"    + EOL +
                  ",2,3"     + EOL +
                  "1,,3"     + EOL +
-                 "1,2,"     + EOL;         
-         
-         Reader stringReader = new StringReader(expected);
+                 "1,2,"     + EOL
+         );
          csvReader.parameter("inputReader", stringReader);
          
          wr.build();
          wr.start();
          wr.await();
          
+         String expected =
+                 "A,B,C"    + EOL +
+                 "1,2,3"    + EOL +
+                 "\"\",2,3"     + EOL +
+                 "1,,3"     + EOL +
+                 "1,2,"     + EOL;         
+
          assertEquals(expected, writeBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
