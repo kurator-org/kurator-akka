@@ -57,4 +57,9 @@ types:
 - id: MapRecordProjector
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.MapRecordProjector      
+    actorClass: org.kurator.akka.actors.MapRecordProjector
+
+- id: FieldValueSelector
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.FieldValueSelector
