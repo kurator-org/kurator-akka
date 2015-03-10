@@ -1,0 +1,49 @@
+# This workflow reads a CSV file and outputs to another CSV file the 
+# records that have values matching one or more provide values.
+#
+# Example command-line usage:
+#
+# kurator -f csv_selector.yaml -p in=records.csv -p where="{type: PhysicalObject, year: '1990', nomenclaturalCode: ICZN }"
+#
+
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: CsvReader
+  type: CsvFileReader
+  properties:
+
+- id: RecordSelector
+  type: FieldValueSelector
+  properties:
+    listensTo:
+      - !ref CsvReader
+
+- id: CsvWriter
+  type: CsvFileWriter
+  properties:
+    listensTo:
+      - !ref RecordSelector
+      
+- id: CsvRecordProjector
+  type: Workflow
+  properties:
+    actors:
+      - !ref CsvReader
+      - !ref RecordSelector
+      - !ref CsvWriter
+    parameters:
+      in:
+        actor: !ref CsvReader
+        parameter: filePath
+      where:
+        actor: !ref RecordSelector
+        parameter: requiredValues
+      out:
+        actor: !ref CsvWriter
+        parameter: filePath
+
+        
