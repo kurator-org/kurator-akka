@@ -58,7 +58,9 @@ public class CsvFileWriter extends AkkaActor {
 
     @Override
     public void handleEnd() throws Exception {
-        csvPrinter.close();
+        if (csvPrinter != null) {
+            csvPrinter.close();
+        }
     }
     
     private void createCsvPrinter() throws IOException {
