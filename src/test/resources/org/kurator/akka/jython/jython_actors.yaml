@@ -25,3 +25,8 @@ types:
       path: src/test/resources/org/kurator/akka/jython/printer.py
       function: printMessage
       start: start
+
+- id: JythonRecordProcessor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.JythonRecordProcessor

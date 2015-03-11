@@ -69,24 +69,8 @@ public class JythonFunctionActor extends AkkaActor {
     }
 
     @Override
-    public void handleData(Object value) {
-        
-        // reset output variable to null
-        interpreter.set(outputName, none);
-        
-        
-        // stage input value
-        Object input = inputType.cast(value);
-        interpreter.set(inputName, input);
-        
-        // call the python function
-        interpreter.eval("wrapper()");
-        
-        // extract the function output
-        Object output = interpreter.get(outputName, outputType);
-
-        // send results to listeners
-        broadcast(output);
+    public void handleData(Object value) {     
+        broadcast(callJythonFunction(value));
     }
     
     @Override
@@ -99,6 +83,21 @@ public class JythonFunctionActor extends AkkaActor {
         
         // shut down the interpreter
         interpreter.cleanup();
+    }
+
+    protected Object callJythonFunction(Object input) {
+        
+        // reset output variable to null
+        interpreter.set(outputName, none);
+        
+        // stage input value
+        interpreter.set(inputName, input);
+        
+        // call the python function
+        interpreter.eval("wrapper()");
+        
+        // return the function output
+        return interpreter.get(outputName, outputType);
     }
     
 }

@@ -1,0 +1,39 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+- classpath:/org/kurator/akka/jython/jython_actors.yaml
+
+components:
+
+- id: CsvReader
+  type: CsvFileReader
+
+- id: JythonRecordFilter
+  type: JythonRecordProcessor
+  properties:
+    parameters:
+      path: src/test/resources/org/kurator/akka/jython/record_filter.py
+      function: filter
+    listensTo:
+      - !ref CsvReader
+
+- id: CsvWriter
+  type: CsvFileWriter
+  properties:
+    listensTo:
+      - !ref JythonRecordFilter
+
+- id: CsvRecordFilter
+  type: Workflow
+  properties:
+    actors:
+      - !ref CsvReader
+      - !ref JythonRecordFilter
+      - !ref CsvWriter
+    parameters:
+      in:
+        actor: !ref CsvReader
+        parameter: filePath
+      out:
+        actor: !ref CsvWriter
+        parameter: filePath
