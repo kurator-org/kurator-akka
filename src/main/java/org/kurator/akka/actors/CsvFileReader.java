@@ -16,7 +16,7 @@ import org.kurator.akka.data.GenericMapRecord;
 public class CsvFileReader extends OneShot {
 
     public char fieldDelimiter = ',';
-    public Character quote = null;
+    public Character quote = '"';
     public boolean trimWhitespace = true;
 
     public Reader inputReader = null;
