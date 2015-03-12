@@ -3,11 +3,7 @@ package org.kurator.akka.samples;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaCLI;
