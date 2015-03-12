@@ -31,7 +31,7 @@ public class JythonFunctionActor extends AkkaActor {
     protected void handleInitialize() {
         
         // create a python interpreter
-        PySystemState.initialize();
+        PySystemState.initialize(System.getProperties( ), null, new String[] {""});
         interpreter = new PythonInterpreter();
         
         // read the script into the interpreter
