@@ -19,10 +19,11 @@ public class JythonFunctionActor extends AkkaActor {
     private static final String inputName = "_KURATOR_INPUT_";
     private static final String outputName = "_KURATOR_OUTPUT_";
     private static final String wrapperFormat = 
-           "def wrapper():"                                 + EOL +
-           "  global " + inputName                          + EOL +
-           "  global " + outputName                         + EOL +
-           "  " + outputName + " = %s(" + inputName + ")"   + EOL;
+            "import sys"                                    + EOL +
+            "def wrapper():"                                + EOL +
+            "  global " + inputName                         + EOL +
+            "  global " + outputName                        + EOL +
+            "  " + outputName + " = %s(" + inputName + ")"  + EOL;
 
     private PythonInterpreter interpreter;
     private PyObject none;
@@ -30,26 +31,41 @@ public class JythonFunctionActor extends AkkaActor {
     @Override
     protected void handleInitialize() {
         
+        String pathToJythonLibs = System.getProperty("KURATOR_JYTHON_LIB");
+        if (pathToJythonLibs == null) {
+            pathToJythonLibs =  "../kurator-jython";
+        }
+        
         // create a python interpreter
         PySystemState.initialize(System.getProperties( ), null, new String[] {""});
         interpreter = new PythonInterpreter();
-        
-        // read the script into the interpreter
-        if (path != null) {
-            interpreter.execfile(path);
-        }
         
         // set output streams of interpreter to that set for this actor
         interpreter.setOut(super.outStream);
         interpreter.setErr(super.errStream);
         
         // expand wrapper function template using custom function name
-        String wrapper = String.format(wrapperFormat, function);
-        interpreter.exec(wrapper);
+        interpreter.exec(String.format(wrapperFormat, function));
+        prependSysPath(pathToJythonLibs);
+        prependSysPath("src/main/resources");
+        
+        // read the script into the interpreter
+        if (path != null) {
+            interpreter.execfile(path);
+        }
         
         // cache a python None object
         none = interpreter.eval("None");
     }
+
+    private void appendSysPath(String path) {
+        interpreter.eval(String.format("sys.path.append('%s')%s", path, EOL));
+    }
+
+    private void prependSysPath(String path) {
+        interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
+    }
+
     
     @Override
     protected void handleStart() {
