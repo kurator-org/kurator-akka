@@ -31,13 +31,6 @@ public class JythonFunctionActor extends AkkaActor {
     @Override
     protected void handleInitialize() {
         
-        String pathToJythonLibs = System.getProperty("KURATOR_JYTHON_LIB");
-        if (pathToJythonLibs == null) {
-            pathToJythonLibs =  "../kurator-jython";
-        }
-
-        pathToJythonLibs =  "kurator-jython";
-        
         // create a python interpreter
         PySystemState.initialize(System.getProperties( ), null, new String[] {""});
         interpreter = new PythonInterpreter();
@@ -48,7 +41,8 @@ public class JythonFunctionActor extends AkkaActor {
         
         // expand wrapper function template using custom function name
         interpreter.exec(String.format(wrapperFormat, function));
-        prependSysPath(pathToJythonLibs);
+        prependSysPath("kurator-jython");
+        prependSysPath("../kurator-jython");
         prependSysPath("src/main/resources");
         
         // read the script into the interpreter
