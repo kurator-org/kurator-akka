@@ -211,6 +211,7 @@ public abstract class AkkaActor extends UntypedActor {
             
         } catch (Exception e) {
             reportException(e);
+            errStream.println(e);
             endStreamAndStop();
         }
     }
