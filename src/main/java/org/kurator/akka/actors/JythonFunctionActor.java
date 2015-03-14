@@ -35,6 +35,8 @@ public class JythonFunctionActor extends AkkaActor {
         if (pathToJythonLibs == null) {
             pathToJythonLibs =  "../kurator-jython";
         }
+
+        pathToJythonLibs =  "kurator-jython";
         
         // create a python interpreter
         PySystemState.initialize(System.getProperties( ), null, new String[] {""});
