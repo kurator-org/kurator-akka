@@ -43,7 +43,7 @@ public class JythonFunctionActor extends AkkaActor {
         interpreter.exec(String.format(wrapperFormat, function));
         prependSysPath("kurator-jython");
         prependSysPath("../kurator-jython");
-        prependSysPath("src/main/resources");
+        prependSysPath("src/main/resources/org");
         
         // read the script into the interpreter
         if (path != null) {
