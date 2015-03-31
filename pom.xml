@@ -4,10 +4,26 @@
 
 	<groupId>org.kurator</groupId>
 	<artifactId>kurator-akka</artifactId>
-	<version>0.3</version>
+	<version>0.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>kurator-akka</name>
 	<url>http://opensource.ncsa.illinois.edu/projects/KURATOR</url>
+
+    <distributionManagement>
+
+        <snapshotRepository>
+            <id>ncsa.snapshots</id>
+            <name>NCSA Nexus Snapshots</name>
+            <url>https://opensource.ncsa.illinois.edu/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+
+        <repository>
+            <id>ncsa.releases</id>
+            <name>NCSA Nexus Releases</name>
+            <url>https://opensource.ncsa.illinois.edu/nexus/content/repositories/releases</url>
+        </repository>
+
+    </distributionManagement>
 
     <repositories>
 
