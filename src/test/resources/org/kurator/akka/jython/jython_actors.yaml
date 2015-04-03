@@ -10,6 +10,7 @@ types:
     defaults:
       path: src/test/resources/org/kurator/akka/jython/repeater.py
       function: repeat
+      outputTypeIsInputType: true
       
 - id: PythonPrinter
   type: PythonFunctionActor

@@ -70,8 +70,14 @@ types:
     defaults:
       path: src/test/resources/org/kurator/akka/jython/multiplier.py
       function: multiplier
+      outputTypeIsInputType: true
 
-- id: JythonRecordProcessor
+- id: JythonFunctionActor
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.JythonRecordProcessor
+    actorClass: org.kurator.akka.actors.JythonFunctionActor
+
+- id: JythonClassActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.JythonClassActor

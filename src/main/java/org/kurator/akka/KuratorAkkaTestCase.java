@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 
 import junit.framework.TestCase;
 
-public class KuratorAkkaTestCase extends TestCase {
+public abstract class KuratorAkkaTestCase extends TestCase {
     
     public static final String EOL = System.getProperty("line.separator");
 

@@ -9,11 +9,12 @@ components:
   type: CsvFileReader
 
 - id: JythonRecordFilter
-  type: JythonRecordProcessor
+  type: JythonFunctionActor
   properties:
     parameters:
       path: src/test/resources/org/kurator/akka/jython/record_filter.py
       function: filter
+      outputTypeIsInputType: true
     listensTo:
       - !ref CsvReader
 
