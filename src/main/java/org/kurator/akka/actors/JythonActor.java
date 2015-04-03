@@ -7,26 +7,21 @@ import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-public class JythonFunctionActor extends AkkaActor {
+public class JythonActor extends AkkaActor {
 
-    public Class<? extends Object> inputType = Integer.class;
-    public Class<? extends Object> outputType = Integer.class;
-    public String function = "function";
+    public Class<? extends Object> inputType = Object.class;
+    public Class<? extends Object> outputType = Object.class;
     public String path = null;
     public String start = null;
     public String end = null;
+    public boolean broadcastNulls = false;
+    public boolean outputTypeIsInputType = false;
     
-    private static final String inputName = "_KURATOR_INPUT_";
-    private static final String outputName = "_KURATOR_OUTPUT_";
-    private static final String wrapperFormat = 
-            "import sys"                                    + EOL +
-            "def wrapper():"                                + EOL +
-            "  global " + inputName                         + EOL +
-            "  global " + outputName                        + EOL +
-            "  " + outputName + " = %s(" + inputName + ")"  + EOL;
+    protected static final String inputName = "_KURATOR_INPUT_";
+    protected static final String outputName = "_KURATOR_OUTPUT_";
 
-    private PythonInterpreter interpreter;
-    private PyObject none;
+    protected PythonInterpreter interpreter;
+    protected PyObject none;
     
     @Override
     protected void handleInitialize() {
@@ -39,11 +34,12 @@ public class JythonFunctionActor extends AkkaActor {
         interpreter.setOut(super.outStream);
         interpreter.setErr(super.errStream);
         
+        interpreter.exec("import sys");
+        
         // expand wrapper function template using custom function name
-        interpreter.exec(String.format(wrapperFormat, function));
+        prependSysPath("src/main/resources/python");
         prependSysPath("kurator-jython");
         prependSysPath("../kurator-jython");
-        prependSysPath("src/main/resources/python");
         
         // read the script into the interpreter
         if (path != null) {
@@ -61,7 +57,6 @@ public class JythonFunctionActor extends AkkaActor {
     private void prependSysPath(String path) {
         interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
     }
-
     
     @Override
     protected void handleStart() {
@@ -79,11 +74,6 @@ public class JythonFunctionActor extends AkkaActor {
             interpreter.eval(start + "()");
         }
     }
-
-    @Override
-    public void handleData(Object value) {     
-        broadcast(callJythonFunction(value));
-    }
     
     @Override
     protected void handleEnd() {
@@ -95,21 +85,5 @@ public class JythonFunctionActor extends AkkaActor {
         
         // shut down the interpreter
         interpreter.cleanup();
-    }
-
-    protected Object callJythonFunction(Object input) {
-        
-        // reset output variable to null
-        interpreter.set(outputName, none);
-        
-        // stage input value
-        interpreter.set(inputName, input);
-        
-        // call the python function
-        interpreter.eval("wrapper()");
-        
-        // return the function output
-        return interpreter.get(outputName, outputType);
-    }
-    
+    }    
 }
