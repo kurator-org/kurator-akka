@@ -9,7 +9,7 @@ public class Multiplier extends AkkaActor {
     @Override
     public void handleData(Object value) throws Exception {
         if (value instanceof Integer) {
-            Integer product = (Integer) value * this.factor;
+            int product = (int) value * this.factor;
             broadcast(product);
         }
     }
