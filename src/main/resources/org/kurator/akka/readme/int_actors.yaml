@@ -1,0 +1,25 @@
+imports:
+- classpath:/org/kurator/akka/types.yaml
+
+types:
+
+- id: IntMultiplier
+  type: PythonFunctionActor
+  properties:
+    defaults:
+      path: int_multiplier.py
+      function: multiply_integer
+
+- id: StdinIntReader
+  type: PythonFunctionActor
+  properties:
+    defaults:
+      path: int_reader.py
+      function: read_integer
+
+- id: IntPrinter
+  type: PythonFunctionActor
+  properties:
+    defaults:
+      path: int_printer.py
+      function: print_integer

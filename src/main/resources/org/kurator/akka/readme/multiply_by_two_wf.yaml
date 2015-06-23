@@ -1,0 +1,32 @@
+imports:
+
+- file:int_actors.yaml
+
+components:
+
+- id: MultiplyByTwo
+  type: Workflow
+  properties:
+    actors:
+      - !ref ReadOneNumber
+      - !ref MultiplyByTwo
+      - !ref PrintProduct
+
+- id: ReadOneNumber
+  type: StdinIntReader
+  properties:
+    fireOnce: true
+
+- id: MultiplyByTwo
+  type: IntMultiplier
+  properties:
+    listensTo:
+      - !ref ReadOneNumber
+    parameters:
+      factor: 2
+
+- id: PrintProduct
+  type: IntPrinter
+  properties:
+    listensTo:
+      - !ref MultiplyByTwo
