@@ -2,5 +2,5 @@ import sys
 
 def readnum():
     line = sys.stdin.readline()
-    n = int(line.strip())
+    n = float(line.strip())
     return n

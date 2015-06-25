@@ -48,7 +48,7 @@ In addition to the Java or Python definition of an actor, an actor declaration a
 
 ##### Defining a workflow that uses the Multiplier actor
 
-With the above YAML saved to a file named `actors.yaml`, the `MultiplyByFactor` actor can be used in a workflow also defined in YAML. The workflow below takes an input value from the command line, multiplies it by 2, and outputs the result:
+With the above YAML saved to a file named `actors.yaml`, the `MultiplyByFactor` actor can be used in a workflow also defined in YAML. The workflow below takes an input value from the command line, multiplies it by 3, and outputs the result:
 
     imports:
 
@@ -56,33 +56,58 @@ With the above YAML saved to a file named `actors.yaml`, the `MultiplyByFactor` 
 
     components:
 
-    - id: MultiplyByTwoWorkflow
+    - id: MultiplyByThreeWorkflow
       type: Workflow
       properties:
         actors:
           - !ref ReadOneNumber
-          - !ref MultiplyByTwo
+          - !ref MultiplyByThree
           - !ref PrintProduct
 
     - id: ReadOneNumber
       type: NumReader
 
-    - id: MultiplyByTwo
+    - id: MultiplyByThree
       type: Multiplier
       properties:
         listensTo:
           - !ref ReadOneNumber
         parameters:
-          factor: 2
+          factor: 3
 
     - id: PrintProduct
       type: NumPrinter
       properties:
         listensTo:
-          - !ref MultiplyByTwo
+          - !ref MultiplyByThree
 
-The above declaration states the following: `MultiplyByTwo` is a workflow comprising three actors, `ReadOneNumber`, `MultiplyByTwo`, and `PrintProduct`. `MultiplyByTwo` listens to (receives its input from) `ReadOneNumber`, and `PrintProducts` receives its input in turn from `MultiplyByTwo`.  `MultiplyByTwo` is declared to be an instance of the `Multiplier` actor defined previously; this instance of `Multiplier` is configured to multiply each value it receives by a factor of 2.  The YAML declarations for the underlying actors `StdinNumberReader`, `Multiplier`, and `NumberPrinter` are all read from `actors.yaml`.
+The above declaration states the following: `MultiplyByThreeWorkflow` is a workflow comprising three actors, `ReadOneNumber`, `MultiplyByThree`, and `PrintProduct`. `MultiplyByThree` listens to (receives its input from) `ReadOneNumber`, and `PrintProducts` receives its input in turn from `MultiplyByThree`.  `MultiplyByThree` is declared to be an instance of the `Multiplier` actor defined previously; this instance of `Multiplier` is configured to multiply each value it receives by a factor of 3.  The YAML declarations for the underlying actors `NumReader`, `Multiplier`, and `NumPrinter` are all imported from `actors.yaml`.
 
 The YAML definition of a workflow using Java implementations of each actor looks identical to a workflow using Python actors.  Java and Python actors can be used together in the same workflow.
 
+##### Inlining Python actors
 
+**Kurator-Akka** allows the code for Python actors to be provided *inline*, i.e. within the workflow definition itself. No additional Python script file is needed in this case.  For example, the block of YAML defining the `MultiplyByThree` actor in the workflow definition above depends on an additional YAML declaration for the `Multiplier` actor defined in the `actors.yaml` file, which in turn depends on a Python script file named `multiplier.py`.  Because the code for this actor is only a few lines long, it may be reasonable to define the actor entirely inline.  In other words, thus block of YAML in the workflow:
+
+    - id: MultiplyByThree
+      type: Multiplier
+      properties:
+        listensTo:
+          - !ref ReadOneNumber
+        parameters:
+          factor: 3
+
+can be replaced with:
+
+    - id: MultiplyByThree
+      type: PythonFunctionActor
+      properties:
+        listensTo:
+          - !ref ReadOneNumber
+        defaults:
+          function: triple
+          code: |
+            def triple(n):
+              return 3 * n
+
+The Python code defining the multiply() function is now defined within the same YAML file that declares the workflow as a whole. Inlined Python actors are useful for implementing simple actors needed for specific workflows.

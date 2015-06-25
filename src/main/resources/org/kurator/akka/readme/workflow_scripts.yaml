@@ -4,28 +4,28 @@ imports:
 
 components:
 
-- id: MultiplyByTwoWorkflow
+- id: MultiplyByThreeWorkflow
   type: Workflow
   properties:
     actors:
       - !ref ReadOneNumber
-      - !ref MultiplyByTwo
+      - !ref MultiplyByThree
       - !ref PrintProduct
 
 - id: ReadOneNumber
   type: NumReader
 
-- id: MultiplyByTwo
+- id: MultiplyByThree
   type: Multiplier
   properties:
     listensTo:
       - !ref ReadOneNumber
     parameters:
-      factor: 2
+      factor: 3
 
 - id: PrintProduct
   type: NumPrinter
   properties:
     listensTo:
-      - !ref MultiplyByTwo
+      - !ref MultiplyByThree
   

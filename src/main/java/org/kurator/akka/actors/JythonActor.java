@@ -11,6 +11,7 @@ public class JythonActor extends AkkaActor {
 
     public Class<? extends Object> inputType = Object.class;
     public Class<? extends Object> outputType = Object.class;
+    public String code = null;
     public String script = null;
     public String start = null;
     public String end = null;
@@ -42,9 +43,8 @@ public class JythonActor extends AkkaActor {
         prependSysPath("../kurator-jython");
         
         // read the script into the interpreter
-        if (script != null) {
-            interpreter.execfile(script);
-        }
+        if (script != null) interpreter.execfile(script);
+        if (code != null) interpreter.exec(code);
         
         // cache a python None object
         none = interpreter.eval("None");
