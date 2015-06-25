@@ -4,7 +4,8 @@ import org.kurator.akka.AkkaActor;
 
 public class PrintStreamWriter extends AkkaActor {
 
-    public String separator = System.lineSeparator();    
+    public String separator = System.lineSeparator();
+    public boolean endWithSeparator = false;
     private boolean isFirst = true;
     
     @Override
@@ -16,5 +17,12 @@ public class PrintStreamWriter extends AkkaActor {
             outStream.print(separator);
         }
         outStream.print(value);
+    }
+    
+    @Override
+    protected void handleEnd() throws Exception {
+        if (endWithSeparator) {
+            outStream.print(separator);
+        }
     }
 }
