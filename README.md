@@ -197,4 +197,4 @@ The `file:` qualifier is optional, however. By default **Kurator-Akka** looks fo
     $ ka -f org/kurator/akka/samples/hello.yaml
     Hello World!
 
-Note that unlike when referencing the `hello.yaml` workflow on the classpath, the path to workflow definition file is relative (it does not start with a `/`).
+Note that the path to `hello.yaml` above is relative (it does not start with a `/`).
