@@ -3,24 +3,24 @@ imports:
 
 types:
 
-- id: IntMultiplier
+- id: Multiplier
   type: PythonFunctionActor
   properties:
     defaults:
-      path: int_multiplier.py
-      function: multiply_integer
+      path: multiplier.py
+      function: multiply
 
-- id: StdinIntReader
+- id: NumReader
   type: PythonFunctionActor
   properties:
     trigger: true
     defaults:
-      path: int_reader.py
-      function: read_integer
+      path: reader.py
+      function: readnum
 
-- id: IntPrinter
+- id: NumPrinter
   type: PythonFunctionActor
   properties:
     defaults:
-      path: int_printer.py
-      function: print_integer
+      path: printer.py
+      function: printnum

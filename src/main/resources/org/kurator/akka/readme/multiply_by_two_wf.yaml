@@ -1,6 +1,6 @@
 imports:
 
-- file:int_actors.yaml
+- file:actors.yaml
 
 components:
 
@@ -13,10 +13,10 @@ components:
       - !ref PrintProduct
 
 - id: ReadOneNumber
-  type: StdinIntReader
+  type: NumReader
 
 - id: MultiplyByTwo
-  type: IntMultiplier
+  type: Multiplier
   properties:
     listensTo:
       - !ref ReadOneNumber
@@ -24,7 +24,7 @@ components:
       factor: 2
 
 - id: PrintProduct
-  type: IntPrinter
+  type: NumPrinter
   properties:
     listensTo:
       - !ref MultiplyByTwo

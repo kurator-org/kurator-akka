@@ -1,7 +1,7 @@
 Kurator-Akka Framework
 ======================
 
-The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts source code and examples for the **Kurator-Akka** scientific workflow framework.  This framework is being developed as part of the [Kurator project](http://wiki.datakurator.net/web/Kurator) and is designed to make it easy to develop and run high-performance data cleaning workflows.
+The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts source code and examples for the **Kurator-Akka** scientific workflow framework.  This software toolkit is being developed as part of the [Kurator project](http://wiki.datakurator.net/web/Kurator) and is designed to make it easy to develop and run high-performance data cleaning workflows.
 
 
 **Kurator-Akka** is based on the [Akka actor toolkit and runtime](http://akka.io).  It aims to accelerate development of new data cleaning actors and to facilitate development of new workflows assembled from these actors.  **Kurator-Akka** supports actors implemented either in Java or Python, and the framework shields actor developers from the complexities of using the Akka API directly.  Workflows are specified using a YAML-based language that defines how data flows between the actors at run time.
@@ -9,7 +9,7 @@ The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts
 Example actor and workflow
 --------------------------
 
-A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors it is configured to listen to. Actors in **Kurator-Akka** may be defined either in Java or Python.
+A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow that it is configured to listen to. Actors in **Kurator-Akka** may be defined either in Java or Python.
 
 ##### Java implementation of a Multiplier actor
 
@@ -39,10 +39,6 @@ The **Kurator-Akka** framework calls the `multiply()` method on each data item r
 
 In addition to the Java or Python definition of an actor, an actor declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that the actor named `MultiplyByFactor` invokes the `multiply()` function defined in the file `multiplier.py`:
 
-    imports:
-    - classpath:/org/kurator/akka/types.yaml
-
-    types:
     - id: Multiplier
       type: PythonFunctionActor
       properties:
@@ -52,11 +48,11 @@ In addition to the Java or Python definition of an actor, an actor declaration a
 
 ##### Defining a workflow that uses the Multiplier actor
 
-With the above YAML saved to a file named `myactors.yaml`, the `MultiplyByFactor` actor can be used in a workflow also defined in YAML. The workflow below takes an input value from the command line, multiplies it by 2, and outputs the result:
+With the above YAML saved to a file named `actors.yaml`, the `MultiplyByFactor` actor can be used in a workflow also defined in YAML. The workflow below takes an input value from the command line, multiplies it by 2, and outputs the result:
 
     imports:
 
-    - file:int_actors.yaml
+    - file:actors.yaml
 
     components:
 
@@ -69,10 +65,10 @@ With the above YAML saved to a file named `myactors.yaml`, the `MultiplyByFactor
           - !ref PrintProduct
 
     - id: ReadOneNumber
-      type: StdinIntReader
+      type: NumReader
 
     - id: MultiplyByTwo
-      type: IntMultiplier
+      type: Multiplier
       properties:
         listensTo:
           - !ref ReadOneNumber
@@ -80,13 +76,13 @@ With the above YAML saved to a file named `myactors.yaml`, the `MultiplyByFactor
           factor: 2
 
     - id: PrintProduct
-      type: IntPrinter
+      type: NumPrinter
       properties:
         listensTo:
           - !ref MultiplyByTwo
 
-The above declaration states the following: `MultiplyByTwo` is a workflow comprising three actors, `ReadOneNumber`, `MultiplyByTwo`, and `PrintProduct`. `MultiplyByTwo` listens to (receives its input from) `ReadOneNumber`, and `PrintProducts` receives its input in turn from `MultiplyByTwo`.  `MultiplyByTwo` is declared to be an instance of the `Multiplier` actor defined previously; this instance of `Multiplier` is configured to multiply each value it receives by a factor of 2.  The YAML declarations for the underlying actors `StdinNumberReader`, `Multiplier`, and `NumberPrinter` are all read from `myactors.yaml`.
+The above declaration states the following: `MultiplyByTwo` is a workflow comprising three actors, `ReadOneNumber`, `MultiplyByTwo`, and `PrintProduct`. `MultiplyByTwo` listens to (receives its input from) `ReadOneNumber`, and `PrintProducts` receives its input in turn from `MultiplyByTwo`.  `MultiplyByTwo` is declared to be an instance of the `Multiplier` actor defined previously; this instance of `Multiplier` is configured to multiply each value it receives by a factor of 2.  The YAML declarations for the underlying actors `StdinNumberReader`, `Multiplier`, and `NumberPrinter` are all read from `actors.yaml`.
 
-The YAML definition of a workflow using Java implementations of each actor looks identical to a workflow using Python actors.  Java and Python actors can be used together in the same workflow without any limitations.
+The YAML definition of a workflow using Java implementations of each actor looks identical to a workflow using Python actors.  Java and Python actors can be used together in the same workflow.
 
 

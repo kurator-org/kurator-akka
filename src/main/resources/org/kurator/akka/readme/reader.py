@@ -1,6 +1,6 @@
 import sys
 
-def read_integer():
+def readnum():
     line = sys.stdin.readline()
     n = int(line.strip())
     return n

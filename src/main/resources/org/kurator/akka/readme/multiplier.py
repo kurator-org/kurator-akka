@@ -1,4 +1,4 @@
 factor = 1
 
-def multiply_integer(n):
+def multiply(n):
   return factor * n
