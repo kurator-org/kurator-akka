@@ -45,6 +45,8 @@ public abstract class AkkaActor extends UntypedActor {
      * Defaults to <i>true</i>. */
     public boolean sendEosOnEnd = true;
     
+    public boolean needsTrigger = false;
+    
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
      * Defaults to <code>System.in</code>. 
      * <p>Non-default value assigned can be assigned via the {@link #inputStream inputStream()} method.<p>
@@ -197,6 +199,9 @@ public abstract class AkkaActor extends UntypedActor {
                     
                     // invoke the Start event handler
                     handleStart();
+                    if (this.needsTrigger) {
+                        handleTrigger();
+                    }
                 
                 } else if (message instanceof EndOfStream) {
                     
@@ -256,6 +261,7 @@ public abstract class AkkaActor extends UntypedActor {
      */
     protected void handleStart() throws Exception {}
     
+    protected void handleTrigger() throws Exception {}
     
     /** 
      * Default handler for {@link org.kurator.akka.messages.EndOfStream EndOfStream} message. 
@@ -375,5 +381,9 @@ public abstract class AkkaActor extends UntypedActor {
 
     public void settings(Map<String, Object> settings) {
         this.settings = settings;
+    }
+
+    public void needsTrigger(boolean needsTrigger) {
+        this.needsTrigger = needsTrigger;
     }    
 }

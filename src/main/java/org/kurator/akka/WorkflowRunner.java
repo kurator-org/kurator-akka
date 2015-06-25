@@ -185,6 +185,7 @@ public class WorkflowRunner {
                                     actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(),
+                                    actorConfig.getTrigger(),
                                     inStream,
                                     outStream,
                                     errStream,

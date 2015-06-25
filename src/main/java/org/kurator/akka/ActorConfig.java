@@ -14,6 +14,7 @@ public class ActorConfig implements BeanNameAware {
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     protected String actorName = null;
+    private boolean needsTrigger = false;
 
     public ActorConfig() {
     }
@@ -35,6 +36,14 @@ public class ActorConfig implements BeanNameAware {
     
     public String getName() {
         return actorName;
+    }
+    
+    public void setTrigger(boolean needsTrigger) {
+        this.needsTrigger = needsTrigger;
+    }
+    
+    public boolean getTrigger() {
+        return needsTrigger;
     }
     
     @SuppressWarnings("unchecked")

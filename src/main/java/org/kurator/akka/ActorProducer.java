@@ -15,19 +15,30 @@ public class ActorProducer implements IndirectActorProducer {
     private Map<String, Object> defaults;
     private Map<String, Object> parameters;
     private List<ActorConfig> listeners;
+    private boolean needsTrigger;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
     private InputStream inStream;
     private PrintStream outStream;
-    private PrintStream errStream;
+    private PrintStream errStream;    
 
-    public ActorProducer(Class<? extends AkkaActor> actorClass, Map<String, Object> defaults, Map<String, Object> parameters, List<ActorConfig> listeners, 
-            InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
+    public ActorProducer(
+            Class<? extends AkkaActor> actorClass, 
+            Map<String, Object> defaults, 
+            Map<String, Object> parameters, 
+            List<ActorConfig> listeners,
+            boolean needsTrigger,
+            InputStream inStream, 
+            PrintStream outStream, 
+            PrintStream errStream, 
+            WorkflowRunner workflowRunner) {
+        
         this.actorClass = actorClass;
         this.defaults = defaults;
         this.parameters = parameters;
         this.listeners = listeners;
         this.workflowRunner = workflowRunner;
+        this.needsTrigger = needsTrigger;
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -54,7 +65,8 @@ public class ActorProducer implements IndirectActorProducer {
              .runner(workflowRunner)
              .inputStream(inStream)
              .outputStream(outStream)
-             .errorStream(errStream);
+             .errorStream(errStream)
+             .needsTrigger(needsTrigger);
 
         // assign values to the actor parameters 
         Map<String,Object> parameterSettings = new HashMap<String,Object>();
