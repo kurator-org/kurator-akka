@@ -8,7 +8,7 @@ types:
   type: PythonFunctionActor
   properties:
     defaults:
-      path: src/test/resources/org/kurator/akka/jython/repeater.py
+      script: src/test/resources/org/kurator/akka/jython/repeater.py
       function: repeat
       outputTypeIsInputType: true
       
@@ -16,7 +16,7 @@ types:
   type: PythonFunctionActor
   properties:
     defaults:
-      path: src/test/resources/org/kurator/akka/jython/printer.py
+      script: src/test/resources/org/kurator/akka/jython/printer.py
       function: printMessage
       start: start
 
@@ -24,7 +24,7 @@ types:
   type: PythonFunctionActor
   properties:
     defaults:
-      path: src/test/resources/org/kurator/akka/jython/multiplier.py
+      script: src/test/resources/org/kurator/akka/jython/multiplier.py
       function: multiplier
       outputTypeIsInputType: true
       

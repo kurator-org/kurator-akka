@@ -7,7 +7,7 @@ types:
   type: PythonFunctionActor
   properties:
     defaults:
-      path: multiplier.py
+      script: multiplier.py
       function: multiply
 
 - id: NumReader
@@ -15,12 +15,12 @@ types:
   properties:
     trigger: true
     defaults:
-      path: reader.py
+      script: reader.py
       function: readnum
 
 - id: NumPrinter
   type: PythonFunctionActor
   properties:
     defaults:
-      path: printer.py
+      script: printer.py
       function: printnum

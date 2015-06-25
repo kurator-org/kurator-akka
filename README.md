@@ -43,7 +43,7 @@ In addition to the Java or Python definition of an actor, an actor declaration a
       type: PythonFunctionActor
       properties:
         defaults:
-          path: multiplier.py
+          script: multiplier.py
           function: multiply
 
 ##### Defining a workflow that uses the Multiplier actor

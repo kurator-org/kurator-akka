@@ -29,7 +29,7 @@ public class TestJythonFunctionActor extends KuratorAkkaTestCase {
          ActorConfig repeater = wr.actor(Repeater.class);
          
          jythonActor = wr.actor(JythonFunctionActor.class)
-             .parameter("path", "src/test/resources/org/kurator/akka/jython/multiplier.py")
+             .parameter("script", "src/test/resources/org/kurator/akka/jython/multiplier.py")
              .parameter("function", "multiplier")
              .parameter("inputType", java.lang.Integer.class)
              .parameter("outputType", java.lang.Integer.class)
