@@ -56,11 +56,11 @@ With the above YAML saved to a file named `myactors.yaml`, the `MultiplyByFactor
 
     imports:
 
-    - file:myactors.yaml
+    - file:int_actors.yaml
 
     components:
 
-    - id: MultiplyByTwo
+    - id: MultiplyByTwoWorkflow
       type: Workflow
       properties:
         actors:
@@ -69,12 +69,10 @@ With the above YAML saved to a file named `myactors.yaml`, the `MultiplyByFactor
           - !ref PrintProduct
 
     - id: ReadOneNumber
-      type: StdinNumberReader
-      properties:
-        fireOnce: true
+      type: StdinIntReader
 
     - id: MultiplyByTwo
-	  type: Multiplier
+      type: IntMultiplier
       properties:
         listensTo:
           - !ref ReadOneNumber
@@ -82,7 +80,7 @@ With the above YAML saved to a file named `myactors.yaml`, the `MultiplyByFactor
           factor: 2
 
     - id: PrintProduct
-      type: NumberPrinter
+      type: IntPrinter
       properties:
         listensTo:
           - !ref MultiplyByTwo

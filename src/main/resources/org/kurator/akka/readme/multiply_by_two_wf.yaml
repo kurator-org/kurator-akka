@@ -5,18 +5,15 @@ imports:
 components:
 
 - id: MultiplyByTwoWorkflow
-  className: org.kurator.akka.WorkflowConfig
-  singleton: false
+  type: Workflow
   properties:
     actors:
       - !ref ReadOneNumber
       - !ref MultiplyByTwo
-      - !ref PrintProduct    
-      
+      - !ref PrintProduct
+
 - id: ReadOneNumber
   type: StdinIntReader
-  properties:
-    trigger: true
 
 - id: MultiplyByTwo
   type: IntMultiplier

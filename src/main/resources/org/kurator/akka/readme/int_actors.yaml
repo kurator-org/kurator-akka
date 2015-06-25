@@ -13,6 +13,7 @@ types:
 - id: StdinIntReader
   type: PythonFunctionActor
   properties:
+    trigger: true
     defaults:
       path: int_reader.py
       function: read_integer
