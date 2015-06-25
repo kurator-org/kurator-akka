@@ -111,3 +111,86 @@ can be replaced with:
               return 3 * n
 
 The Python code defining the multiply() function is now defined within the same YAML file that declares the workflow as a whole. Inlined Python actors are useful for implementing simple actors needed for specific workflows.
+
+
+Setting up Kurator-Akka
+-----------------------
+
+The following describes how to set up an environment for writing and running actors and workflows using Kurator-Akka.
+
+#### 1. Check installed version of Java
+Kurator-Akka requires Java version 1.7 or higher. To determine the version of java installed on your computer use the -version option to the java command. For example,
+
+    $ java -version
+    java version "1.7.0_71"
+    Java(TM) SE Runtime Environment (build 1.7.0_71-b14)
+    Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)
+    $
+
+Instructions for installing Java may be found at [http://docs.oracle.com/javase/7/docs/webnotes/install/](http://docs.oracle.com/javase/7/docs/webnotes/install/).  If you plan to develop new actors in Java (not just in Python) be sure that you install the JDK.  Otherwise a JRE is sufficient.
+    
+#### 2. Download the Kurator-Akka jar
+
+Kurator-Akka is distributed as a jar (Java archive) file that can be executed using the `java -jar` command. To download the most recent build of the latest **Kurator-Akka** code, navigate to the [Latest Successful Build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latestSuccessful), click on the Artifacts tab, and download the *executable jar* artifact for the *kurator-akka* job.  The downloaded file will be named `kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar`.
+
+Note that while released distributions of **Kurator-Akka** are available for download from the [Kurator Software Releases](https://opensource.ncsa.illinois.edu/confluence/display/KURATOR/Software+Releases) page, the remainder of this README pertains to the development version available in the GitHub repository.
+
+#### 3. Install Kurator-Akka on your system
+
+Once you have downloaded the **Kurator-Akka** jar, save the file in a convenient location and rename it to something like `kurator-akka.jar`.   **Kurator-Akka** can now be run using the `java -jar` command. The jar file includes several sample workflow scripts which can be accessed from the command line.
+
+Test your installation by running the `hello.yaml` workflow. Assuming `kurator-akka.jar` is in your current working directory type:
+
+    java -jar kurator-akka.jar -f classpath:/org/kurator/akka/samples/hello.yaml
+
+If the Kurator-Akka jar is stored elsewhere, qualify kurator-akka.jar with the path to that file. If you stored the jar file in the bin subdirectory of your home directory (on a Unix platform), running Kurator-Akka would look something like this:
+
+    $ java -jar ~/bin/kurator-akka.jar -f classpath:/org/kurator/akka/samples/hello.yaml
+    Hello World!
+    $
+
+On Windows platforms the command is similar:
+
+    $ java -jar %USERPROFILE%\bin\kurator-akka.jar -f classpath:/org/kurator/akka/samples/hello.yaml
+    Hello World!
+    $
+
+#### 4. Define a short command for running Kurator-Akka at the prompt
+
+If you are running **Kurator-Akka** on an Apple OSX or Linux system (or use Git Bash or Cygwin on Windows), you may define a bash *alias* to simplify running YesWorkflow at the command line. On Windows platforms you similarly may define a *doskey macro* for running **Kurator-Akka** at the prompt.
+
+For example, if you have saved yesworkflow-0.2-SNAPSHOT-jar-with-dependencies.jar to the bin subdirectory of your home directory, the following command will create a `bash` alias for running **Kurator-Akka** simply by typing `ka`:
+
+    alias ka='java -jar ~/bin/kurator-akka.jar'
+
+If you use `csh` or `tcsh` the command is:
+
+    alias kurator-akka java -jar ~/bin/kurator-akka.jar
+
+On Windows the command to create the `ka` macro is:
+
+     doskey ka=java -jar %USERPROFILE%\bin\kurator-akka.jar $*
+
+On all platforms the `hello.yaml` demo now can be run using the short command:
+
+    $ ka -f classpath:/org/kurator/akka/samples/hello.yaml
+    Hello World!
+    $
+
+
+#### 5. Extract the samples (optional)
+
+If you would like to browse and edit the sample workflows included in the **Kurator-Akka** jar, type the following (qualifying the path to the Kurator-Akka jar as necessary) from a working directory and extract them to your filesystem:
+
+    jar xf kurator-akka.jar org/kurator/akka/samples
+
+To run a script residing on the filesystem, you can use the file scheme:
+
+    $ ka -f file:org/kurator/akka/samples/hello.yaml
+    Hello World!
+
+The `file:` qualifier is optional, however. By default Kurator-Akka looks for workflows on your filesystem. So this will work, too:
+
+
+    $ java -jar kurator-akka.jar -f org/kurator/akka/samples/hello.yaml
+    Hello World!
