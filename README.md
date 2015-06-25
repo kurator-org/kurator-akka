@@ -9,7 +9,7 @@ The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts
 Example actor and workflow
 --------------------------
 
-A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow that it is configured to listen to. Actors in **Kurator-Akka** may be defined either in Java or Python.
+A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow that it is configured to listen to. Actors in **Kurator-Akka** may be defined either in Java or Python. Actors in a **Kurator-Akka** workflow run concurrently (in different threads).
 
 ##### Java implementation of a Multiplier actor
 
@@ -37,7 +37,7 @@ The **Kurator-Akka** framework calls the `multiply()` method on each data item r
 
 ##### YAML declaration of the Python version of the Multiplier actor
 
-In addition to the Java or Python definition of an actor, an actor declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that the actor named `MultiplyByFactor` invokes the `multiply()` function defined in the file `multiplier.py`:
+In addition to the Java or Python definition of an actor, an actor declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that the actor named `Multiplier` invokes the `multiply()` function defined in the file `multiplier.py`:
 
     - id: Multiplier
       type: PythonFunctionActor
@@ -48,7 +48,7 @@ In addition to the Java or Python definition of an actor, an actor declaration a
 
 ##### Defining a workflow that uses the Multiplier actor
 
-With the above YAML saved to a file named `actors.yaml`, the `MultiplyByFactor` actor can be used in a workflow also defined in YAML. The workflow below takes an input value from the command line, multiplies it by 3, and outputs the result:
+With the above YAML saved to a file named `actors.yaml`, the `Multiplier` actor can be used in a workflow also defined in YAML. The workflow below takes an input value from the command line, multiplies it by 3, and outputs the result:
 
     imports:
 
@@ -128,7 +128,7 @@ Kurator-Akka requires Java version 1.7 or higher. To determine the version of ja
     $
 
 Instructions for installing Java may be found at [http://docs.oracle.com/javase/7/docs/webnotes/install/](http://docs.oracle.com/javase/7/docs/webnotes/install/).  If you plan to develop new actors in Java (not just in Python) be sure that you install the JDK.  Otherwise a JRE is sufficient.
-    
+
 #### 2. Download the Kurator-Akka jar
 
 Kurator-Akka is distributed as a jar (Java archive) file that can be executed using the `java -jar` command. To download the most recent build of the latest **Kurator-Akka** code, navigate to the [Latest Successful Build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latestSuccessful), click on the Artifacts tab, and download the *executable jar* artifact for the *kurator-akka* job.  The downloaded file will be named `kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar`.
@@ -143,7 +143,7 @@ Test your installation by running the `hello.yaml` workflow. Assuming `kurator-a
 
     java -jar kurator-akka.jar -f classpath:/org/kurator/akka/samples/hello.yaml
 
-If the Kurator-Akka jar is stored elsewhere, qualify kurator-akka.jar with the path to that file. If you stored the jar file in the bin subdirectory of your home directory (on a Unix platform), running Kurator-Akka would look something like this:
+If the Kurator-Akka jar is stored elsewhere, qualify `kurator-akka.jar` with the path to that file. If you stored the jar file in the bin subdirectory of your home directory (on a Unix platform), running Kurator-Akka would look something like this:
 
     $ java -jar ~/bin/kurator-akka.jar -f classpath:/org/kurator/akka/samples/hello.yaml
     Hello World!
@@ -159,7 +159,7 @@ On Windows platforms the command is similar:
 
 If you are running **Kurator-Akka** on an Apple OSX or Linux system (or use Git Bash or Cygwin on Windows), you may define a bash *alias* to simplify running YesWorkflow at the command line. On Windows platforms you similarly may define a *doskey macro* for running **Kurator-Akka** at the prompt.
 
-For example, if you have saved yesworkflow-0.2-SNAPSHOT-jar-with-dependencies.jar to the bin subdirectory of your home directory, the following command will create a `bash` alias for running **Kurator-Akka** simply by typing `ka`:
+For example, if you have saved `yesworkflow-0.3-SNAPSHOT-jar-with-dependencies.jar` to the bin subdirectory of your home directory, the following command will create a `bash` alias for running **Kurator-Akka** simply by typing `ka`:
 
     alias ka='java -jar ~/bin/kurator-akka.jar'
 
@@ -192,5 +192,7 @@ To run a script residing on the filesystem, you can use the file scheme:
 The `file:` qualifier is optional, however. By default Kurator-Akka looks for workflows on your filesystem. So this will work, too:
 
 
-    $ java -jar kurator-akka.jar -f org/kurator/akka/samples/hello.yaml
+    $ ka -f org/kurator/akka/samples/hello.yaml
     Hello World!
+
+Note that unlike when referencing the `hello.yaml` workflow on the classpath, the path to workflow definition file is relative (it does not start with a `/`).
