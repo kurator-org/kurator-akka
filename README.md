@@ -89,6 +89,6 @@ With the above YAML saved to a file named `myactors.yaml`, the `MultiplyByFactor
 
 The above declaration states the following: `MultiplyByTwo` is a workflow comprising three actors, `ReadOneNumber`, `MultiplyByTwo`, and `PrintProduct`. `MultiplyByTwo` listens to (receives its input from) `ReadOneNumber`, and `PrintProducts` receives its input in turn from `MultiplyByTwo`.  `MultiplyByTwo` is declared to be an instance of the `Multiplier` actor defined previously; this instance of `Multiplier` is configured to multiply each value it receives by a factor of 2.  The YAML declarations for the underlying actors `StdinNumberReader`, `Multiplier`, and `NumberPrinter` are all read from `myactors.yaml`.
 
-The YAML definition of a workflow using Java implementations of each actor looks identical to a workflow using Python actors.  Java and Python actors can be used together in the workflow without any limitations.
+The YAML definition of a workflow using Java implementations of each actor looks identical to a workflow using Python actors.  Java and Python actors can be used together in the same workflow without any limitations.
 
 
