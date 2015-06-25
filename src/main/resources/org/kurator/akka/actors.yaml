@@ -64,14 +64,6 @@ types:
   properties:
     actorClass: org.kurator.akka.actors.FieldValueSelector
 
-- id: PythonMultiplier
-  type: PythonFunctionActor
-  properties:
-    defaults:
-      path: src/test/resources/org/kurator/akka/jython/multiplier.py
-      function: multiplier
-      outputTypeIsInputType: true
-
 - id: JythonFunctionActor
   type: Actor
   properties:
