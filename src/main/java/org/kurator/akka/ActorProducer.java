@@ -16,11 +16,16 @@ public class ActorProducer implements IndirectActorProducer {
     private Map<String, Object> parameters;
     private List<ActorConfig> listeners;
     private boolean needsTrigger;
+    private String code = null;
+    private String script = null;
+    private String start = null;
+    private String end = null;
+    private String function = null;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
     private InputStream inStream;
     private PrintStream outStream;
-    private PrintStream errStream;    
+    private PrintStream errStream;
 
     public ActorProducer(
             Class<? extends AkkaActor> actorClass, 
@@ -28,9 +33,12 @@ public class ActorProducer implements IndirectActorProducer {
             Map<String, Object> parameters, 
             List<ActorConfig> listeners,
             boolean needsTrigger,
+            String script,
+            String code,
+            String function,
             InputStream inStream, 
             PrintStream outStream, 
-            PrintStream errStream, 
+            PrintStream errStream,
             WorkflowRunner workflowRunner) {
         
         this.actorClass = actorClass;
@@ -39,6 +47,9 @@ public class ActorProducer implements IndirectActorProducer {
         this.listeners = listeners;
         this.workflowRunner = workflowRunner;
         this.needsTrigger = needsTrigger;
+        this.script = script;
+        this.code = code;
+        this.function = function;
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -66,7 +77,10 @@ public class ActorProducer implements IndirectActorProducer {
              .inputStream(inStream)
              .outputStream(outStream)
              .errorStream(errStream)
-             .needsTrigger(needsTrigger);
+             .needsTrigger(needsTrigger)
+             .code(code)
+             .script(script)
+             .function(function);
 
         // assign values to the actor parameters 
         Map<String,Object> parameterSettings = new HashMap<String,Object>();

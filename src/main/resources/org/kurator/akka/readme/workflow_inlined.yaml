@@ -16,34 +16,31 @@ components:
   type: PythonFunctionActor
   properties:
     trigger: true
-    parameters:
-      function: readnum
-      code: |
-        import sys
-        def readnum():
+    code: |
+      import sys
+      def readnum():
           print "Enter a number:"
           line = sys.stdin.readline()
           n = float(line.strip())
           return n
+    function: readnum
 
 - id: MultiplyByThree
   type: PythonFunctionActor
   properties:
+    code: |
+      def triple(n):
+        return 3 * n
+    function: triple
     listensTo:
       - !ref ReadOneNumber
-    parameters:
-      function: triple
-      code: |
-        def triple(n):
-          return 3 * n
 
 - id: PrintProduct
   type: PythonFunctionActor
   properties:
+    code: |
+      def printnum(n):
+        print n
+    function: printnum
     listensTo:
       - !ref MultiplyByThree
-    parameters:
-      function: printnum
-      code: |
-        def printnum(n):
-          print n

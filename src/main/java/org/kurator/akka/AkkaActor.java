@@ -46,6 +46,11 @@ public abstract class AkkaActor extends UntypedActor {
     public boolean sendEosOnEnd = true;
     
     public boolean needsTrigger = false;
+    public String code = null;
+    public String script = null;
+    public String start = null;
+    public String end = null;
+    public String function = null;
     
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
      * Defaults to <code>System.in</code>. 
@@ -383,7 +388,23 @@ public abstract class AkkaActor extends UntypedActor {
         this.settings = settings;
     }
 
-    public void needsTrigger(boolean needsTrigger) {
+    public AkkaActor needsTrigger(boolean needsTrigger) {
         this.needsTrigger = needsTrigger;
-    }    
+        return this;
+    }
+    
+    public AkkaActor code(String code) {
+        this.code = code;
+        return this;
+    }
+
+    public AkkaActor script(String script) {
+        this.script = script;
+        return this;
+    }
+
+    public AkkaActor function(String function) {
+        this.function = function;
+        return this;
+    }
 }

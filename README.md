@@ -37,20 +37,19 @@ The **Kurator-Akka** framework calls the `multiply()` method on each data item r
 
 ##### YAML declaration of the Python version of the Multiplier actor
 
-In addition to the Java or Python definition of an actor, an *actor type* declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that the actor named `Multiplier` invokes the `multiply()` function defined in the file `multiplier.py`:
+In addition to the Java or Python definition of an actor, an *actor type* declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that actors of type `Multiplier` (a subtype of actor type `PythonFunctionActor`) invoke the `multiply()` function defined in the file `multiplier.py`:
 
     types:
 
     - id: Multiplier
       type: PythonFunctionActor
       properties:
-        defaults:
-          script: multiplier.py
-          function: multiply
+        script: multiplier.py
+        function: multiply
 
 ##### Defining a workflow that uses the Multiplier actor
 
-With the above YAML saved to a file named `actors.yaml`, the `Multiplier` actor can be used in a workflow also defined in YAML. The workflow below accepts an input value from the user, multiplies it by 3, and outputs the result:
+With the above YAML saved to a file named `actors.yaml`, a `Multiplier` actor can be used in a workflow also defined in YAML. The workflow below accepts an input value from the user, multiplies it by 3, and outputs the result:
 
     imports:
 
@@ -106,11 +105,10 @@ can be replaced with:
       properties:
         listensTo:
           - !ref ReadOneNumber
-        defaults:
-          function: triple
-          code: |
-            def triple(n):
-              return 3 * n
+        function: triple
+        code: |
+          def triple(n):
+            return 3 * n
 
 The Python code defining the `multiply()` function is now defined within the same YAML file that declares the workflow as a whole. Inlined Python actors are useful for implementing simple actors needed for specific workflows.
 

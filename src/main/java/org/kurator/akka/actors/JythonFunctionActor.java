@@ -2,8 +2,6 @@ package org.kurator.akka.actors;
 
 public class JythonFunctionActor extends JythonActor {
 
-    public String function = "function";
-    
     private static final String callWrapperFormat = 
             "def call_function():"                          + EOL +
             "  global " + inputName                         + EOL +
@@ -35,12 +33,6 @@ public class JythonFunctionActor extends JythonActor {
         Object output = triggerJythonFunction();
         handleOutput(output);
         endStreamAndStop();
-    }
-
-    private void handleOutput(Object output) {
-        if (output != null || broadcastNulls) {
-            broadcast(output);
-        }
     }
     
     @Override

@@ -6,21 +6,18 @@ types:
 - id: Multiplier
   type: PythonFunctionActor
   properties:
-    defaults:
-      script: multiplier.py
-      function: multiply
+    script: multiplier.py
+    function: multiply
 
 - id: NumReader
   type: PythonFunctionActor
   properties:
+    script: reader.py
+    function: readnum
     trigger: true
-    defaults:
-      script: reader.py
-      function: readnum
 
 - id: NumPrinter
   type: PythonFunctionActor
   properties:
-    defaults:
-      script: printer.py
-      function: printnum
+    script: printer.py
+    function: printnum

@@ -11,10 +11,6 @@ public class JythonActor extends AkkaActor {
 
     public Class<? extends Object> inputType = Object.class;
     public Class<? extends Object> outputType = Object.class;
-    public String code = null;
-    public String script = null;
-    public String start = null;
-    public String end = null;
     public boolean broadcastNulls = false;
     public boolean outputTypeIsInputType = false;
     
@@ -72,6 +68,12 @@ public class JythonActor extends AkkaActor {
         // call script start function if defined
         if (start != null) {
             interpreter.eval(start + "()");
+        }
+    }
+    
+    protected void handleOutput(Object output) {
+        if (output != null || broadcastNulls) {
+            broadcast(output);
         }
     }
     

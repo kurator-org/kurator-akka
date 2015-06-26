@@ -9,11 +9,14 @@ import org.springframework.beans.factory.BeanNameAware;
 
 public class ActorConfig implements BeanNameAware {
 
-    private Class<? extends AkkaActor> actorClass;
+    public Class<? extends AkkaActor> actorClass;
     private List<ActorConfig> listeners;
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
-    protected String actorName = null;
+    String actorName = null;
+    private String code = null;
+    private String script = null;
+    private String function = null;
     private boolean needsTrigger = false;
 
     public ActorConfig() {
@@ -45,6 +48,31 @@ public class ActorConfig implements BeanNameAware {
     public boolean getTrigger() {
         return needsTrigger;
     }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+    
+    public String getCode() {
+        return code;
+    }
+
+    public void setScript(String script) {
+        this.script = script;
+    }
+    
+    public String getScript() {
+        return script;
+    }
+
+    public void setFunction(String function) {
+        this.function = function;
+    }
+    
+    public String getFunction() {
+        return function;
+    }
+
     
     @SuppressWarnings("unchecked")
     public void setActorClass(String actorClassName) throws ClassNotFoundException {
