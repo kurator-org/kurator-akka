@@ -188,7 +188,7 @@ public class WorkflowRunner {
                                     actorConfig.getTrigger(),
                                     actorConfig.getScript(),
                                     actorConfig.getCode(),
-                                    actorConfig.getFunction(),
+                                    actorConfig.getOnData(),
                                     inStream,
                                     outStream,
                                     errStream,

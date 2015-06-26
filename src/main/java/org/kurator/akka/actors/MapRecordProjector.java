@@ -16,7 +16,7 @@ public class MapRecordProjector extends AkkaActor {
     
     @SuppressWarnings("unchecked")
     @Override
-    public void handleInitialize() throws Exception {
+    public void onInitialize() throws Exception {
         if (recordClass != null) {
             _recordClass = (Class<? extends Map<String, String>>) Class.forName(recordClass);
         }
@@ -24,7 +24,7 @@ public class MapRecordProjector extends AkkaActor {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void handleData(Object value) throws Exception {
+    public void onData(Object value) throws Exception {
         if (value instanceof Map<?,?>) {
             Map<String,String> projection = project((Map<String,String>)value);
             if (projection != null) {

@@ -28,7 +28,7 @@ public class CsvFileReader extends OneShot {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void handleInitialize() throws Exception {
+    public void onInitialize() throws Exception {
         if (recordClass != null) {
             _recordClass = (Class<? extends Map<String, String>>) Class.forName(recordClass);
         }

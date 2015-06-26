@@ -16,7 +16,7 @@ public class ActorConfig implements BeanNameAware {
     String actorName = null;
     private String code = null;
     private String script = null;
-    private String function = null;
+    private String onData = null;
     private boolean needsTrigger = false;
 
     public ActorConfig() {
@@ -65,12 +65,12 @@ public class ActorConfig implements BeanNameAware {
         return script;
     }
 
-    public void setFunction(String function) {
-        this.function = function;
+    public void setOnData(String onData) {
+        this.onData = onData;
     }
     
-    public String getFunction() {
-        return function;
+    public String getOnData() {
+        return onData;
     }
 
     

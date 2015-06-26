@@ -10,7 +10,7 @@ public abstract class MapRecordSelector extends AkkaActor {
     
 	@Override
     @SuppressWarnings("unchecked")
-    public void handleData(Object value) throws Exception {
+    public void onData(Object value) throws Exception {
         if (value instanceof Map<?,?> && selects((Map<String,String>)value)) {
         	broadcast(value);
         }

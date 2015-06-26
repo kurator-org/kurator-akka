@@ -13,19 +13,19 @@ public class JythonClassActor extends JythonActor {
             "  " + outputName + " = actor.%s(" + inputName + ")"    + EOL;
 
     @Override
-    protected void handleInitialize() {
-        super.handleInitialize();
+    protected void onInitialize() {
+        super.onInitialize();
         interpreter.exec(String.format(wrapperFormat, method));
     }
 
     @Override
-    protected void handleStart() {
-        super.handleStart();
+    protected void onStart() {
+        super.onStart();
         interpreter.exec("actor=" + actorName + "()");
     }
 
     @Override
-    public void handleData(Object value) {
+    public void onData(Object value) {
 
         if (outputTypeIsInputType) {
             outputType = value.getClass();

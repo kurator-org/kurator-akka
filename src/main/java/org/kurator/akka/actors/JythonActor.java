@@ -21,7 +21,7 @@ public class JythonActor extends AkkaActor {
     protected PyObject none;
     
     @Override
-    protected void handleInitialize() {
+    protected void onInitialize() {
         
         // create a python interpreter
         PySystemState.initialize(System.getProperties( ), null, new String[] {""});
@@ -55,7 +55,7 @@ public class JythonActor extends AkkaActor {
     }
     
     @Override
-    protected void handleStart() {
+    protected void onStart() {
 
         if (settings != null) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {
@@ -78,7 +78,7 @@ public class JythonActor extends AkkaActor {
     }
     
     @Override
-    protected void handleEnd() {
+    protected void onEnd() {
         
         // call script end function if defined
         if (end != null) {

@@ -16,6 +16,7 @@ components:
   type: PythonFunctionActor
   properties:
     trigger: true
+    onData: readnum
     code: |
       import sys
       def readnum():
@@ -23,24 +24,23 @@ components:
           line = sys.stdin.readline()
           n = float(line.strip())
           return n
-    function: readnum
 
 - id: MultiplyByThree
   type: PythonFunctionActor
   properties:
+    onData: triple
     code: |
       def triple(n):
         return 3 * n
-    function: triple
     listensTo:
       - !ref ReadOneNumber
 
 - id: PrintProduct
   type: PythonFunctionActor
   properties:
+    onData: printnum
     code: |
       def printnum(n):
         print n
-    function: printnum
     listensTo:
       - !ref MultiplyByThree

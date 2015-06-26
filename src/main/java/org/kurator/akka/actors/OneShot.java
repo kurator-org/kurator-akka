@@ -7,7 +7,7 @@ public abstract class OneShot extends AkkaActor {
     public abstract void fireOnce() throws Exception;
     
     @Override
-    public void handleStart() throws Exception {
+    public void onStart() throws Exception {
         fireOnce();
         endStreamAndStop();
     }

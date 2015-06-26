@@ -7,24 +7,24 @@ types:
 - id: PythonRepeater
   type: PythonFunctionActor
   properties:
+    script: src/test/resources/org/kurator/akka/jython/repeater.py
+    onData: repeat
     defaults:
-      script: src/test/resources/org/kurator/akka/jython/repeater.py
-      function: repeat
       outputTypeIsInputType: true
       
 - id: PythonPrinter
   type: PythonFunctionActor
   properties:
+    script: src/test/resources/org/kurator/akka/jython/printer.py
+    onData: printMessage
     defaults:
-      script: src/test/resources/org/kurator/akka/jython/printer.py
-      function: printMessage
       start: start
 
 - id: PythonMultiplier
   type: PythonFunctionActor
   properties:
+    script: src/test/resources/org/kurator/akka/jython/multiplier.py
+    onData: multiplier
     defaults:
-      script: src/test/resources/org/kurator/akka/jython/multiplier.py
-      function: multiplier
       outputTypeIsInputType: true
       

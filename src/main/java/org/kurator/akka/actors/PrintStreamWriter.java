@@ -9,7 +9,7 @@ public class PrintStreamWriter extends AkkaActor {
     private boolean isFirst = true;
     
     @Override
-    public void handleData(Object value) throws Exception {
+    public void onData(Object value) throws Exception {
         
         if (isFirst) {
             isFirst = false;
@@ -20,7 +20,7 @@ public class PrintStreamWriter extends AkkaActor {
     }
     
     @Override
-    protected void handleEnd() throws Exception {
+    protected void onEnd() throws Exception {
         if (endWithSeparator) {
             outStream.print(separator);
         }

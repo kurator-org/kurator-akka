@@ -30,7 +30,7 @@ public class TestJythonFunctionActor extends KuratorAkkaTestCase {
          
          jythonActor = wr.actor(JythonFunctionActor.class)
              .parameter("script", "src/test/resources/org/kurator/akka/jython/multiplier.py")
-             .parameter("function", "multiplier")
+             .parameter("onData", "multiplier")
              .parameter("inputType", java.lang.Integer.class)
              .parameter("outputType", java.lang.Integer.class)
              .parameter("factor", 2)

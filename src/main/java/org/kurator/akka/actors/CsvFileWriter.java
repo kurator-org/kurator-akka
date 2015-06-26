@@ -28,7 +28,7 @@ public class CsvFileWriter extends AkkaActor {
     private CSVPrinter csvPrinter = null;
 
     @Override
-    public void handleStart() throws Exception {
+    public void onStart() throws Exception {
 
         if (outputWriter == null) {
             if (filePath != null) {
@@ -40,7 +40,7 @@ public class CsvFileWriter extends AkkaActor {
     }
 
     @Override
-    public void handleData(Object value) throws Exception {
+    public void onData(Object value) throws Exception {
 
         if (value instanceof Map<?,?>) {
 
@@ -57,7 +57,7 @@ public class CsvFileWriter extends AkkaActor {
     }
 
     @Override
-    public void handleEnd() throws Exception {
+    public void onEnd() throws Exception {
         if (csvPrinter != null) {
             csvPrinter.close();
         }

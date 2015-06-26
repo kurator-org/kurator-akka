@@ -14,29 +14,29 @@ public class JythonFunctionActor extends JythonActor {
             "  " + outputName + " = %s()"                   + EOL;
 
     @Override
-    protected void handleInitialize() {
-        super.handleInitialize();
+    protected void onInitialize() {
+        super.onInitialize();
         if (this.needsTrigger) {
-            interpreter.exec(String.format(triggerWrapperFormat, function));
+            interpreter.exec(String.format(triggerWrapperFormat, onData));
         } else {
-            interpreter.exec(String.format(callWrapperFormat, function));
+            interpreter.exec(String.format(callWrapperFormat, onData));
         }
     }
     
     @Override
-    protected void handleStart() {
-        super.handleStart();
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override
-    protected void handleTrigger() throws Exception {
+    protected void onTrigger() throws Exception {
         Object output = triggerJythonFunction();
         handleOutput(output);
         endStreamAndStop();
     }
     
     @Override
-    public void handleData(Object value) {  
+    public void onData(Object value) {  
 
         if (outputTypeIsInputType) {
             outputType = value.getClass();

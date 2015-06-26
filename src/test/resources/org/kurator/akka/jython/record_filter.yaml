@@ -11,9 +11,9 @@ components:
 - id: JythonRecordFilter
   type: JythonFunctionActor
   properties:
+    script: src/test/resources/org/kurator/akka/jython/record_filter.py
+    onData: filter
     parameters:
-      script: src/test/resources/org/kurator/akka/jython/record_filter.py
-      function: filter
       outputTypeIsInputType: true
     listensTo:
       - !ref CsvReader

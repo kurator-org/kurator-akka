@@ -11,7 +11,7 @@ public class Filter extends AkkaActor {
     private boolean eosSent = false;
 
     @Override
-    public void handleData(Object value) throws Exception {
+    public void onData(Object value) throws Exception {
 
         if (eosSent)
             return;

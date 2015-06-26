@@ -50,7 +50,7 @@ public abstract class AkkaActor extends UntypedActor {
     public String script = null;
     public String start = null;
     public String end = null;
-    public String function = null;
+    public String onData = null;
     
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
      * Defaults to <code>System.in</code>. 
@@ -162,9 +162,9 @@ public abstract class AkkaActor extends UntypedActor {
      * Initial handler for all messages received by this actor via the Akka framework.  
      * 
      * <p> This method may not be overridden by child classes.  Non-default responses to
-     * messages can provided by overriding one or more of {@link #handleInitialize()}, 
-     * {@link #handleStart()}, {@link #handleEndOfStream(EndOfStream) handleEndOfStream()}, 
-     * {@link #handleEnd()}, and {@link #handleData(Object) handleDataMessage()}.</p>
+     * messages can provided by overriding one or more of {@link #onInitialize()}, 
+     * {@link #onStart()}, {@link #onEndOfStream(EndOfStream) handleEndOfStream()}, 
+     * {@link #onEnd()}, and {@link #onData(Object) handleDataMessage()}.</p>
      * 
      * <p>This method is responsible calling the more specific message and event handlers, and for
      * initializing the list of listeners using the listener configurations assigned
@@ -195,7 +195,7 @@ public abstract class AkkaActor extends UntypedActor {
                     }
                                 
                     // invoke the Initialize event handler
-                    handleInitialize();
+                    onInitialize();
 
                     // send a reply to this message
                     getSender().tell(new Response(), getSelf());
@@ -203,20 +203,20 @@ public abstract class AkkaActor extends UntypedActor {
                 } else if (message instanceof Start) {
                     
                     // invoke the Start event handler
-                    handleStart();
+                    onStart();
                     if (this.needsTrigger) {
-                        handleTrigger();
+                        onTrigger();
                     }
                 
                 } else if (message instanceof EndOfStream) {
                     
                     // invoke the EndOfStream message handler
-                    handleEndOfStream((EndOfStream)message);
+                    onEndOfStream((EndOfStream)message);
                 }            
                 
             // allow child classes to handle non-control messages
             } else {
-                handleData(message);
+                onData(message);
             }
             
         } catch (Exception e) {
@@ -237,7 +237,7 @@ public abstract class AkkaActor extends UntypedActor {
      * 
      * @throws Exception
      */
-    protected void handleInitialize() throws Exception {}
+    protected void onInitialize() throws Exception {}
 
     
     /** 
@@ -264,9 +264,9 @@ public abstract class AkkaActor extends UntypedActor {
      * 
      * @throws Exception
      */
-    protected void handleStart() throws Exception {}
+    protected void onStart() throws Exception {}
     
-    protected void handleTrigger() throws Exception {}
+    protected void onTrigger() throws Exception {}
     
     /** 
      * Default handler for {@link org.kurator.akka.messages.EndOfStream EndOfStream} message. 
@@ -282,7 +282,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param eos The received {@link org.kurator.akka.messages.EndOfStream EndOfStream} message.
      * @throws Exception
      */
-    protected void handleEndOfStream(EndOfStream eos) throws Exception {
+    protected void onEndOfStream(EndOfStream eos) throws Exception {
         if (endOnEos) {
             endStreamAndStop(eos);
         }
@@ -295,7 +295,7 @@ public abstract class AkkaActor extends UntypedActor {
      *  
      * @throws Exception
      */
-    protected void handleEnd() throws Exception {}
+    protected void onEnd() throws Exception {}
     
     
     /** 
@@ -307,7 +307,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param value The received data value.
      * @throws Exception
      */
-    protected void handleData(Object value) throws Exception {}
+    protected void onData(Object value) throws Exception {}
     
     
     /** 
@@ -323,7 +323,7 @@ public abstract class AkkaActor extends UntypedActor {
         
     /** 
      * Stops the actor after (optionally) broadcasting the provided {@link org.kurator.akka.messages.EndOfStream EndOfStream} 
-     * message to listeners.  It is called by {@link #handleEndOfStream(EndOfStream) handleEndOfStream()}
+     * message to listeners.  It is called by {@link #onEndOfStream(EndOfStream) handleEndOfStream()}
      * on arrival of an {@link org.kurator.akka.messages.EndOfStream EndOfStream} message if
      * the {@link #endOnEos} property is <i>true</i>.
      * 
@@ -345,7 +345,7 @@ public abstract class AkkaActor extends UntypedActor {
         }
     
         // call the End event handler
-        handleEnd();
+        onEnd();
         
         // stop the actor
         getContext().stop(getSelf());
@@ -388,23 +388,23 @@ public abstract class AkkaActor extends UntypedActor {
         this.settings = settings;
     }
 
-    public AkkaActor needsTrigger(boolean needsTrigger) {
+    public AkkaActor setNeedsTrigger(boolean needsTrigger) {
         this.needsTrigger = needsTrigger;
         return this;
     }
     
-    public AkkaActor code(String code) {
+    public AkkaActor setCode(String code) {
         this.code = code;
         return this;
     }
 
-    public AkkaActor script(String script) {
+    public AkkaActor setScript(String script) {
         this.script = script;
         return this;
     }
 
-    public AkkaActor function(String function) {
-        this.function = function;
+    public AkkaActor setOnData(String onData) {
+        this.onData = onData;
         return this;
     }
 }

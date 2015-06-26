@@ -26,13 +26,13 @@ public class IntegerStreamMerger extends AkkaActor {
     }
 
     @Override
-    public void handleEndOfStream(EndOfStream message) throws Exception {
+    public void onEndOfStream(EndOfStream message) throws Exception {
         addToInputQueue(this.getSender(), message);
         fire();
     }
     
     @Override
-    public void handleData(Object value) throws Exception {
+    public void onData(Object value) throws Exception {
 
         ActorRef sender = this.getSender();
 

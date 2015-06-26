@@ -7,17 +7,17 @@ types:
   type: PythonFunctionActor
   properties:
     script: multiplier.py
-    function: multiply
+    onData: multiply
 
 - id: NumReader
   type: PythonFunctionActor
   properties:
     script: reader.py
-    function: readnum
+    onData: readnum
     trigger: true
 
 - id: NumPrinter
   type: PythonFunctionActor
   properties:
     script: printer.py
-    function: printnum
+    onData: printnum
