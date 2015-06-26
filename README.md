@@ -18,12 +18,12 @@ The Java class below defines a simple actor type for multiplying an integer by a
     import org.kurator.akka.AkkaActor;
     public class Multiplier extends AkkaActor {
         public int factor = 1;
-        @Override public void handleData(Object i) {
+        @Override public void onData(Object i) {
         	broadcast((int)i * factor);
         }
     }
 
-As shown above, a new Java actor type can be implemented by declaring a new Java class that overrides the `handleData()` method of the `org.kurator.akka.AkkaActor` class.  This method will be called by the **Kurator-Akka** framework each an actor of this type receives any data.  The `broadcast()` method is used within the `handleData()` method to send data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
+As shown above, a new Java actor type can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.AkkaActor` class.  This method will be called by the **Kurator-Akka** framework each an actor of this type receives any data.  The `broadcast()` method is used within the `onData()` method to send data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
 
 ##### Python implementation of the Multiplier actor
 
