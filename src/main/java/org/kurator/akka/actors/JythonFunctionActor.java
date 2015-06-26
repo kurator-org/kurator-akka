@@ -2,37 +2,39 @@ package org.kurator.akka.actors;
 
 public class JythonFunctionActor extends JythonActor {
 
-    private static final String callWrapperFormat = 
+    private static final String onDataWrapperFormat = 
             "def call_function():"                          + EOL +
             "  global " + inputName                         + EOL +
             "  global " + outputName                        + EOL +
             "  " + outputName + " = %s(" + inputName + ")"  + EOL;
 
-    private static final String triggerWrapperFormat = 
-            "def trigger_function():"                       + EOL +
+    private static final String onStartWrapperFormat = 
+            "def start_function():"                         + EOL +
             "  global " + outputName                        + EOL +
             "  " + outputName + " = %s()"                   + EOL;
 
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        if (this.needsTrigger) {
-            interpreter.exec(String.format(triggerWrapperFormat, onData));
-        } else {
-            interpreter.exec(String.format(callWrapperFormat, onData));
-        }
+        if (this.onStart != null) interpreter.exec(String.format(onStartWrapperFormat, onStart));
+        if (this.onData != null) interpreter.exec(String.format(onDataWrapperFormat, onData));
     }
     
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
+    protected void onStart() throws Exception {
 
-    @Override
-    protected void onTrigger() throws Exception {
-        Object output = triggerJythonFunction();
-        handleOutput(output);
-        endStreamAndStop();
+        super.onStart();
+        
+        if (onStart != null) {
+            interpreter.set(outputName, none);
+            interpreter.eval("start_function()");
+            Object output = interpreter.get(outputName, outputType);
+            handleOutput(output);
+        }
+
+        if (onData == null) {
+            endStreamAndStop();       
+        }
     }
     
     @Override
@@ -45,18 +47,6 @@ public class JythonFunctionActor extends JythonActor {
         Object output = callJythonFunction(value);
 
         handleOutput(output);
-    }
-
-    protected Object triggerJythonFunction() {
-        
-        // reset output variable to null
-        interpreter.set(outputName, none);
-        
-        // call the python function
-        interpreter.eval("trigger_function()");
-        
-        // return the function output
-        return interpreter.get(outputName, outputType);
     }
     
     protected Object callJythonFunction(Object input) {

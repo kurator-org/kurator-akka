@@ -19,7 +19,7 @@ public class JythonClassActor extends JythonActor {
     }
 
     @Override
-    protected void onStart() {
+    protected void onStart() throws Exception {
         super.onStart();
         interpreter.exec("actor=" + actorName + "()");
     }

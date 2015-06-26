@@ -17,8 +17,7 @@ types:
   properties:
     script: src/test/resources/org/kurator/akka/jython/printer.py
     onData: printMessage
-    defaults:
-      start: start
+    onStart: start
 
 - id: PythonMultiplier
   type: PythonFunctionActor

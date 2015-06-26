@@ -185,7 +185,7 @@ public class WorkflowRunner {
                                     actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(),
-                                    actorConfig.getTrigger(),
+                                    actorConfig.getOnStart(),
                                     actorConfig.getScript(),
                                     actorConfig.getCode(),
                                     actorConfig.getOnData(),

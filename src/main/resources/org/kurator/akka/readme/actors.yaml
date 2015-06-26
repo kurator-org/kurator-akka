@@ -13,8 +13,7 @@ types:
   type: PythonFunctionActor
   properties:
     script: reader.py
-    onData: readnum
-    trigger: true
+    onStart: readnum
 
 - id: NumPrinter
   type: PythonFunctionActor

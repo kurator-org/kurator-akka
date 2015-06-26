@@ -7,7 +7,7 @@ import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-public class JythonActor extends AkkaActor {
+public abstract class JythonActor extends AkkaActor {
 
     public Class<? extends Object> inputType = Object.class;
     public Class<? extends Object> outputType = Object.class;
@@ -46,16 +46,12 @@ public class JythonActor extends AkkaActor {
         none = interpreter.eval("None");
     }
 
-    private void appendSysPath(String path) {
-        interpreter.eval(String.format("sys.path.append('%s')%s", path, EOL));
-    }
-
     private void prependSysPath(String path) {
         interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
     }
     
     @Override
-    protected void onStart() {
+    protected void onStart() throws Exception {
 
         if (settings != null) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {
@@ -63,12 +59,7 @@ public class JythonActor extends AkkaActor {
                 Object value = setting.getValue();
                 interpreter.set(name, value);
             }
-        }
-        
-        // call script start function if defined
-        if (start != null) {
-            interpreter.eval(start + "()");
-        }
+        }        
     }
     
     protected void handleOutput(Object output) {
@@ -81,8 +72,8 @@ public class JythonActor extends AkkaActor {
     protected void onEnd() {
         
         // call script end function if defined
-        if (end != null) {
-            interpreter.eval(end + "()");
+        if (onEnd != null) {
+            interpreter.eval(onEnd + "()");
         }
         
         // shut down the interpreter

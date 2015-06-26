@@ -48,8 +48,8 @@ public abstract class AkkaActor extends UntypedActor {
     public boolean needsTrigger = false;
     public String code = null;
     public String script = null;
-    public String start = null;
-    public String end = null;
+    public String onStart = null;
+    public String onEnd = null;
     public String onData = null;
     
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
@@ -407,4 +407,10 @@ public abstract class AkkaActor extends UntypedActor {
         this.onData = onData;
         return this;
     }
+
+    public AkkaActor setOnStart(String onStart) {
+        this.onStart = onStart;
+        return this;
+    }
+
 }

@@ -17,7 +17,7 @@ public class ActorConfig implements BeanNameAware {
     private String code = null;
     private String script = null;
     private String onData = null;
-    private boolean needsTrigger = false;
+    private String onStart = null;
 
     public ActorConfig() {
     }
@@ -41,12 +41,12 @@ public class ActorConfig implements BeanNameAware {
         return actorName;
     }
     
-    public void setTrigger(boolean needsTrigger) {
-        this.needsTrigger = needsTrigger;
+    public void setOnStart(String onStart) {
+        this.onStart = onStart;
     }
     
-    public boolean getTrigger() {
-        return needsTrigger;
+    public String getOnStart() {
+        return onStart;
     }
 
     public void setCode(String code) {
@@ -72,7 +72,6 @@ public class ActorConfig implements BeanNameAware {
     public String getOnData() {
         return onData;
     }
-
     
     @SuppressWarnings("unchecked")
     public void setActorClass(String actorClassName) throws ClassNotFoundException {

@@ -15,8 +15,7 @@ components:
 - id: ReadOneNumber
   type: PythonFunctionActor
   properties:
-    trigger: true
-    onData: readnum
+    onStart: readnum
     code: |
       import sys
       def readnum():
