@@ -17,9 +17,10 @@ The Java class below defines a simple actor type for multiplying an integer by a
 
     import org.kurator.akka.AkkaActor;
     public class Multiplier extends AkkaActor {
-        public int factor = 1;
+        public double factor = 1;
+        
         @Override public void onData(Object i) {
-        	broadcast((int)i * factor);
+        	broadcast((double)i * factor);
         }
     }
 
