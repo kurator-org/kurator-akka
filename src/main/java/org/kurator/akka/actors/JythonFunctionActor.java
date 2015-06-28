@@ -13,13 +13,31 @@ public class JythonFunctionActor extends JythonActor {
             "  global " + outputName                        + EOL +
             "  " + outputName + " = %s()"                   + EOL;
 
+//    private String isGeneratorFormat =
+//            "import inspect"                                + EOL +
+//            "__isgenerator__="                              +
+//            "inspect.isgeneratorfunction(%s)"               + EOL;
+
     @Override
     protected void onInitialize() {
         super.onInitialize();
+        
         if (this.onStart != null) interpreter.exec(String.format(onStartWrapperFormat, onStart));
         if (this.onData != null) interpreter.exec(String.format(onDataWrapperFormat, onData));
+        
+//        if (this.onData != null) {
+//            onDataIsGenerator = isGenerator(onData);
+//            interpreter.exec(String.format(onDataWrapperFormat, onData));
+//        }
     }
     
+//    private boolean isGenerator(String function) {
+//        String s = String.format(isGeneratorFormat, function);
+//        interpreter.exec(s);
+//        Object result = interpreter.get("__isgenerator__");
+//        return (boolean)result;
+//    }
+        
     @Override
     protected void onStart() throws Exception {
 
