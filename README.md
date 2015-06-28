@@ -102,7 +102,7 @@ The YAML definition of a workflow using Java implementations of each actor looks
 can be replaced with:
 
     - id: MultiplyByThree
-      type: PythonFunctionActor
+      type: PythonActor
       properties:
         listensTo:
           - !ref ReadOneNumber
