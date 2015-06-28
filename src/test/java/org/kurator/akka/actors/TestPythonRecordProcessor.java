@@ -4,12 +4,12 @@ import org.junit.Test;
 import org.kurator.akka.KuratorAkkaCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
 
-public class TestJythonRecordProcessor extends KuratorAkkaTestCase {
+public class TestPythonRecordProcessor extends KuratorAkkaTestCase {
     
-    static final String RESOURCE_PATH = "classpath:/org/kurator/akka/jython/";
+    static final String RESOURCE_PATH = "classpath:/org/kurator/akka/python/";
     
     @Test
-    public void testJythonRecordProcessor() throws Exception {
+    public void testPythonRecordProcessor() throws Exception {
 
         String[] args = {
                 "-f", RESOURCE_PATH + "record_filter.yaml", 

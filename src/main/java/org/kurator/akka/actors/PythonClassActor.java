@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-public class JythonClassActor extends JythonActor {
+public class PythonClassActor extends PythonActorBase {
 
     public String actorName = null;
     public String method = null;

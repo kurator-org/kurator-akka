@@ -43,7 +43,7 @@ In addition to the Java or Python definition of an actor, an *actor type* declar
     types:
 
     - id: Multiplier
-      type: PythonFunctionActor
+      type: PythonActor
       properties:
         script: multiplier.py
         onData: multiply

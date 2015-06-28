@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-public class JythonFunctionActor extends JythonActor {
+public class PythonActor extends PythonActorBase {
 
     private static final String onDataWrapperFormat = 
             "def call_function():"                          + EOL +
@@ -62,12 +62,12 @@ public class JythonFunctionActor extends JythonActor {
             outputType = value.getClass();
         }
 
-        Object output = callJythonFunction(value);
+        Object output = callPythonFunction(value);
 
         handleOutput(output);
     }
     
-    protected Object callJythonFunction(Object input) {
+    protected Object callPythonFunction(Object input) {
         
         // reset output variable to null
         interpreter.set(outputName, none);

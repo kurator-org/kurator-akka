@@ -4,12 +4,12 @@ import org.junit.Test;
 import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
-import org.kurator.akka.actors.JythonFunctionActor;
+import org.kurator.akka.actors.PythonActor;
 import org.kurator.akka.actors.PrintStreamWriter;
 import org.kurator.akka.actors.Repeater;
 import org.kurator.akka.messages.EndOfStream;
 
-public class TestJythonFunctionActor extends KuratorAkkaTestCase {
+public class TestPythonActor extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     private ActorConfig jythonActor;
@@ -28,8 +28,8 @@ public class TestJythonFunctionActor extends KuratorAkkaTestCase {
          
          ActorConfig repeater = wr.actor(Repeater.class);
          
-         jythonActor = wr.actor(JythonFunctionActor.class)
-             .parameter("script", "src/test/resources/org/kurator/akka/jython/multiplier.py")
+         jythonActor = wr.actor(PythonActor.class)
+             .parameter("script", "src/test/resources/org/kurator/akka/python/multiplier.py")
              .parameter("onData", "multiply")
              .parameter("inputType", java.lang.Integer.class)
              .parameter("outputType", java.lang.Integer.class)
@@ -44,7 +44,7 @@ public class TestJythonFunctionActor extends KuratorAkkaTestCase {
      }
     
     @Test
-    public void testJythonActor() throws Exception {
+    public void testPythonActor() throws Exception {
         
         wr.build();
         wr.start();

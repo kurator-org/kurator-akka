@@ -6,12 +6,12 @@ import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.YamlFileWorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-public class TestJythonFunctionActorYaml extends KuratorAkkaTestCase {
+public class TestPythonActorYaml extends KuratorAkkaTestCase {
     
-    static final String RESOURCE_PATH = "classpath:/org/kurator/akka/jython/";
+    static final String RESOURCE_PATH = "classpath:/org/kurator/akka/python/";
     
     @Test
-    public void testJythonFunctionActor_MultiplierWorkflow() throws Exception {
+    public void testPythonActor_MultiplierWorkflow() throws Exception {
 
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "multiplier_wf.yaml");
         wr.outputStream(stdoutStream);

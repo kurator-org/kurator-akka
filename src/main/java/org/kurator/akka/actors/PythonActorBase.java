@@ -7,7 +7,7 @@ import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-public abstract class JythonActor extends AkkaActor {
+public abstract class PythonActorBase extends AkkaActor {
 
     public Class<? extends Object> inputType = Object.class;
     public Class<? extends Object> outputType = Object.class;

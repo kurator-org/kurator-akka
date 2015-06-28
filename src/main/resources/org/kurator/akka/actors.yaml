@@ -63,13 +63,3 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.FieldValueSelector
-
-- id: JythonFunctionActor
-  type: Actor
-  properties:
-    actorClass: org.kurator.akka.actors.JythonFunctionActor
-
-- id: JythonClassActor
-  type: Actor
-  properties:
-    actorClass: org.kurator.akka.actors.JythonClassActor

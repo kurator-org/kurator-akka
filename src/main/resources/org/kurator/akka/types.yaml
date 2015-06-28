@@ -9,8 +9,13 @@ types:
   className: org.kurator.akka.WorkflowConfig
   singleton: false
 
-- id: PythonFunctionActor
+- id: PythonActor
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.JythonFunctionActor
+    actorClass: org.kurator.akka.actors.PythonActor
+
+- id: PythonClassActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.PythonClassActor  
   

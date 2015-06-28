@@ -4,19 +4,19 @@ imports:
 types:
 
 - id: Multiplier
-  type: PythonFunctionActor
+  type: PythonActor
   properties:
     script: multiplier.py
     onData: multiply
 
 - id: NumReader
-  type: PythonFunctionActor
+  type: PythonActor
   properties:
     script: reader.py
     onStart: readnum
 
 - id: NumPrinter
-  type: PythonFunctionActor
+  type: PythonActor
   properties:
     script: printer.py
     onData: printnum

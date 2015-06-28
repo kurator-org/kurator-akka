@@ -5,24 +5,24 @@ imports:
 types:
 
 - id: PythonRepeater
-  type: PythonFunctionActor
+  type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/jython/repeater.py
+    script: src/test/resources/org/kurator/akka/python/repeater.py
     onData: repeat
     defaults:
       outputTypeIsInputType: true
       
 - id: PythonPrinter
-  type: PythonFunctionActor
+  type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/jython/printer.py
+    script: src/test/resources/org/kurator/akka/python/printer.py
     onData: printMessage
     onStart: start
 
 - id: PythonMultiplier
-  type: PythonFunctionActor
+  type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/jython/multiplier.py
+    script: src/test/resources/org/kurator/akka/python/multiplier.py
     onData: multiply
     defaults:
       outputTypeIsInputType: true
