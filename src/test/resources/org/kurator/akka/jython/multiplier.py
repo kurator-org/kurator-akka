@@ -4,5 +4,5 @@
 # default settings
 factor = 1
 
-def multiplier(i):
+def multiply(i):
   return factor * i
