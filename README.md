@@ -38,7 +38,7 @@ The **Kurator-Akka** framework calls the `multiply()` method on each data item r
 
 ##### YAML declaration of the Python version of the Multiplier actor
 
-In addition to the Java or Python definition of an actor, an *actor type* declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that actors of type `Multiplier`, a subtype of actor type `PythonFunctionActor`, invoke the `multiply()` function defined in the file `multiplier.py`:
+In addition to the Java or Python definition of an actor, an *actor type* declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that actors of type `Multiplier`, a subtype of actor type `PythonActor`, invoke the `multiply()` function defined in the file `multiplier.py`:
 
     types:
 
@@ -83,13 +83,13 @@ With the above YAML saved to a file named `actors.yaml`, a `Multiplier` actor ca
         listensTo:
           - !ref MultiplyByThree
 
-The above declaration states the following: `MultiplyByThreeWorkflow` is a workflow comprising three actors, `ReadOneNumber`, `MultiplyByThree`, and `PrintProduct`. `MultiplyByThree` listens to (receives its input from) `ReadOneNumber`, and `PrintProducts` receives its input in turn from `MultiplyByThree`.  `MultiplyByThree` is declared to be an instance of the `Multiplier` actor type defined previously; this instance of `Multiplier` is configured to multiply each value it receives by a factor of 3.  The YAML declarations for the underlying actor types `NumReader`, `Multiplier`, and `NumPrinter` are all imported from `actors.yaml`.
+The above declaration states the following: `MultiplyByThreeWorkflow` is a workflow comprising three actors, `ReadOneNumber`, `MultiplyByThree`, and `PrintProduct`. `MultiplyByThree` listens to (receives its input from) `ReadOneNumber`, and `PrintProduct` receives its input in turn from `MultiplyByThree`.  `MultiplyByThree` is declared to be an instance of the `Multiplier` actor type defined previously; this instance of `Multiplier` is configured to multiply each value it receives by a factor of 3.  The YAML declarations for the underlying actor types `NumReader`, `Multiplier`, and `NumPrinter` are all imported from `actors.yaml`.
 
 The YAML definition of a workflow using Java implementations of each actor looks identical to a workflow using Python actors.  Java and Python actors can be used together in the same workflow.
 
 ##### Inlining Python actors
 
-**Kurator-Akka** allows the code for Python actors to be provided *inline*, i.e. within the workflow definition itself. No additional Python script file to actor type declaration is needed in this case (the type of the actor is simply `PythonFunctionActor`).  For example, the block of YAML defining the `MultiplyByThree` actor in the workflow definition above depends on an additional YAML declaration for the `Multiplier` actor defined in the `actors.yaml` file, which in turn depends on a Python script file named `multiplier.py`.  Because the code for this actor is only a few lines long, it may be reasonable to define the actor entirely inline.  In other words, thus block of YAML in the workflow:
+**Kurator-Akka** allows the code for Python actors to be provided *inline*, i.e. within the workflow definition itself. No additional Python script file to actor type declaration is needed in this case (the type of the actor is simply `PythonActor`).  For example, the block of YAML defining the `MultiplyByThree` actor in the workflow definition above depends on an additional YAML declaration for the `Multiplier` actor defined in the `actors.yaml` file, which in turn depends on a Python script file named `multiplier.py`.  Because the code for this actor is only a few lines long, it may be reasonable to define the actor entirely inline.  In other words, this block of YAML in the workflow:
 
     - id: MultiplyByThree
       type: Multiplier
@@ -160,7 +160,7 @@ On Windows platforms the command is similar:
 
 If you are running **Kurator-Akka** on an Apple OSX or Linux system (or use Git Bash or Cygwin on Windows), you may define an *alias* to simplify running YesWorkflow at the command line. On Windows platforms you similarly may define a *doskey macro* for running **Kurator-Akka** at the prompt.
 
-For example, if you have saved `yesworkflow-0.3-SNAPSHOT-jar-with-dependencies.jar` to the bin subdirectory of your home directory, the following command will create a `bash` alias for running **Kurator-Akka** simply by typing `ka`:
+For example, if you have saved `kurator-akka.jar` to the bin subdirectory of your home directory, the following command will create a `bash` alias for running **Kurator-Akka** simply by typing `ka`:
 
     alias ka='java -jar ~/bin/kurator-akka.jar'
 
@@ -181,7 +181,7 @@ On all platforms the `hello.yaml` demo now can be run using the short command:
 
 #### 5. Extract the samples (optional)
 
-If you would like to browse and edit the sample workflows included in the **Kurator-Akka** jar, type the following (qualifying the path to the Kurator-Akka jar as necessary) from the directory containing the jar file and extract its contents to your filesystem:
+If you would like to browse and edit the sample workflows included in the **Kurator-Akka** jar, type the following (qualifying the path to `kurator-akka.jar` as necessary) from the directory containing the jar file and extract its contents to your filesystem:
 
     jar xf kurator-akka.jar org/kurator/akka/samples
 
