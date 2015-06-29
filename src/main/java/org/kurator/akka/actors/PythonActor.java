@@ -1,8 +1,26 @@
 package org.kurator.akka.actors;
 
-public class PythonActor extends PythonActorBase {
+import java.util.Map;
 
-    private static final String onDataWrapperFormat = 
+import org.kurator.akka.AkkaActor;
+import org.python.core.PyObject;
+import org.python.core.PySystemState;
+import org.python.util.PythonInterpreter;
+
+public class PythonActor extends AkkaActor {
+    
+    public Class<? extends Object> inputType = Object.class;
+    public Class<? extends Object> outputType = Object.class;
+    public boolean broadcastNulls = false;
+    public boolean outputTypeIsInputType = false;
+    
+    protected static final String inputName = "_KURATOR_INPUT_";
+    protected static final String outputName = "_KURATOR_OUTPUT_";
+
+    protected PythonInterpreter interpreter;
+    protected PyObject none;
+    
+    protected String onDataWrapperFormat = 
             "def _call_ondata():"                           + EOL +
             "  global " + inputName                         + EOL +
             "  global " + outputName                        + EOL +
@@ -20,7 +38,28 @@ public class PythonActor extends PythonActorBase {
 
     @Override
     protected void onInitialize() {
-        super.onInitialize();
+        
+        // create a python interpreter
+        PySystemState.initialize(System.getProperties( ), null, new String[] {""});
+        interpreter = new PythonInterpreter();
+        
+        // set output streams of interpreter to that set for this actor
+        interpreter.setOut(super.outStream);
+        interpreter.setErr(super.errStream);
+        
+        interpreter.exec("import sys");
+        
+        // expand wrapper function template using custom function name
+        prependSysPath("src/main/resources/python");
+        prependSysPath("kurator-jython");
+        prependSysPath("../kurator-jython");
+        
+        // read the script into the interpreter
+        if (script != null) interpreter.execfile(script);
+        if (code != null) interpreter.exec(code);
+        
+        // cache a python None object
+        none = interpreter.eval("None");
         
         if (this.onStart != null) interpreter.exec(String.format(onStartWrapperFormat, onStart));
         if (this.onData != null) interpreter.exec(String.format(onDataWrapperFormat, onData));
@@ -41,7 +80,13 @@ public class PythonActor extends PythonActorBase {
     @Override
     protected void onStart() throws Exception {
 
-        super.onStart();
+        if (settings != null) {
+            for(Map.Entry<String, Object> setting : settings.entrySet()) {
+                String name = setting.getKey();
+                Object value = setting.getValue();
+                interpreter.set(name, value);
+            }
+        }
         
         if (onStart != null) {
             interpreter.set(outputName, none);
@@ -66,7 +111,19 @@ public class PythonActor extends PythonActorBase {
 
         handleOutput(output);
     }
+
+    @Override
+    protected void onEnd() {
         
+        // call script end function if defined
+        if (onEnd != null) {
+            interpreter.eval(onEnd + "()");
+        }
+        
+        // shut down the interpreter
+        interpreter.cleanup();
+    }    
+
     protected void handleOutput(Object output) {
         if (output != null || broadcastNulls) {
             broadcast(output);
@@ -87,6 +144,8 @@ public class PythonActor extends PythonActorBase {
         // return the function output
         return interpreter.get(outputName, outputType);
     }
-
-
+    
+    private void prependSysPath(String path) {
+        interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
+    }
 }
