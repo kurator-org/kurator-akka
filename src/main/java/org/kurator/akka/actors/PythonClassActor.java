@@ -2,8 +2,6 @@ package org.kurator.akka.actors;
 
 public class PythonClassActor extends PythonActor {
 
-    public String pythonClass = null;
-
     public PythonClassActor() {
         functionQualifier = "_PYTHON_CLASS_INSTANCE_.";
     }

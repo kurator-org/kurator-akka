@@ -51,6 +51,7 @@ public abstract class AkkaActor extends UntypedActor {
     public String onStart = null;
     public String onEnd = null;
     public String onData = null;
+    public String pythonClass = null;
     
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
      * Defaults to <code>System.in</code>. 
@@ -413,4 +414,8 @@ public abstract class AkkaActor extends UntypedActor {
         return this;
     }
 
+    public AkkaActor setPythonClass(String pythonClass) {
+        this.pythonClass = pythonClass;
+        return this;
+    }
 }

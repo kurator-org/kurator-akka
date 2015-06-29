@@ -189,6 +189,7 @@ public class WorkflowRunner {
                                     actorConfig.getScript(),
                                     actorConfig.getCode(),
                                     actorConfig.getOnData(),
+                                    actorConfig.getPythonClass(),
                                     inStream,
                                     outStream,
                                     errStream,

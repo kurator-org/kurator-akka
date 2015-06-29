@@ -20,6 +20,7 @@ public class ActorProducer implements IndirectActorProducer {
     private String onStart = null;
     private String onEnd = null;
     private String onData = null;
+    private String pythonClass = null;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
     private InputStream inStream;
@@ -35,6 +36,7 @@ public class ActorProducer implements IndirectActorProducer {
             String script,
             String code,
             String onData,
+            String pythonClass,
             InputStream inStream, 
             PrintStream outStream, 
             PrintStream errStream,
@@ -49,6 +51,7 @@ public class ActorProducer implements IndirectActorProducer {
         this.script = script;
         this.code = code;
         this.onData = onData;
+        this.pythonClass = pythonClass;
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -79,7 +82,8 @@ public class ActorProducer implements IndirectActorProducer {
              .setCode(code)
              .setScript(script)
              .setOnStart(onStart)
-             .setOnData(onData);
+             .setOnData(onData)
+             .setPythonClass(pythonClass);
 
         // assign values to the actor parameters 
         Map<String,Object> parameterSettings = new HashMap<String,Object>();

@@ -18,6 +18,8 @@ public class ActorConfig implements BeanNameAware {
     private String script = null;
     private String onData = null;
     private String onStart = null;
+    private String pythonClass = null;
+
 
     public ActorConfig() {
     }
@@ -71,6 +73,14 @@ public class ActorConfig implements BeanNameAware {
     
     public String getOnData() {
         return onData;
+    }
+
+    public void setPythonClass(String pythonClass) {
+        this.pythonClass = pythonClass;
+    }
+    
+    public String getPythonClass() {
+        return pythonClass;
     }
     
     @SuppressWarnings("unchecked")
