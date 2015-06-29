@@ -9,8 +9,8 @@ import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
-
 import org.kurator.akka.AkkaActor;
+import org.python.core.PyNone;
 
 public class CsvFileWriter extends AkkaActor {
 
@@ -45,13 +45,19 @@ public class CsvFileWriter extends AkkaActor {
         if (value instanceof Map<?,?>) {
 
             @SuppressWarnings("unchecked")
-            Map<String,String> record = (Map<String,String>) value;
+            Map<String,Object> record = (Map<String,Object>) value;
             
             if (csvPrinter == null) {
                 if (headers== null) buildHeader(record);
                 createCsvPrinter();
             }
 
+            for (Map.Entry<String, Object> entry : record.entrySet()) {
+                if(entry.getValue() instanceof PyNone) {
+                    entry.setValue(null);
+                }
+            }
+            
             csvPrinter.printRecord(record.values());
         }
     }
@@ -84,7 +90,7 @@ public class CsvFileWriter extends AkkaActor {
         csvPrinter = new CSVPrinter(outputWriter, csvFormat);
     }
     
-    private void buildHeader(Map<String,String> record) {
+    private void buildHeader(Map<String,Object> record) {
         headers = new String[record.size()];
         int i = 0;
         for (String label : record.keySet()) {
