@@ -1,7 +1,9 @@
 package org.kurator.akka;
 
 import java.util.Map;
+import java.util.Properties;
 
+import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
@@ -40,8 +42,11 @@ public class PythonActor extends AkkaActor {
     @Override
     protected void onInitialize() {
         
+        Properties properties = System.getProperties();
+        properties.put("python.import.site", "false");
+                
         // create a python interpreter
-        PySystemState.initialize(System.getProperties( ), null, new String[] {""});
+        PySystemState.initialize(properties, null, new String[] {""});
         interpreter = new PythonInterpreter();
         
         // set output streams of interpreter to that set for this actor
@@ -58,7 +63,7 @@ public class PythonActor extends AkkaActor {
         // read the script into the interpreter
         if (script != null) interpreter.execfile(script);
         if (code != null) interpreter.exec(code);
-        
+
         // cache a python None object
         none = interpreter.eval("None");
         
