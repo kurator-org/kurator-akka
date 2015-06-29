@@ -17,9 +17,9 @@ public class TestPythonActor extends KuratorAkkaTestCase {
     @SuppressWarnings("unused")
     private ActorConfig printerActor;
     
-     @Override
-     public void setUp() throws Exception {
-         
+    @Override
+    public void setUp() throws Exception {
+
          super.setUp();
 
          wr = new WorkflowRunner()

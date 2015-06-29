@@ -14,6 +14,8 @@ public class PythonActor extends AkkaActor {
     public boolean broadcastNulls = false;
     public boolean outputTypeIsInputType = false;
     
+    protected String functionQualifier = "";
+    
     protected static final String inputName = "_KURATOR_INPUT_";
     protected static final String outputName = "_KURATOR_OUTPUT_";
 
@@ -21,15 +23,15 @@ public class PythonActor extends AkkaActor {
     protected PyObject none;
     
     protected String onDataWrapperFormat = 
-            "def _call_ondata():"                           + EOL +
-            "  global " + inputName                         + EOL +
-            "  global " + outputName                        + EOL +
-            "  " + outputName + " = %s(" + inputName + ")"  + EOL;
+            "def _call_ondata():"                               + EOL +
+            "  global " + inputName                             + EOL +
+            "  global " + outputName                            + EOL +
+            "  " + outputName + " = %s%s(" + inputName + ")"    + EOL;
 
     private static final String onStartWrapperFormat = 
-            "def _call_onstart():"                          + EOL +
-            "  global " + outputName                        + EOL +
-            "  " + outputName + " = %s()"                   + EOL;
+            "def _call_onstart():"                              + EOL +
+            "  global " + outputName                            + EOL +
+            "  " + outputName + " = %s%s()"                     + EOL;
 
 //    private String isGeneratorFormat =
 //            "import inspect"                                + EOL +
@@ -61,8 +63,8 @@ public class PythonActor extends AkkaActor {
         // cache a python None object
         none = interpreter.eval("None");
         
-        if (this.onStart != null) interpreter.exec(String.format(onStartWrapperFormat, onStart));
-        if (this.onData != null) interpreter.exec(String.format(onDataWrapperFormat, onData));
+        if (this.onStart != null) interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
+        if (this.onData != null) interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
         
 //        if (this.onData != null) {
 //            onDataIsGenerator = isGenerator(onData);
