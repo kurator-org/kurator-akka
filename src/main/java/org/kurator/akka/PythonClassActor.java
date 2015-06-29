@@ -1,4 +1,5 @@
-package org.kurator.akka.actors;
+package org.kurator.akka;
+
 
 public class PythonClassActor extends PythonActor {
 

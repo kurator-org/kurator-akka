@@ -12,10 +12,10 @@ types:
 - id: PythonActor
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.PythonActor
+    actorClass: org.kurator.akka.PythonActor
 
 - id: PythonClassActor
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.PythonClassActor  
+    actorClass: org.kurator.akka.PythonClassActor  
   

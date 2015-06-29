@@ -1,8 +1,7 @@
-package org.kurator.akka.actors;
+package org.kurator.akka;
 
 import java.util.Map;
 
-import org.kurator.akka.AkkaActor;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
