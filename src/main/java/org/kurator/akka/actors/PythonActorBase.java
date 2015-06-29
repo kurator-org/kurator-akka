@@ -62,12 +62,6 @@ public abstract class PythonActorBase extends AkkaActor {
         }        
     }
     
-    protected void handleOutput(Object output) {
-        if (output != null || broadcastNulls) {
-            broadcast(output);
-        }
-    }
-    
     @Override
     protected void onEnd() {
         

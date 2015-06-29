@@ -3,13 +3,13 @@ package org.kurator.akka.actors;
 public class PythonActor extends PythonActorBase {
 
     private static final String onDataWrapperFormat = 
-            "def call_function():"                          + EOL +
+            "def _call_ondata():"                           + EOL +
             "  global " + inputName                         + EOL +
             "  global " + outputName                        + EOL +
             "  " + outputName + " = %s(" + inputName + ")"  + EOL;
 
     private static final String onStartWrapperFormat = 
-            "def start_function():"                         + EOL +
+            "def _call_onstart():"                          + EOL +
             "  global " + outputName                        + EOL +
             "  " + outputName + " = %s()"                   + EOL;
 
@@ -45,7 +45,7 @@ public class PythonActor extends PythonActorBase {
         
         if (onStart != null) {
             interpreter.set(outputName, none);
-            interpreter.eval("start_function()");
+            interpreter.eval("_call_onstart()");
             Object output = interpreter.get(outputName, outputType);
             handleOutput(output);
         }
@@ -62,12 +62,18 @@ public class PythonActor extends PythonActorBase {
             outputType = value.getClass();
         }
 
-        Object output = callPythonFunction(value);
+        Object output = callOnData(value);
 
         handleOutput(output);
     }
+        
+    protected void handleOutput(Object output) {
+        if (output != null || broadcastNulls) {
+            broadcast(output);
+        }
+    }
     
-    protected Object callPythonFunction(Object input) {
+    protected Object callOnData(Object input) {
         
         // reset output variable to null
         interpreter.set(outputName, none);
@@ -76,7 +82,7 @@ public class PythonActor extends PythonActorBase {
         interpreter.set(inputName, input);
         
         // call the python function
-        interpreter.eval("call_function()");
+        interpreter.eval("_call_ondata()");
         
         // return the function output
         return interpreter.get(outputName, outputType);

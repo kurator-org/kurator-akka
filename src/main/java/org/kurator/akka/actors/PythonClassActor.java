@@ -2,26 +2,27 @@ package org.kurator.akka.actors;
 
 public class PythonClassActor extends PythonActorBase {
 
-    public String actorName = null;
-    public String method = null;
+    public String pythonClass = null;
+    public String onData = null;
     
-    private static final String wrapperFormat = 
-            "def wrapper():"                                        + EOL +
+    private static final String onDataWrapperFormat = 
+            "def _call_ondata_():"                                  + EOL +
             "  global actor"                                        + EOL +
             "  global " + inputName                                 + EOL +
             "  global " + outputName                                + EOL +
-            "  " + outputName + " = actor.%s(" + inputName + ")"    + EOL;
+            "  " + outputName                                       +
+            " = _pythonClassInstance.%s(" + inputName + ")"         + EOL;
 
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        interpreter.exec(String.format(wrapperFormat, method));
+        interpreter.exec(String.format(onDataWrapperFormat, onData));
     }
 
     @Override
     protected void onStart() throws Exception {
         super.onStart();
-        interpreter.exec("actor=" + actorName + "()");
+        interpreter.exec("_pythonClassInstance=" + pythonClass + "()");
     }
 
     @Override
@@ -31,13 +32,13 @@ public class PythonClassActor extends PythonActorBase {
             outputType = value.getClass();
         }
         
-        Object output = callActorMethod(value);
+        Object output = callOnData(value);
         if (output != null || broadcastNulls) {
             broadcast(output);
         }
     }
     
-    protected Object callActorMethod(Object input) {
+    protected Object callOnData(Object input) {
         
         // reset output variable to null
         interpreter.set(outputName, none);
@@ -46,7 +47,7 @@ public class PythonClassActor extends PythonActorBase {
         interpreter.set(inputName, input);
         
         // call the python function
-        interpreter.eval("wrapper()");
+        interpreter.eval("_call_ondata_()");
         
         // return the function output
         return interpreter.get(outputName, outputType);
