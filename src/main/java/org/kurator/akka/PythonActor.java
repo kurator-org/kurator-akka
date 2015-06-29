@@ -3,7 +3,6 @@ package org.kurator.akka;
 import java.util.Map;
 import java.util.Properties;
 
-import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
@@ -55,10 +54,18 @@ public class PythonActor extends AkkaActor {
         
         interpreter.exec("import sys");
         
-        // expand wrapper function template using custom function name
+        // add to python sys.path library directories in kurator packages 
         prependSysPath("src/main/resources/python");
+        
+        // add to python sys.path jython libraries distributed via Git
         prependSysPath("kurator-jython");
         prependSysPath("../kurator-jython");
+        
+        // add to python sys.path optional local library directory
+        String kuratorLocalPythonLib = System.getenv("KURATOR_LOCAL_PYTHON_LIB");
+        if (kuratorLocalPythonLib != null) {
+            prependSysPath(kuratorLocalPythonLib);            
+        }
         
         // read the script into the interpreter
         if (script != null) interpreter.execfile(script);
