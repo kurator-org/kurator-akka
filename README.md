@@ -213,7 +213,7 @@ You can develop new Python actors and use them within **Kurator-Akka** workflows
 
         java -jar jython_installer-2.7.0.jar
 
-Note the location of the Jython installation directory created by the installer.
+* Note the location of the Jython installation directory created by the installer.
 
 #### Make the Jython package library available to Kurator
 
@@ -227,7 +227,7 @@ On Windows it is easiest to define the variable using the Advanced system settin
 
     Control Panel -> System -> Advanced system settings -> Advanced -> Environment Variables
 
-**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 1.7.0 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.
+**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 2.7.0 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.
 
 
 
