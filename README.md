@@ -207,7 +207,7 @@ You can develop new Python actors and use them within **Kurator-Akka** workflows
 
 1.  Download the [Jython 2.7 installer jar](http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.7.0/jython-installer-2.7.0.jar) from the Jython.org [downloads page](http://www.jython.org/downloads.html). The downloaded jar file will be named `jython_installer-2.7.0.jar`.
 
-2.  Follow the [Jython 2.7.0 Basic Install instructions]([https://wiki.python.org/jython/InstallationInstructions#id2). The installer can be started either by double-clicking the downloaded jar file (on Windows or OS X) or executing the downloaded jar at the command prompt using the `java -jar` command:
+2.  Follow the [Jython 2.7.0 Basic Install instructions](https://wiki.python.org/jython/InstallationInstructions#id2). The installer can be started either by double-clicking the downloaded jar file (on Windows or OS X) or executing the downloaded jar at the command prompt using the `java -jar` command:
 
 
     java -jar jython_installer-2.7.0.jar
