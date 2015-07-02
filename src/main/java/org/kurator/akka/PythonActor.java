@@ -39,7 +39,7 @@ public class PythonActor extends AkkaActor {
 //            "inspect.isgeneratorfunction(%s)"               + EOL;
 
     @Override
-    protected void onInitialize() {
+    protected void onInitialize() throws Exception {
         
         Properties properties = System.getProperties();
         properties.put("python.import.site", "false");
@@ -52,24 +52,31 @@ public class PythonActor extends AkkaActor {
         interpreter.setOut(super.outStream);
         interpreter.setErr(super.errStream);
         
-        interpreter.exec("import sys");
-        
-        // add to python sys.path library directories in kurator packages 
-        prependSysPath("src/main/resources/python");
-        
-        // add to python sys.path jython libraries distributed via Git
+        interpreter.exec("import sys");        
+
+        // add to python sys.path library directory from local Jython/Python installation
+        String kuratorLocalPythonLib = System.getenv("KURATOR_LOCAL_PYTHON_LIB");
+        if (kuratorLocalPythonLib != null) {
+            prependSysPath(kuratorLocalPythonLib + "/site-packages");
+            prependSysPath(kuratorLocalPythonLib);
+        }
+
+        // add to python sys.path jython libraries distributed via kurator-jython Git repo
         prependSysPath("kurator-jython");
         prependSysPath("../kurator-jython");
         
-        // add to python sys.path optional local library directory
-        String kuratorLocalPythonLib = System.getenv("KURATOR_LOCAL_PYTHON_LIB");
-        if (kuratorLocalPythonLib != null) {
-            prependSysPath(kuratorLocalPythonLib);            
+        // add to python sys.path library directory of packages bundled within Kurator jar
+        prependSysPath("src/main/resources/python");
+        
+        // add to python sys.path optional local packages directory
+        String kuratorLocalPackages = System.getenv("KURATOR_LOCAL_PYTHON_PACKAGES");
+        if (kuratorLocalPackages != null) {
+            prependSysPath(kuratorLocalPackages); 
         }
         
         // read the script into the interpreter
+        interpreter.set("__name__",  "__kurator_actor__");
         if (script != null) interpreter.execfile(script);
-        if (code != null) interpreter.exec(code);
 
         // cache a python None object
         none = interpreter.eval("None");
