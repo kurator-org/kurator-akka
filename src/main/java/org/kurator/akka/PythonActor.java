@@ -66,7 +66,7 @@ public class PythonActor extends AkkaActor {
         prependSysPath("../kurator-jython");
         
         // add to python sys.path library directory of packages bundled within Kurator jar
-        prependSysPath("src/main/resources/python");
+        prependSysPath("src/main/python");
         
         // add to python sys.path optional local packages directory
         String kuratorLocalPackages = System.getenv("KURATOR_LOCAL_PYTHON_PACKAGES");
