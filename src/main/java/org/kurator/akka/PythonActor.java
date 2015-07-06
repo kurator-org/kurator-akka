@@ -69,7 +69,7 @@ public class PythonActor extends AkkaActor {
         prependSysPath("src/main/python");
         
         // add to python sys.path optional local packages directory
-        String kuratorLocalPackages = System.getenv("KURATOR_LOCAL_PYTHON_PACKAGES");
+        String kuratorLocalPackages = System.getenv("KURATOR_LOCAL_PACKAGES");
         if (kuratorLocalPackages != null) {
             prependSysPath(kuratorLocalPackages); 
         }
