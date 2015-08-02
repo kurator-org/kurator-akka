@@ -42,6 +42,18 @@ public class PythonActor extends AkkaActor {
             "    _KURATOR_OUTPUT_=None"                     + EOL +
             "    _KURATOR_MORE_DATA_=False"                 + EOL;
     
+    private static final String onStartWrapperFormat = 
+            "def _call_onstart():"                          + EOL +
+            "  global _KURATOR_OUTPUT_"                     + EOL +
+            "  global _KURATOR_RESULT_"                     + EOL +
+            "  global _KURATOR_MORE_DATA_"                  + EOL +
+            "  _KURATOR_RESULT_ = %s%s()"                   + EOL +
+            "  if is_generator(_KURATOR_RESULT_):"          + EOL +
+            "    _KURATOR_MORE_DATA_=True"                  + EOL +
+            "  else:"                                       + EOL +
+            "    _KURATOR_MORE_DATA_=False"                 + EOL +
+            "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
+   
     protected String onDataWrapperFormat = 
             "def _call_ondata():"                           + EOL +
             "  global _KURATOR_INPUT_"                      + EOL +
@@ -54,11 +66,6 @@ public class PythonActor extends AkkaActor {
             "  else:"                                       + EOL +
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
             "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
-    
-    private static final String onStartWrapperFormat = 
-            "def _call_onstart():"                          + EOL +
-            "  global _KURATOR_OUTPUT_"                     + EOL +
-            "  _KURATOR_OUTPUT_ = %s%s()"                   + EOL;
 
     @Override
     protected void onInitialize() throws Exception {
@@ -127,10 +134,8 @@ public class PythonActor extends AkkaActor {
         }
         
         if (onStart != null) {
-            interpreter.set("_KURATOR_OUTPUT_", none);
             interpreter.eval("_call_onstart()");
-            Object output = interpreter.get("_KURATOR_OUTPUT_", outputType);
-            handleOutput(output);
+            broadcastOutputs();
         }
 
         if (onData == null) {
@@ -145,18 +150,9 @@ public class PythonActor extends AkkaActor {
             outputType = value.getClass();
         }
         
-        callOnData(value);
-        
-        if (! interpreter.get("_KURATOR_MORE_DATA_", Boolean.class)) {
-            handleOutput(interpreter.get("_KURATOR_OUTPUT_", outputType));
-            return;
-        }
-    
-        do {
-            interpreter.eval("_get_next_data()");
-            Object output = interpreter.get("_KURATOR_OUTPUT_", outputType);
-            if (output != null) handleOutput(output);
-        } while (interpreter.get("_KURATOR_MORE_DATA_", Boolean.class));
+        interpreter.set("_KURATOR_INPUT_", value);
+        interpreter.eval("_call_ondata()");
+        broadcastOutputs();
     }
 
     @Override
@@ -171,27 +167,27 @@ public class PythonActor extends AkkaActor {
         interpreter.cleanup();
     }    
 
-    protected void handleOutput(Object output) {
+    protected void broadcastOutputs() {
+
+        if (! interpreter.get("_KURATOR_MORE_DATA_", Boolean.class)) {
+            broadcastOutput(interpreter.get("_KURATOR_OUTPUT_", outputType));
+            return;
+        }
+
+        do {
+            interpreter.eval("_get_next_data()");
+            Object output = interpreter.get("_KURATOR_OUTPUT_", outputType);
+            if (output != null) broadcastOutput(output);
+        } while (interpreter.get("_KURATOR_MORE_DATA_", Boolean.class));
+    }
+    
+    
+    protected void broadcastOutput(Object output) {
         if (output != null || broadcastNulls) {
             broadcast(output);
         }
     }
-    
-    protected Object callOnData(Object input) {
-        
-        // reset output variable to null
-        interpreter.set("_KURATOR_OUTPUT_", none);
-        
-        // stage input value
-        interpreter.set("_KURATOR_INPUT_", input);
-        
-        // call the python function
-        interpreter.eval("_call_ondata()");
-        
-        // return the function output
-        return interpreter.get("_KURATOR_OUTPUT_", outputType);
-    }
-    
+         
     private void prependSysPath(String path) {
         interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
     }

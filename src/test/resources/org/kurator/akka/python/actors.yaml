@@ -31,4 +31,10 @@ types:
   type: PythonActor
   properties:
     script: src/test/resources/org/kurator/akka/python/ramp.py
+    onStart: ramp
+
+- id: TriggeredRampActor
+  type: PythonActor
+  properties:
+    script: src/test/resources/org/kurator/akka/python/triggered_ramp.py
     onData: ramp

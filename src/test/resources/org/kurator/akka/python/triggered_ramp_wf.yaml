@@ -5,14 +5,20 @@ imports:
 
 components:
 
-- id: Ramp
-  type: RampActor
+- id: Repeater
+  type: PythonRepeater
+
+- id: TriggeredRamp
+  type: TriggeredRampActor
+  properties:
+    listensTo:
+      - !ref Repeater
 
 - id: Printer
   type: PythonPrinter
   properties:
     listensTo:
-      - !ref Ramp
+      - !ref TriggeredRamp
     parameters:
       delimiter: ","
        
@@ -20,5 +26,7 @@ components:
   type: Workflow
   properties:
     actors:
-      - !ref Ramp
+      - !ref Repeater
+      - !ref TriggeredRamp
       - !ref Printer
+    inputActor: !ref Repeater

@@ -30,9 +30,9 @@ public class TestPythonActorYaml extends KuratorAkkaTestCase {
     }
 
     @Test
-    public void testPythonActor_RampWorkflow() throws Exception {
+    public void testPythonActor_TriggeredRampWorkflow() throws Exception {
 
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "ramp_wf.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "triggered_ramp_wf.yaml");
         wr.outputStream(stdoutStream);
         
         wr.build();
@@ -44,5 +44,21 @@ public class TestPythonActorYaml extends KuratorAkkaTestCase {
         wr.await();
         
         assertEquals("1,2,3,4,5,1,1,2,3", stdoutBuffer.toString());
+    }
+    
+    @Test
+    public void testPythonActor_RampWorkflow() throws Exception {
+
+        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "ramp_wf.yaml");
+        wr.outputStream(stdoutStream);
+        wr.apply("Ramp.start", 3);
+        wr.apply("Ramp.end", 30);
+        wr.apply("Ramp.step", 3);
+        wr.build();
+        wr.start();
+        wr.tellWorkflow(new EndOfStream());
+        wr.await();
+        
+        assertEquals("3,6,9,12,15,18,21,24,27,30", stdoutBuffer.toString());
     }
 }
