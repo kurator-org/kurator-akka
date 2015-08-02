@@ -38,3 +38,12 @@ types:
   properties:
     script: src/test/resources/org/kurator/akka/python/triggered_ramp.py
     onData: ramp
+
+- id: CsvReader
+  type: PythonActor
+  properties:
+    script: src/test/resources/org/kurator/akka/python/csv_reader.py
+    onStart: read_file
+    defaults:
+      outputTypeIsInputType: true
+    

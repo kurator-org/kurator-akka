@@ -1,0 +1,22 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+- classpath:/org/kurator/akka/python/actors.yaml
+
+components:
+
+- id: ReadInputCsv
+  type: CsvReader
+
+- id: WriteOutputCsv
+  type: CsvFileWriter
+  properties:
+    listensTo:
+      - !ref ReadInputCsv
+
+- id: CsvReadWriteWF
+  type: Workflow
+  properties:
+    actors:
+      - !ref ReadInputCsv
+      - !ref WriteOutputCsv
