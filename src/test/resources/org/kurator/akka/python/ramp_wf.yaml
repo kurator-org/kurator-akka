@@ -1,0 +1,32 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+- classpath:/org/kurator/akka/python/actors.yaml
+
+components:
+
+- id: Repeater
+  type: PythonRepeater
+
+- id: Ramp
+  type: RampActor
+  properties:
+    listensTo:
+      - !ref Repeater
+
+- id: Printer
+  type: PythonPrinter
+  properties:
+    listensTo:
+      - !ref Ramp
+    parameters:
+      delimiter: ","
+       
+- id: RampWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref Repeater
+      - !ref Ramp
+      - !ref Printer
+    inputActor: !ref Repeater

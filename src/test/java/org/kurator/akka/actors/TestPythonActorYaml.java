@@ -29,4 +29,20 @@ public class TestPythonActorYaml extends KuratorAkkaTestCase {
         assertEquals("2,4,6,8,10", stdoutBuffer.toString());
     }
 
+    @Test
+    public void testPythonActor_RampWorkflow() throws Exception {
+
+        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "ramp_wf.yaml");
+        wr.outputStream(stdoutStream);
+        
+        wr.build();
+        wr.start();
+        wr.tellWorkflow(5);
+        wr.tellWorkflow(1);
+        wr.tellWorkflow(3);
+        wr.tellWorkflow(new EndOfStream());
+        wr.await();
+        
+        assertEquals("1,2,3,4,5,1,1,2,3", stdoutBuffer.toString());
+    }
 }

@@ -26,4 +26,9 @@ types:
     onData: multiply
     defaults:
       outputTypeIsInputType: true
-      
+
+- id: RampActor
+  type: PythonActor
+  properties:
+    script: src/test/resources/org/kurator/akka/python/ramp.py
+    onData: ramp
