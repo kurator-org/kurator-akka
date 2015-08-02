@@ -16,27 +16,49 @@ public class PythonActor extends AkkaActor {
     
     protected String functionQualifier = "";
     
-    protected static final String inputName = "_KURATOR_INPUT_";
-    protected static final String outputName = "_KURATOR_OUTPUT_";
-
     protected PythonInterpreter interpreter;
     protected PyObject none;
+
+    protected boolean onDataIsGenerator = false;
+    
+    protected String commonScriptHeader =
+            "_KURATOR_INPUT_=None"                          + EOL +
+            "_KURATOR_RESULT_=None"                         + EOL +
+            "_KURATOR_OUTPUT_=None"                         + EOL +
+            "_KURATOR_MORE_DATA_=False"                     + EOL +
+            ""                                              + EOL +
+            "import types"                                  + EOL +
+            "def is_generator(g):"                          + EOL +
+            "  return isinstance(g, types.GeneratorType)"   + EOL +
+            ""                                              + EOL +
+            "def _get_next_data():"                         + EOL +
+            "  global _KURATOR_OUTPUT_"                     + EOL +
+            "  global _KURATOR_RESULT_"                     + EOL +
+            "  global _KURATOR_MORE_DATA_"                  + EOL +
+            "  try:"                                        + EOL +
+            "    _KURATOR_OUTPUT_=_KURATOR_RESULT_.next()"  + EOL +
+            "    return"                                    + EOL +
+            "  except StopIteration:"                       + EOL +
+            "    _KURATOR_OUTPUT_=None"                     + EOL +
+            "    _KURATOR_MORE_DATA_=False"                 + EOL;
     
     protected String onDataWrapperFormat = 
-            "def _call_ondata():"                               + EOL +
-            "  global " + inputName                             + EOL +
-            "  global " + outputName                            + EOL +
-            "  " + outputName + " = %s%s(" + inputName + ")"    + EOL;
-
+            "def _call_ondata():"                           + EOL +
+            "  global _KURATOR_INPUT_"                      + EOL +
+            "  global _KURATOR_OUTPUT_"                     + EOL +
+            "  global _KURATOR_RESULT_"                     + EOL +
+            "  global _KURATOR_MORE_DATA_"                  + EOL +
+            "  _KURATOR_RESULT_ = %s%s(_KURATOR_INPUT_)"    + EOL +
+            "  if is_generator(_KURATOR_RESULT_):"          + EOL +
+            "    _KURATOR_MORE_DATA_=True"                  + EOL +
+            "  else:"                                       + EOL +
+            "    _KURATOR_MORE_DATA_=False"                 + EOL +
+            "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
+    
     private static final String onStartWrapperFormat = 
-            "def _call_onstart():"                              + EOL +
-            "  global " + outputName                            + EOL +
-            "  " + outputName + " = %s%s()"                     + EOL;
-
-//    private String isGeneratorFormat =
-//            "import inspect"                                + EOL +
-//            "__isgenerator__="                              +
-//            "inspect.isgeneratorfunction(%s)"               + EOL;
+            "def _call_onstart():"                          + EOL +
+            "  global _KURATOR_OUTPUT_"                     + EOL +
+            "  _KURATOR_OUTPUT_ = %s%s()"                   + EOL;
 
     @Override
     protected void onInitialize() throws Exception {
@@ -81,22 +103,18 @@ public class PythonActor extends AkkaActor {
         // cache a python None object
         none = interpreter.eval("None");
         
-        if (this.onStart != null) interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
-        if (this.onData != null) interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
+        interpreter.exec(commonScriptHeader);
         
-//        if (this.onData != null) {
-//            onDataIsGenerator = isGenerator(onData);
-//            interpreter.exec(String.format(onDataWrapperFormat, onData));
-//        }
+        if (this.onStart != null) {
+            interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
+        }
+
+        if (this.onData != null) {
+            interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
+        }
+        
     }
-    
-//    private boolean isGenerator(String function) {
-//        String s = String.format(isGeneratorFormat, function);
-//        interpreter.exec(s);
-//        Object result = interpreter.get("__isgenerator__");
-//        return (boolean)result;
-//    }
-        
+            
     @Override
     protected void onStart() throws Exception {
 
@@ -109,9 +127,9 @@ public class PythonActor extends AkkaActor {
         }
         
         if (onStart != null) {
-            interpreter.set(outputName, none);
+            interpreter.set("_KURATOR_OUTPUT_", none);
             interpreter.eval("_call_onstart()");
-            Object output = interpreter.get(outputName, outputType);
+            Object output = interpreter.get("_KURATOR_OUTPUT_", outputType);
             handleOutput(output);
         }
 
@@ -126,10 +144,19 @@ public class PythonActor extends AkkaActor {
         if (outputTypeIsInputType) {
             outputType = value.getClass();
         }
-
-        Object output = callOnData(value);
-
-        handleOutput(output);
+        
+        callOnData(value);
+        
+        if (! interpreter.get("_KURATOR_MORE_DATA_", Boolean.class)) {
+            handleOutput(interpreter.get("_KURATOR_OUTPUT_", outputType));
+            return;
+        }
+    
+        do {
+            interpreter.eval("_get_next_data()");
+            Object output = interpreter.get("_KURATOR_OUTPUT_", outputType);
+            if (output != null) handleOutput(output);
+        } while (interpreter.get("_KURATOR_MORE_DATA_", Boolean.class));
     }
 
     @Override
@@ -153,16 +180,16 @@ public class PythonActor extends AkkaActor {
     protected Object callOnData(Object input) {
         
         // reset output variable to null
-        interpreter.set(outputName, none);
+        interpreter.set("_KURATOR_OUTPUT_", none);
         
         // stage input value
-        interpreter.set(inputName, input);
+        interpreter.set("_KURATOR_INPUT_", input);
         
         // call the python function
         interpreter.eval("_call_ondata()");
         
         // return the function output
-        return interpreter.get(outputName, outputType);
+        return interpreter.get("_KURATOR_OUTPUT_", outputType);
     }
     
     private void prependSysPath(String path) {
