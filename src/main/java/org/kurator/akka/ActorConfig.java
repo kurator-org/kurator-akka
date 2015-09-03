@@ -13,13 +13,12 @@ public class ActorConfig implements BeanNameAware {
     private List<ActorConfig> listeners;
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
+    private Map<String,Object> config = new HashMap<String,Object>();
     String actorName = null;
     private String code = null;
     private String script = null;
     private String onData = null;
     private String onStart = null;
-    private String pythonClass = null;
-
 
     public ActorConfig() {
     }
@@ -73,14 +72,6 @@ public class ActorConfig implements BeanNameAware {
     
     public String getOnData() {
         return onData;
-    }
-
-    public void setPythonClass(String pythonClass) {
-        this.pythonClass = pythonClass;
-    }
-    
-    public String getPythonClass() {
-        return pythonClass;
     }
     
     @SuppressWarnings("unchecked")
@@ -142,4 +133,15 @@ public class ActorConfig implements BeanNameAware {
             sender.listener(this);
         }
     }
+    
+    public Map<String, Object> getConfig() {
+        return config;
+    }
+    
+    public void setPythonClass(String value)            { config.put("pythonClass", value); }
+    public void setPojoClass(String value)              { config.put("pojoClass", value); }
+    public void setInputStreamProperty(String value)    { config.put("inputStreamProperty", value); }
+    public void setOutputStreamProperty(String value)   { config.put("outputStreamProperty", value); }
+    public void setErrorStreamProperty(String value)    { config.put("errorStreamProperty", value); }
+    public void setEndOnNullOutput(Boolean value)       { config.put("endOnNullOutput", value); }
 }

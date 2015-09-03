@@ -51,7 +51,6 @@ public abstract class AkkaActor extends UntypedActor {
     public String onStart = null;
     public String onEnd = null;
     public String onData = null;
-    public String pythonClass = null;
     
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
      * Defaults to <code>System.in</code>. 
@@ -76,6 +75,7 @@ public abstract class AkkaActor extends UntypedActor {
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
     protected  Map<String,Object> settings;
+    protected Map<String, Object> configuration;
     
     /** 
      * Specifies the list of listeners for this actor in the current workflow.
@@ -414,8 +414,8 @@ public abstract class AkkaActor extends UntypedActor {
         return this;
     }
 
-    public AkkaActor setPythonClass(String pythonClass) {
-        this.pythonClass = pythonClass;
+    public AkkaActor configuration(Map<String, Object> configuration) {
+        this.configuration = configuration;
         return this;
     }
 }

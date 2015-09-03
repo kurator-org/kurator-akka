@@ -14,13 +14,13 @@ public class ActorProducer implements IndirectActorProducer {
     private Class<? extends AkkaActor> actorClass;
     private Map<String, Object> defaults;
     private Map<String, Object> parameters;
+    private Map<String, Object> configuration;
     private List<ActorConfig> listeners;
     private String code = null;
     private String script = null;
     private String onStart = null;
     private String onEnd = null;
     private String onData = null;
-    private String pythonClass = null;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
     private InputStream inStream;
@@ -29,6 +29,7 @@ public class ActorProducer implements IndirectActorProducer {
 
     public ActorProducer(
             Class<? extends AkkaActor> actorClass, 
+            Map<String,Object> configuration,
             Map<String, Object> defaults, 
             Map<String, Object> parameters, 
             List<ActorConfig> listeners,
@@ -36,13 +37,13 @@ public class ActorProducer implements IndirectActorProducer {
             String script,
             String code,
             String onData,
-            String pythonClass,
             InputStream inStream, 
             PrintStream outStream, 
             PrintStream errStream,
             WorkflowRunner workflowRunner) {
         
         this.actorClass = actorClass;
+        this.configuration = configuration;
         this.defaults = defaults;
         this.parameters = parameters;
         this.listeners = listeners;
@@ -51,7 +52,6 @@ public class ActorProducer implements IndirectActorProducer {
         this.script = script;
         this.code = code;
         this.onData = onData;
-        this.pythonClass = pythonClass;
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -83,7 +83,7 @@ public class ActorProducer implements IndirectActorProducer {
              .setScript(script)
              .setOnStart(onStart)
              .setOnData(onData)
-             .setPythonClass(pythonClass);
+             .configuration(configuration);
 
         // assign values to the actor parameters 
         Map<String,Object> parameterSettings = new HashMap<String,Object>();

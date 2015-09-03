@@ -149,7 +149,6 @@ public class WorkflowRunner {
 
         workflowParameters = workflowConfig.getParameters();
     }
-
     
     public WorkflowRunner apply(Map<String, Object> workflowSettings) throws Exception {
         
@@ -203,6 +202,7 @@ public class WorkflowRunner {
                 ActorRef actor =  system.actorOf(Props.create(
                                     ActorProducer.class, 
                                     actorConfig.actorClass(), 
+                                    actorConfig.getConfig(),
                                     actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(),
@@ -210,7 +210,6 @@ public class WorkflowRunner {
                                     actorConfig.getScript(),
                                     actorConfig.getCode(),
                                     actorConfig.getOnData(),
-                                    actorConfig.getPythonClass(),
                                     inStream,
                                     outStream,
                                     errStream,
