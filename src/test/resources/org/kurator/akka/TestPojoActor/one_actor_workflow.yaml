@@ -1,0 +1,15 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+ 
+- id: Printer
+  type: PrinterPojoActor
+
+- id: OneActorWorkflow
+  type: Workflow
+  properties:
+    actors:
+    - !ref Printer
+    inputActor: !ref Printer

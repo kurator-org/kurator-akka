@@ -9,6 +9,11 @@ types:
   className: org.kurator.akka.WorkflowConfig
   singleton: false
 
+- id: PojoActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.PojoActor 
+    
 - id: PythonActor
   type: Actor
   properties:

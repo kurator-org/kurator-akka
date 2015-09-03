@@ -9,10 +9,20 @@ types:
   properties:
     actorClass: org.kurator.akka.actors.Repeater
 
+- id: RepeaterPojoActor
+  type: PojoActor
+  properties:
+    pojoClass: org.kurator.akka.pojos.Repeater
+
 - id: FilterActor
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.Filter
+
+- id: FilterPojoActor
+  type: PojoActor
+  properties:
+    pojoClass: org.kurator.akka.pojos.Filter
 
 - id: MultiplyActor
   type: Actor
@@ -33,6 +43,12 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.PrintStreamWriter
+
+- id: PrinterPojoActor
+  type: PojoActor
+  properties:
+    pojoClass: org.kurator.akka.pojos.PrintStreamWriter
+    outputStreamProperty: outStream
 
 - id: StringAppender
   type: Actor

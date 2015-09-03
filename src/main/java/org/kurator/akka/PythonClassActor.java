@@ -3,13 +3,17 @@ package org.kurator.akka;
 
 public class PythonClassActor extends PythonActor {
 
+    String pythonClass = null;
+    
     public PythonClassActor() {
+        String pythonClass = null;
         functionQualifier = "_PYTHON_CLASS_INSTANCE_.";
     }
 
     @Override
     protected void onInitialize() throws Exception {
         super.onInitialize();
+        pythonClass = (String)configuration.get("pythonClass");
         int lastDotIndex = pythonClass.lastIndexOf(".");
         if (lastDotIndex == -1) {
             interpreter.exec("_PYTHON_CLASS_INSTANCE_=" + pythonClass + "()");            

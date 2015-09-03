@@ -1,0 +1,24 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: Repeater
+  type: RepeaterPojoActor
+
+- id: Printer
+  type: PrinterPojoActor
+  properties:
+    parameters: 
+      separator: ', '
+    listensTo:
+      - !ref Repeater
+
+- id: TwoActorWorkflow
+  type: Workflow
+  properties:
+    actors:
+    - !ref Repeater
+    - !ref Printer
+    inputActor: !ref Repeater
