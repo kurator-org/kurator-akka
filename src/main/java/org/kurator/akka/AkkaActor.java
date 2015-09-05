@@ -46,11 +46,6 @@ public abstract class AkkaActor extends UntypedActor {
     public boolean sendEosOnEnd = true;
     
     public boolean needsTrigger = false;
-    public String code = null;
-    public String script = null;
-    public String onStart = null;
-    public String onEnd = null;
-    public String onData = null;
     
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
      * Defaults to <code>System.in</code>. 
@@ -74,7 +69,7 @@ public abstract class AkkaActor extends UntypedActor {
     private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
-    protected  Map<String,Object> settings;
+    protected Map<String,Object> settings;
     protected Map<String, Object> configuration;
     
     /** 
@@ -391,26 +386,6 @@ public abstract class AkkaActor extends UntypedActor {
 
     public AkkaActor setNeedsTrigger(boolean needsTrigger) {
         this.needsTrigger = needsTrigger;
-        return this;
-    }
-    
-    public AkkaActor setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    public AkkaActor setScript(String script) {
-        this.script = script;
-        return this;
-    }
-
-    public AkkaActor setOnData(String onData) {
-        this.onData = onData;
-        return this;
-    }
-
-    public AkkaActor setOnStart(String onStart) {
-        this.onStart = onStart;
         return this;
     }
 

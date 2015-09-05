@@ -16,11 +16,6 @@ public class ActorProducer implements IndirectActorProducer {
     private Map<String, Object> parameters;
     private Map<String, Object> configuration;
     private List<ActorConfig> listeners;
-    private String code = null;
-    private String script = null;
-    private String onStart = null;
-    private String onEnd = null;
-    private String onData = null;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
     private InputStream inStream;
@@ -33,10 +28,6 @@ public class ActorProducer implements IndirectActorProducer {
             Map<String, Object> defaults, 
             Map<String, Object> parameters, 
             List<ActorConfig> listeners,
-            String onStart,
-            String script,
-            String code,
-            String onData,
             InputStream inStream, 
             PrintStream outStream, 
             PrintStream errStream,
@@ -48,10 +39,6 @@ public class ActorProducer implements IndirectActorProducer {
         this.parameters = parameters;
         this.listeners = listeners;
         this.workflowRunner = workflowRunner;
-        this.onStart = onStart;
-        this.script = script;
-        this.code = code;
-        this.onData = onData;
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -79,10 +66,6 @@ public class ActorProducer implements IndirectActorProducer {
              .inputStream(inStream)
              .outputStream(outStream)
              .errorStream(errStream)
-             .setCode(code)
-             .setScript(script)
-             .setOnStart(onStart)
-             .setOnData(onData)
              .configuration(configuration);
 
         // assign values to the actor parameters 

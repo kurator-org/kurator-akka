@@ -77,10 +77,15 @@ public class WorkflowRunner {
         this.system = ActorSystem.create("Workflow",  config);
     }
 
+    public ActorConfig actor(ActorConfig actorConfig, Class<? extends AkkaActor> actorClass) {
+        actorConfig.actorClass(actorClass);
+        addActorConfig(actorConfig);
+        return actorConfig;
+    }
+
+    
     public ActorConfig actor(Class<? extends AkkaActor> actorClass) {
-        ActorConfig actor = new ActorConfig().actorClass(actorClass);
-        addActorConfig(actor);
-        return actor;
+        return actor(new ActorConfig(), actorClass);
     }
     
     private ActorConfig addActorConfig(ActorConfig actorConfig) {
@@ -171,7 +176,7 @@ public class WorkflowRunner {
         if (workflowParameter != null) {
             ActorConfig actor = (ActorConfig) workflowParameter.get("actor");
             String actorParameterName = (String) workflowParameter.get("parameter");
-            actor.parameter(actorParameterName, settingValue);
+            actor.param(actorParameterName, settingValue);
             return this;
         }
         
@@ -185,7 +190,7 @@ public class WorkflowRunner {
                 throw new Exception("Workflow contains no actor with name " + actorName);
             }
             
-            actor.parameter(parameterName, settingValue);
+            actor.param(parameterName, settingValue);
             return this;
         }
         
@@ -206,10 +211,6 @@ public class WorkflowRunner {
                                     actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(),
-                                    actorConfig.getOnStart(),
-                                    actorConfig.getScript(),
-                                    actorConfig.getCode(),
-                                    actorConfig.getOnData(),
                                     inStream,
                                     outStream,
                                     errStream,

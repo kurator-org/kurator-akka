@@ -6,7 +6,6 @@ public class PythonClassActor extends PythonActor {
     String pythonClass = null;
     
     public PythonClassActor() {
-        String pythonClass = null;
         functionQualifier = "_PYTHON_CLASS_INSTANCE_.";
     }
 

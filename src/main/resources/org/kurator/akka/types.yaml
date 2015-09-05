@@ -15,12 +15,14 @@ types:
     actorClass: org.kurator.akka.PojoActor 
     
 - id: PythonActor
-  type: Actor
+  className: org.kurator.akka.PythonActorConfig
+  singleton: true
   properties:
     actorClass: org.kurator.akka.PythonActor
 
 - id: PythonClassActor
-  type: Actor
+  className: org.kurator.akka.PythonActorConfig
+  singleton: true
   properties:
     actorClass: org.kurator.akka.PythonClassActor  
   

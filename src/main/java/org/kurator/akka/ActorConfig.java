@@ -13,12 +13,8 @@ public class ActorConfig implements BeanNameAware {
     private List<ActorConfig> listeners;
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
-    private Map<String,Object> config = new HashMap<String,Object>();
+    protected Map<String,Object> config = new HashMap<String,Object>();
     String actorName = null;
-    private String code = null;
-    private String script = null;
-    private String onData = null;
-    private String onStart = null;
 
     public ActorConfig() {
     }
@@ -42,38 +38,7 @@ public class ActorConfig implements BeanNameAware {
         return actorName;
     }
     
-    public void setOnStart(String onStart) {
-        this.onStart = onStart;
-    }
-    
-    public String getOnStart() {
-        return onStart;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-    
-    public String getCode() {
-        return code;
-    }
-
-    public void setScript(String script) {
-        this.script = script;
-    }
-    
-    public String getScript() {
-        return script;
-    }
-
-    public void setOnData(String onData) {
-        this.onData = onData;
-    }
-    
-    public String getOnData() {
-        return onData;
-    }
-    
+  
     @SuppressWarnings("unchecked")
     public void setActorClass(String actorClassName) throws ClassNotFoundException {
         this.actorClass = (Class<? extends AkkaActor>) Class.forName(actorClassName);
@@ -96,7 +61,7 @@ public class ActorConfig implements BeanNameAware {
         return this;
     }
         
-    public ActorConfig parameter(String parameter, Object value) {
+    public ActorConfig param(String parameter, Object value) {
         if (parameters == null) {
             parameters = new HashMap<String,Object>();
         }
@@ -136,6 +101,11 @@ public class ActorConfig implements BeanNameAware {
     
     public Map<String, Object> getConfig() {
         return config;
+    }
+
+    public ActorConfig config(String property, Object value) {
+        config.put(property, value);
+        return this;
     }
     
     public void setPythonClass(String value)            { config.put("pythonClass", value); }

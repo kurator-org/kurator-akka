@@ -16,6 +16,12 @@ public class PythonActor extends AkkaActor {
     
     protected String functionQualifier = "";
     
+    protected String onInitialize;
+    protected String onStart;
+    protected String onData;
+    protected String onEnd;
+    protected String script;
+    
     protected PythonInterpreter interpreter;
     protected PyObject none;
 
@@ -105,17 +111,24 @@ public class PythonActor extends AkkaActor {
         
         // read the script into the interpreter
         interpreter.set("__name__",  "__kurator_actor__");
+        this.script = (String)configuration.get("script");
         if (script != null) interpreter.execfile(script);
+        
+        String code = (String)configuration.get("code");
+        if (code != null) interpreter.exec(code);
 
         // cache a python None object
         none = interpreter.eval("None");
         
         interpreter.exec(commonScriptHeader);
         
+        
+        this.onStart = (String)configuration.get("onStart");
         if (this.onStart != null) {
             interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
         }
 
+        this.onData = (String)configuration.get("onData");
         if (this.onData != null) {
             interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
         }
@@ -159,6 +172,7 @@ public class PythonActor extends AkkaActor {
     protected void onEnd() {
         
         // call script end function if defined
+        this.onEnd = (String)configuration.get("onEnd");
         if (onEnd != null) {
             interpreter.eval(onEnd + "()");
         }
