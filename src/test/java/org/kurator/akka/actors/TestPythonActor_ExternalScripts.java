@@ -9,7 +9,7 @@ import org.kurator.akka.actors.PrintStreamWriter;
 import org.kurator.akka.actors.Repeater;
 import org.kurator.akka.messages.EndOfStream;
 
-public class TestPythonActor extends KuratorAkkaTestCase {
+public class TestPythonActor_ExternalScripts extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     private ActorConfig jythonActor;

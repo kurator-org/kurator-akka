@@ -7,7 +7,7 @@ import org.kurator.akka.PythonActor;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-public class TestPythonActorInlined extends KuratorAkkaTestCase {
+public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     

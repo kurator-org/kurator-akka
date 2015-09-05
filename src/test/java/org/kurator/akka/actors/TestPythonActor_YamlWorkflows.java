@@ -6,7 +6,7 @@ import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.YamlFileWorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-public class TestPythonActorYaml extends KuratorAkkaTestCase {
+public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
     
     static final String RESOURCE_PATH = "classpath:/org/kurator/akka/python/";
     
