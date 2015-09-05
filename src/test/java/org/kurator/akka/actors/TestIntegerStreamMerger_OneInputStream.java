@@ -21,12 +21,12 @@ public class TestIntegerStreamMerger_OneInputStream extends KuratorAkkaTestCase 
          ActorConfig repeater = wr.actor(Repeater.class);
     
          ActorConfig merge = wr.actor(IntegerStreamMerger.class)
-                 .parameter("streamCount", 1)
+                 .param("streamCount", 1)
                  .listensTo(repeater);
         
          @SuppressWarnings("unused")
          ActorConfig printer = wr.actor(PrintStreamWriter.class)
-                 .parameter("separator", ", ")
+                 .param("separator", ", ")
                  .listensTo(merge);
         
          wr.inputActor(repeater);

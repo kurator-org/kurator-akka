@@ -41,7 +41,7 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
                  .listensTo(csvReader);
 
          csvWriter = wr.actor(CsvFileWriter.class)
-                 .parameter("outputWriter", bufferWriter)
+                 .param("outputWriter", bufferWriter)
                  .listensTo(recordFilter);
      }
 
@@ -54,7 +54,7 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
                  "1,,3"     + EOL +
                  "1,2,"     + EOL
          );
-         csvReader.parameter("inputReader", stringReader);
+         csvReader.param("inputReader", stringReader);
          
          wr.build();
          wr.start();
@@ -80,8 +80,8 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
                  "1,,3"     + EOL +
                  "1,2,"     + EOL
          );
-         csvReader.parameter("inputReader", stringReader);
-         recordFilter.parameter("requiredFields", Arrays.asList(new String[] {"A"}));
+         csvReader.param("inputReader", stringReader);
+         recordFilter.param("requiredFields", Arrays.asList(new String[] {"A"}));
          
          wr.build();
          wr.start();
@@ -106,8 +106,8 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
                  "1,,3"     + EOL +
                  "1,2,"     + EOL
          );
-         csvReader.parameter("inputReader", stringReader);
-         recordFilter.parameter("requiredFields", Arrays.asList(new String[] {"A", "C"}));
+         csvReader.param("inputReader", stringReader);
+         recordFilter.param("requiredFields", Arrays.asList(new String[] {"A", "C"}));
          
          wr.build();
          wr.start();

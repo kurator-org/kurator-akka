@@ -38,39 +38,39 @@ public class Hamming {
             .outputStream(outputStream);
         
         ActorConfig oneShot = wr.actor(ConstantSource.class)
-            .parameter("value", 1)
-            .parameter("sendEosOnEnd", false);
+            .param("value", 1)
+            .param("sendEosOnEnd", false);
         
         ActorConfig filter = wr.actor(Filter.class)
-            .parameter("max", maxHammingNumber)
-            .parameter("sendEosOnExceed", true)
+            .param("max", maxHammingNumber)
+            .param("sendEosOnExceed", true)
             .listensTo(oneShot);
         
         ActorConfig multiplyByTwo = wr.actor(Multiplier.class)
-            .parameter("factor", 2)
+            .param("factor", 2)
             .listensTo(filter);
 
         ActorConfig multiplyByThree = wr.actor(Multiplier.class)
-            .parameter("factor", 3)
+            .param("factor", 3)
             .listensTo(filter);
         
         ActorConfig multiplyByFive = wr.actor(Multiplier.class)
-            .parameter("factor", 5)
+            .param("factor", 5)
             .listensTo(filter);
         
         ActorConfig mergeTwoThree = wr.actor(IntegerStreamMerger.class)
-            .parameter("streamCount", 2)
+            .param("streamCount", 2)
             .listensTo(multiplyByTwo)
             .listensTo(multiplyByThree);
            
         ActorConfig mergeTwoThreeFive = wr.actor(IntegerStreamMerger.class)
-            .parameter("streamCount", 2)
+            .param("streamCount", 2)
             .listensTo(multiplyByFive)
             .listensTo(mergeTwoThree);
         
         @SuppressWarnings("unused")
         ActorConfig printStreamWriter = wr.actor(PrintStreamWriter.class)
-            .parameter("separator", separator)
+            .param("separator", separator)
             .listensTo(filter);
         
         filter.listensTo(mergeTwoThreeFive);

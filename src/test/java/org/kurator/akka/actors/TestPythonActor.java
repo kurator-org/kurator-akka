@@ -29,16 +29,14 @@ public class TestPythonActor extends KuratorAkkaTestCase {
          ActorConfig repeater = wr.actor(Repeater.class);
          
          jythonActor = wr.actor(PythonActor.class)
-             .parameter("script", "src/test/resources/org/kurator/akka/python/multiplier.py")
-             .parameter("onData", "multiply")
-             .parameter("inputType", java.lang.Integer.class)
-             .parameter("outputType", java.lang.Integer.class)
-             .parameter("factor", 2)
-             .listensTo(repeater);
+                         .config("script", "src/test/resources/org/kurator/akka/python/multiplier.py")
+                         .config("onData", "multiply")
+                         .param("factor", 2)
+                         .listensTo(repeater);
     
         wr.actor(PrintStreamWriter.class)
-             .parameter("separator", ",")
-             .listensTo(jythonActor);
+          .param("separator", ",")
+          .listensTo(jythonActor);
         
         wr.inputActor(repeater);
      }
@@ -58,5 +56,4 @@ public class TestPythonActor extends KuratorAkkaTestCase {
         
         assertEquals("2,4,6,8,10", stdoutBuffer.toString());
     }
-
 }

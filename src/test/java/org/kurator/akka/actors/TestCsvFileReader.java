@@ -27,7 +27,7 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
          readerActor = wr.actor(CsvFileReader.class);
     
          printerActor = wr.actor(PrintStreamWriter.class)
-                 .parameter("separator", EOL)
+                 .param("separator", EOL)
                  .listensTo(readerActor);
      }
 
@@ -37,8 +37,8 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
                  "1,2,3"    + EOL
          );
          
-         readerActor.parameter("inputReader", stringReader)
-                    .parameter("headers", new String[] {"A", "B", "C"});
+         readerActor.param("inputReader", stringReader)
+                    .param("headers", new String[] {"A", "B", "C"});
          
          wr.build();
          wr.start();
@@ -55,8 +55,8 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
                  "1,2"    + EOL
          );
          
-         readerActor.parameter("inputReader", stringReader)
-                    .parameter("headers", new String[] {"A", "B", "C"});
+         readerActor.param("inputReader", stringReader)
+                    .param("headers", new String[] {"A", "B", "C"});
          
          wr.build();
          wr.start();
@@ -79,7 +79,7 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
                  "1,2,3"    + EOL
          );
          
-         readerActor.parameter("inputReader", stringReader);
+         readerActor.param("inputReader", stringReader);
          
          wr.build();
          wr.start();
@@ -92,7 +92,7 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
      
      public void testCsvFileReader_MissingInputFile() throws Exception {
 
-         readerActor.parameter("filePath", "src/main/resources/org/kurator/akka/samples/data/no_such_file.csv" );
+         readerActor.param("filePath", "src/main/resources/org/kurator/akka/samples/data/no_such_file.csv" );
 
          wr.build();
          wr.start();

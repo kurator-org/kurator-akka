@@ -42,7 +42,7 @@ public class TestCsvSelector extends KuratorAkkaTestCase {
                  .listensTo(csvReader);
 
          csvWriter = wr.actor(CsvFileWriter.class)
-                 .parameter("outputWriter", bufferWriter)
+                 .param("outputWriter", bufferWriter)
                  .listensTo(selector);
      }
 

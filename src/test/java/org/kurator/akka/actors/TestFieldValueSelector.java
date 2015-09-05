@@ -42,7 +42,7 @@ public class TestFieldValueSelector extends KuratorAkkaTestCase {
                  .listensTo(csvReader);
 
          csvWriter = wr.actor(CsvFileWriter.class)
-                 .parameter("outputWriter", bufferWriter)
+                 .param("outputWriter", bufferWriter)
                  .listensTo(selector);
      }
 
@@ -55,7 +55,7 @@ public class TestFieldValueSelector extends KuratorAkkaTestCase {
                  "1,,3"     + EOL +
                  "1,2,"     + EOL
          );
-         csvReader.parameter("inputReader", stringReader);
+         csvReader.param("inputReader", stringReader);
          
          wr.build();
          wr.start();
@@ -80,11 +80,11 @@ public class TestFieldValueSelector extends KuratorAkkaTestCase {
                  "1,4,6"    + EOL +
                  "7,8,9"    + EOL
          );
-         csvReader.parameter("inputReader", stringReader);
+         csvReader.param("inputReader", stringReader);
          
          Map<String,String> where = new HashMap<String,String>();
          where.put("A", "1");
-         selector.parameter("requiredValues", where);
+         selector.param("requiredValues", where);
          
          wr.build();
          wr.start();
@@ -108,12 +108,12 @@ public class TestFieldValueSelector extends KuratorAkkaTestCase {
                  "1,,3"     + EOL +
                  "1,2,"     + EOL
          );
-         csvReader.parameter("inputReader", stringReader);
+         csvReader.param("inputReader", stringReader);
          
          Map<String,String> where = new HashMap<String,String>();
          where.put("A", "1");
          where.put("C", "3");
-         selector.parameter("requiredValues", where);
+         selector.param("requiredValues", where);
          
          wr.build();
          wr.start();

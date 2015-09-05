@@ -26,7 +26,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
         
          @SuppressWarnings("unused")
          ActorConfig printer = wr.actor(PrintStreamWriter.class)
-             .parameter("separator", ", ")
+             .param("separator", ", ")
              .listensTo(testActor);
         
          wr.inputActor(repeater);
