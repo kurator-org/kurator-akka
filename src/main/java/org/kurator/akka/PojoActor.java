@@ -165,6 +165,7 @@ public class PojoActor extends AkkaActor {
         if (errorStreamProperty != null) {
             setPojoProperty(errorStreamProperty, outStream);
         }
+
     }
 
     private void callMethodOnPojo(Method method) throws Exception {
@@ -246,6 +247,12 @@ public class PojoActor extends AkkaActor {
         } catch (Exception e) {
             PropertyUtils.setNestedProperty(wrappedObject, name, value);            
         }
+    }
+    
+    public class Port {
         
+        public void write(Object value) {
+            broadcast(value);
+        }
     }
 }
