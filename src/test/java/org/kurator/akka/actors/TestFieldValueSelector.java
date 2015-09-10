@@ -57,9 +57,7 @@ public class TestFieldValueSelector extends KuratorAkkaTestCase {
          );
          csvReader.param("inputReader", stringReader);
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected =
                  "A,B,C"    + EOL +
@@ -86,9 +84,7 @@ public class TestFieldValueSelector extends KuratorAkkaTestCase {
          where.put("A", "1");
          selector.param("requiredValues", where);
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected =
                  "A,B,C"    + EOL +
@@ -115,9 +111,7 @@ public class TestFieldValueSelector extends KuratorAkkaTestCase {
          where.put("C", "3");
          selector.param("requiredValues", where);
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected =
                  "A,B,C"    + EOL +

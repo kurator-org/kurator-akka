@@ -16,15 +16,9 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "multiplier_wf.yaml");
         wr.outputStream(stdoutStream);
         
-        wr.build();
-        wr.start();
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(2);
-        wr.tellWorkflow(3);
-        wr.tellWorkflow(4);
-        wr.tellWorkflow(5);
-        wr.tellWorkflow(new EndOfStream());
-        wr.await();
+        wr.begin();
+        wr.tell(1, 2, 3, 4, 5, new EndOfStream());
+        wr.end();
         
         assertEquals("2,4,6,8,10", stdoutBuffer.toString());
     }
@@ -35,13 +29,9 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "triggered_ramp_wf.yaml");
         wr.outputStream(stdoutStream);
         
-        wr.build();
-        wr.start();
-        wr.tellWorkflow(5);
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(3);
-        wr.tellWorkflow(new EndOfStream());
-        wr.await();
+        wr.begin();
+        wr.tell(5, 1, 3, new EndOfStream());
+        wr.end();
         
         assertEquals("1,2,3,4,5,1,1,2,3", stdoutBuffer.toString());
     }
@@ -54,9 +44,7 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
         wr.apply("Ramp.start", 3);
         wr.apply("Ramp.end", 30);
         wr.apply("Ramp.step", 3);
-        wr.build();
-        wr.start();
-        wr.await();
+        wr.run();
         
         assertEquals("3,6,9,12,15,18,21,24,27,30", stdoutBuffer.toString());
     }
@@ -68,9 +56,7 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
         wr.outputStream(stdoutStream);
         wr.apply("ReadInputCsv.filename", "src/test/resources/org/kurator/akka/samples/eight_specimen_records.csv");
         wr.apply("WriteOutputCsv.quoteCharacter", '\'');
-        wr.build();
-        wr.start();
-        wr.await();
+        wr.run();
         
         assertEquals(
             "'scientificNameAuthorship ',year,'fieldNumber ','scientificName ',stateProvince,Id,county,day,'CollectionCode ','catalogNumber ','geodeticDatum ',locality,'decimalLongitude ','decimalLatitude ','reproductiveCondition ','family ','DatasetName ',country,recordedBy,'InstitutionCode ',month"   + EOL +

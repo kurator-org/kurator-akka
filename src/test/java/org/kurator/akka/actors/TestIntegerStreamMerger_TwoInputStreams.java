@@ -40,47 +40,46 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          
          repeaterA = wr.getActorForConfig(repeaterABuilder);
          repeaterB = wr.getActorForConfig(repeaterBBuilder);
+         
+         wr.init();
+         wr.start();
      }
 
      public void testIntegerStreamMerger_TwoStreams_NoValues() throws Exception {
-         wr.start();
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_OneEmpty_DistinctValues() throws Exception
      {
-         wr.start();
          repeaterA.tell(new Integer(1), wr.root());
          repeaterA.tell(new Integer(2), wr.root());
          repeaterA.tell(new Integer(3), wr.root());
          repeaterA.tell(new Integer(4), wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("1, 2, 3, 4", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_OneEmpty_IdenticalValues() throws Exception
      {
-         wr.start();
          repeaterA.tell(7, wr.root());
          repeaterA.tell(7, wr.root());
          repeaterA.tell(7, wr.root());
          repeaterA.tell(7, wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("7", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_OneEmpty_ValuesWithDuplicates() throws Exception {
-         wr.start();
          repeaterA.tell(new Integer(1), wr.root());
          repeaterA.tell(new Integer(2), wr.root());
          repeaterA.tell(new Integer(2), wr.root());
@@ -91,26 +90,24 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          repeaterA.tell(new Integer(5), wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_DistinctValues_RoundRobin() throws Exception {
-         wr.start();
          repeaterA.tell(new Integer(1), wr.root());
          repeaterB.tell(new Integer(2), wr.root());
          repeaterA.tell(new Integer(3), wr.root());
          repeaterB.tell(new Integer(4), wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("1, 2, 3, 4", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_DistinctValues_OneStreamFirst() throws Exception {
-         wr.start();
          repeaterA.tell(new Integer(1), wr.root());
          repeaterA.tell(new Integer(3), wr.root());
          repeaterA.tell(new Integer(5), wr.root());
@@ -119,26 +116,24 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          repeaterB.tell(new Integer(6), wr.root());
          repeaterA.tell(new EndOfStream(),  wr.root());
          repeaterB.tell(new EndOfStream(),  wr.root());
-         wr.await();
+         wr.end();
          assertEquals("1, 2, 3, 4, 5, 6", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_IdenticalValues_RoundRobin() throws Exception {
-         wr.start();
          repeaterA.tell(new Integer(7), wr.root());
          repeaterB.tell(new Integer(7), wr.root());
          repeaterA.tell(new Integer(7), wr.root());
          repeaterB.tell(new Integer(7), wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("7", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_IdenticalValues_OneStreamFirst() throws Exception {
-         wr.start();
          repeaterA.tell(new Integer(7), wr.root());
          repeaterA.tell(new Integer(7), wr.root());
          repeaterA.tell(new Integer(7), wr.root());
@@ -147,13 +142,12 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          repeaterB.tell(new Integer(7), wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("7", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_RoundRobin() throws Exception {
-         wr.start();
          repeaterA.tell(new Integer(1), wr.root());
          repeaterB.tell(new Integer(2), wr.root());
          repeaterA.tell(new Integer(2), wr.root());
@@ -164,13 +158,12 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          repeaterB.tell(new Integer(5), wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
     
      public void testIntegerStreamMerger_TwoStreams_ValuesWithDuplicates_OneStreamFirst() throws Exception {
-         wr.start();
          repeaterA.tell(new Integer(1), wr.root());
          repeaterA.tell(new Integer(2), wr.root());
          repeaterA.tell(new Integer(2), wr.root());
@@ -181,9 +174,8 @@ public class TestIntegerStreamMerger_TwoInputStreams extends KuratorAkkaTestCase
          repeaterB.tell(new Integer(5), wr.root());
          repeaterA.tell(new EndOfStream(), wr.root());
          repeaterB.tell(new EndOfStream(), wr.root());
-         wr.await();
+         wr.end();
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
-
 }

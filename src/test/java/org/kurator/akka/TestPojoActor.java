@@ -26,13 +26,11 @@ public class TestPojoActor extends KuratorAkkaTestCase {
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "one_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
-               .errorStream(stderrStream)
-               .build();
+               .errorStream(stderrStream);
         
-        wr.start();
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(new EndOfStream());
-        wr.await();
+        wr.begin();
+        wr.tell(1, new EndOfStream());
+        wr.end();
         
         assertEquals("1", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
@@ -43,14 +41,11 @@ public class TestPojoActor extends KuratorAkkaTestCase {
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "two_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
-               .errorStream(stderrStream)
-               .build();
+               .errorStream(stderrStream);
         
-        wr.start();
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(2);
-        wr.tellWorkflow(new EndOfStream());
-        wr.await();
+        wr.begin();
+        wr.tell(1, 2, new EndOfStream());
+        wr.end();
         
         assertEquals("1, 2", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
@@ -61,20 +56,11 @@ public class TestPojoActor extends KuratorAkkaTestCase {
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "three_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
-          .errorStream(stderrStream)
-          .build();
+          .errorStream(stderrStream);
         
-        wr.start();
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(2);
-        wr.tellWorkflow(3);
-        wr.tellWorkflow(4);
-        wr.tellWorkflow(5);
-        wr.tellWorkflow(6);
-        wr.tellWorkflow(4);
-        wr.tellWorkflow(3);
-        wr.tellWorkflow(new EndOfStream());
-        wr.await();
+        wr.begin();
+        wr.tell(1, 2, 3, 4, 5, 6, 4, 3, new EndOfStream());
+        wr.end();
         
         assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());

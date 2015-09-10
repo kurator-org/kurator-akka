@@ -17,11 +17,10 @@ public class TestHamming_Yaml extends KuratorAkkaTestCase {
     
     public void testHammingYaml() throws Exception {        
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "hamming.yaml");
-        wr.apply("max", 100);
-        wr.apply("separator", ", ");
-        wr.outputStream(stdoutStream);
-        wr.build();
-        wr.run();
+        wr.apply("max", 100)
+          .apply("separator", ", ")
+          .outputStream(stdoutStream)
+          .run();
         assertEquals( "1, 2, 3, 4, 5, 6, 8, 9, 10, "
                     + "12, 15, 16, 18, 20, 24, 25, "
                     + "27, 30, 32, 36, 40, 45, 48, "

@@ -40,9 +40,7 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
          readerActor.param("inputReader", stringReader)
                     .param("headers", new String[] {"A", "B", "C"});
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected = "{A=1, B=2, C=3}";
          assertEquals("", stderrBuffer.toString());
@@ -58,12 +56,11 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
          readerActor.param("inputReader", stringReader)
                     .param("headers", new String[] {"A", "B", "C"});
          
-         wr.build();
-         wr.start();
+         wr.begin();
          
          Exception exception = null;
          try {
-             wr.await();
+             wr.end();
          } catch(Exception e) {
              exception = e;
          }
@@ -81,9 +78,7 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
          
          readerActor.param("inputReader", stringReader);
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected = "{A=1, B=2, C=3}";
          assertEquals(expected, stdoutBuffer.toString());
@@ -94,12 +89,11 @@ public class TestCsvFileReader extends KuratorAkkaTestCase {
 
          readerActor.param("filePath", "src/main/resources/org/kurator/akka/samples/data/no_such_file.csv" );
 
-         wr.build();
-         wr.start();
+         wr.begin();
 
          Exception caught = null;
          try { 
-             wr.await();
+             wr.end();
          } catch(Exception e) {
              caught = e;
          }

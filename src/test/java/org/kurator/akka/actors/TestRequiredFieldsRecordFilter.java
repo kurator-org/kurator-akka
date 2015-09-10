@@ -56,9 +56,7 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
          );
          csvReader.param("inputReader", stringReader);
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected =
                  "A,B,C"    + EOL +
@@ -83,9 +81,7 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
          csvReader.param("inputReader", stringReader);
          recordFilter.param("requiredFields", Arrays.asList(new String[] {"A"}));
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected =
                  "A,B,C"    + EOL +
@@ -109,9 +105,7 @@ public class TestRequiredFieldsRecordFilter extends KuratorAkkaTestCase {
          csvReader.param("inputReader", stringReader);
          recordFilter.param("requiredFields", Arrays.asList(new String[] {"A", "C"}));
          
-         wr.build();
-         wr.start();
-         wr.await();
+         wr.run();
          
          String expected =
                  "A,B,C"    + EOL +

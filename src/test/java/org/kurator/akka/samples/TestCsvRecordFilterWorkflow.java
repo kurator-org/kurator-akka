@@ -39,9 +39,7 @@ public class TestCsvRecordFilterWorkflow extends KuratorAkkaTestCase {
 
         wr.apply("in", SAMPLES_DIR + "/data/eight_specimen_records.csv");
 
-        wr.build();
-        wr.start();
-        wr.await();
+        wr.run();
 
         String expected =
             "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id" + EOL +

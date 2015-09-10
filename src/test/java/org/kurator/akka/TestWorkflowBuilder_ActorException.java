@@ -30,40 +30,30 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
              .listensTo(testActor);
         
          wr.inputActor(repeater);
-         
-         wr.build();
      }
      
      public void testWorkflowBuilder_NoActorException() throws Exception {
-         wr.start();
-         wr.tellWorkflow(1);
-         wr.tellWorkflow(2);
-         wr.tellWorkflow(3);
-         wr.tellWorkflow(4);
-         wr.tellWorkflow(5);
-         wr.tellWorkflow(new EndOfStream());
-         wr.await();
+
+         wr.begin();
+         wr.tell(1, 2, 3, 4, 5, new EndOfStream());
+         wr.end();
 
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
          assertEquals("", stderrBuffer.toString());
      }
      
      public void testWorkflowBuilder_ActorException() throws Exception {
-         wr.start();
-         wr.tellWorkflow(1);
-         wr.tellWorkflow(2);
-         wr.tellWorkflow(3);
-         wr.tellWorkflow(TestActor.exceptionTriggerValue);
-         wr.tellWorkflow(4);
-         wr.tellWorkflow(5);
-         wr.tellWorkflow(new EndOfStream());
+         
+         wr.begin();
+         wr.tell(1, 2, 3, TestActor.exceptionTriggerValue, 4, 5, new EndOfStream());
          
          Exception exception = null;
          try {
-             wr.await();
+             wr.end();
          } catch(Exception e) {
              exception = e;
          }
+
          assertNotNull(exception);
          assertTrue(exception.getMessage().contains("Exception trigger value was sent to actor"));
          assertTrue(stderrBuffer.toString().contains("Exception trigger value was sent to actor"));

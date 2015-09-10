@@ -4,8 +4,6 @@ import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.YamlStringWorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-import akka.actor.ActorRef;
-
 public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
     
     @Override
@@ -22,12 +20,10 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "  className: org.kurator.akka.WorkflowConfig"          + EOL +
                 "  singleton: true"                                     + EOL; 
         
-        ActorRef workflowRef = new YamlStringWorkflowRunner(definition)
+        new YamlStringWorkflowRunner(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream)
             .build();
-            
-        assertNotNull(workflowRef);
 }
 
     public void testOneActorWorkflow() throws Exception {
@@ -56,9 +52,8 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
         wr.build();
 
         wr.start();        
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(new EndOfStream());
-        wr.await();
+        wr.tell(1, new EndOfStream());
+        wr.end();
     }
     
     public void testTwoActorWorkflow() throws Exception {
@@ -93,15 +88,9 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
                 
-        wr.build();
-
-        wr.start();
-        
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(2);
-        wr.tellWorkflow(new EndOfStream());
-        
-        wr.await();
+        wr.begin();
+        wr.tell(1, 2, new EndOfStream());
+        wr.end();
     }
 
     public void testThreeActorWorkflow() throws Exception {
@@ -148,21 +137,9 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
         
-        wr.build();
-
-        wr.start();
-        
-        wr.tellWorkflow(1);
-        wr.tellWorkflow(2);
-        wr.tellWorkflow(3);
-        wr.tellWorkflow(4);
-        wr.tellWorkflow(5);
-        wr.tellWorkflow(6);
-        wr.tellWorkflow(4);
-        wr.tellWorkflow(3);
-        wr.tellWorkflow(new EndOfStream());
-        
-        wr.await();
+        wr.begin();
+        wr.tell(1, 2, 3, 4, 5, 6, 4, 3, new EndOfStream());
+        wr.end();
     }
     
 }
