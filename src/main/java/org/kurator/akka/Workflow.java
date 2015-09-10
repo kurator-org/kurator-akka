@@ -7,14 +7,18 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
+import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.ExceptionMessage;
+import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
-import org.kurator.akka.messages.Response;
 import org.kurator.akka.messages.Start;
+import org.kurator.akka.messages.Success;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -69,7 +73,7 @@ public class Workflow extends UntypedActor {
         receivers.add(receiver);
     }
 
-    private void initialize() throws TimeoutException, InterruptedException {
+    private void initialize() throws Exception {
 
         // send an initialize message to each actor
         final ArrayList<Future<Object>> responseFutures = new ArrayList<Future<Object>>();
@@ -78,13 +82,20 @@ public class Workflow extends UntypedActor {
             responseFutures.add(ask(a, initialize, Constants.TIMEOUT));
         }
 
-        // wait for response for initialization for each actor
+        List<Failure> failures = new LinkedList<Failure>();
+        
+        // wait for success or failure response from each actor
         for (Future<Object> responseFuture : responseFutures) {
             responseFuture.ready(Constants.TIMEOUT_DURATION, null);
+            ControlMessage message = (ControlMessage)responseFuture.value().get().get();
+            if (message instanceof Failure) {
+                failures.add((Failure)message);
+            }
         }
 
-        getSender().tell(new Response(), getSelf());
-
+        ControlMessage result = (failures.size() == 0) ? 
+                new Success() : new Failure("Error initializing workflow", failures);
+       getSender().tell(result, getSelf());
     }
 
     @Override

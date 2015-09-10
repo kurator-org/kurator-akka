@@ -75,7 +75,6 @@ public class Hamming {
         
         filter.listensTo(mergeTwoThreeFive);
         
-        wr.build();
         wr.run();
     }
 }

@@ -11,8 +11,9 @@ import java.util.Set;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.messages.ExceptionMessage;
+import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
-import org.kurator.akka.messages.Response;
+import org.kurator.akka.messages.Success;
 import org.kurator.akka.messages.Start;
 
 import akka.actor.ActorRef;
@@ -191,10 +192,17 @@ public abstract class AkkaActor extends UntypedActor {
                     }
                                 
                     // invoke the Initialize event handler
-                    onInitialize();
-
-                    // send a reply to this message
-                    getSender().tell(new Response(), getSelf());
+                    try {
+                        onInitialize();
+                    } catch(Exception e) {
+                        ControlMessage status = new Failure(e.getMessage());
+                        getSender().tell(status, getSelf());
+                        getContext().stop(getSelf());
+                        return;
+                    }
+                    
+                    // report success
+                    getSender().tell(new Success(), getSelf());
                     
                 } else if (message instanceof Start) {
                     

@@ -3,11 +3,18 @@ package org.kurator.akka;
 import java.util.Map;
 import java.util.Properties;
 
+import org.python.core.PyBoolean;
+import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
 public class PythonActor extends AkkaActor {
+    
+    protected static String DEFAULT_ON_INIT_FUNCTION    = "on_initialize";
+    protected static String DEFAULT_ON_START_FUNCTION   = "on_start";
+    protected static String DEFAULT_ON_DATA_FUNCTION    = "on_data";
+    protected static String DEFAULT_ON_END_FUNCTION     = "on_end";
     
     public Class<? extends Object> inputType = Object.class;
     public Class<? extends Object> outputType = Object.class;
@@ -16,11 +23,11 @@ public class PythonActor extends AkkaActor {
     
     protected String functionQualifier = "";
     
-    protected String onInitialize;
-    protected String onStart;
-    protected String onData;
-    protected String onEnd;
-    protected String script;
+    protected String onInit = null;
+    protected String onStart = null;
+    protected String onData = null;
+    protected String onEnd = null;
+    protected String script = null;
     
     protected PythonInterpreter interpreter;
     protected PyObject none;
@@ -34,8 +41,24 @@ public class PythonActor extends AkkaActor {
             "_KURATOR_MORE_DATA_=False"                     + EOL +
             ""                                              + EOL +
             "import types"                                  + EOL +
-            "def is_generator(g):"                          + EOL +
+            "import inspect"                                + EOL +
+            ""                                              + EOL +
+            "def _is_generator(g):"                         + EOL +
             "  return isinstance(g, types.GeneratorType)"   + EOL +
+            ""                                              + EOL +
+            "def _is_function(f):"                          + EOL +
+            "  return f in globals() and inspect.isfunction(globals()[f])"   + EOL +
+            ""                                              + EOL +
+            "def _is_member(class_name, method_name):"                  + EOL +
+//            "  if not class_name in globals(): return False"            + EOL +
+            "  class_object = globals()[class_name]"                    + EOL +
+            "  if not inspect.isclass(class_object): return False"      + EOL +
+            "  if not method_name in dir(class_object): return False"   + EOL +
+            "  method_object = getattr(class_object, method_name)"      + EOL +
+            "  return inspect.ismethod(method_object)"                  + EOL +
+            ""                                              + EOL +
+            "def _function_arg_count(f):"                   + EOL +
+            "  return len(inspect.getargspec(f)[0])"        + EOL +
             ""                                              + EOL +
             "def _get_next_data():"                         + EOL +
             "  global _KURATOR_OUTPUT_"                     + EOL +
@@ -54,7 +77,7 @@ public class PythonActor extends AkkaActor {
             "  global _KURATOR_RESULT_"                     + EOL +
             "  global _KURATOR_MORE_DATA_"                  + EOL +
             "  _KURATOR_RESULT_ = %s%s()"                   + EOL +
-            "  if is_generator(_KURATOR_RESULT_):"          + EOL +
+            "  if _is_generator(_KURATOR_RESULT_):"         + EOL +
             "    _KURATOR_MORE_DATA_=True"                  + EOL +
             "  else:"                                       + EOL +
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
@@ -67,7 +90,7 @@ public class PythonActor extends AkkaActor {
             "  global _KURATOR_RESULT_"                     + EOL +
             "  global _KURATOR_MORE_DATA_"                  + EOL +
             "  _KURATOR_RESULT_ = %s%s(_KURATOR_INPUT_)"    + EOL +
-            "  if is_generator(_KURATOR_RESULT_):"          + EOL +
+            "  if _is_generator(_KURATOR_RESULT_):"         + EOL +
             "    _KURATOR_MORE_DATA_=True"                  + EOL +
             "  else:"                                       + EOL +
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
@@ -75,6 +98,34 @@ public class PythonActor extends AkkaActor {
 
     @Override
     protected void onInitialize() throws Exception {
+        initializeJythonInterpreter();        
+        configureJythonSysPath();
+        loadCommonHelperFunctions();
+        loadCustomCode();
+        configureCustomCode();
+        loadOnStartWrapper();
+        loadOnDataWrapper();
+    }
+
+    protected void configureCustomCode() {
+    }
+    
+    protected void loadCommonHelperFunctions() {
+        interpreter.exec(commonScriptHeader);
+    }
+    
+    protected void loadCustomCode() {
+        // read the script into the interpreter
+        interpreter.set("__name__",  "__kurator_actor__");
+        this.script = (String)configuration.get("script");
+        if (script != null) interpreter.execfile(script);
+        
+        String code = (String)configuration.get("code");
+        if (code != null) interpreter.exec(code);        
+    }
+
+    
+    protected void initializeJythonInterpreter() {
         
         Properties properties = System.getProperties();
         properties.put("python.import.site", "false");
@@ -87,8 +138,14 @@ public class PythonActor extends AkkaActor {
         interpreter.setOut(super.outStream);
         interpreter.setErr(super.errStream);
         
-        interpreter.exec("import sys");        
-
+        interpreter.exec("import sys"); 
+        
+        // cache a python None object
+        none = interpreter.eval("None");
+    }
+    
+    protected void configureJythonSysPath() {
+        
         // add to python sys.path library directory from local Jython/Python installation
         String kuratorLocalPythonLib = System.getenv("KURATOR_LOCAL_PYTHON_LIB");
         if (kuratorLocalPythonLib != null) {
@@ -108,33 +165,62 @@ public class PythonActor extends AkkaActor {
         if (kuratorLocalPackages != null) {
             prependSysPath(kuratorLocalPackages); 
         }
-        
-        // read the script into the interpreter
-        interpreter.set("__name__",  "__kurator_actor__");
-        this.script = (String)configuration.get("script");
-        if (script != null) interpreter.execfile(script);
-        
-        String code = (String)configuration.get("code");
-        if (code != null) interpreter.exec(code);
-
-        // cache a python None object
-        none = interpreter.eval("None");
-        
-        interpreter.exec(commonScriptHeader);
-        
-        
-        this.onStart = (String)configuration.get("onStart");
-        if (this.onStart != null) {
-            interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
-        }
-
-        this.onData = (String)configuration.get("onData");
-        if (this.onData != null) {
-            interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
-        }
-        
     }
+    
+    private Boolean isFunction(String f) {
+        PyBoolean result = (PyBoolean)interpreter.eval("_is_function('" + f + "')");
+        return result.getBooleanValue();
+    }
+    
+    private Integer getArgCount(String f) {
+        PyInteger result = (PyInteger)interpreter.eval("_function_arg_count(" + f + ")");
+        return result.asInt();
+    }
+
+    protected void loadOnDataWrapper() throws Exception {
+
+        String onDataConfig = (String)configuration.get("onData");
+        if (onDataConfig != null) {
             
+            if (!isFunction(onDataConfig)) {
+                throw new Exception("Custom onData handler '" + onDataConfig + "' not defined for actor");
+            }
+            onData = onDataConfig;
+        
+        } else if (isFunction(DEFAULT_ON_DATA_FUNCTION)) {
+
+            onData = DEFAULT_ON_DATA_FUNCTION;
+        
+        } else {
+            
+            return;
+        }
+        
+        interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
+    }
+    
+    private void loadOnStartWrapper() throws Exception {
+
+        String onStartConfig = (String)configuration.get("onStart");
+        if (onStartConfig != null) {
+            
+            if (!isFunction(onStartConfig)) {
+                throw new Exception("Custom onStart handler '" + onStartConfig + "' not defined for actor");
+            }
+            onStart = onStartConfig;
+        
+        } else if (isFunction(DEFAULT_ON_START_FUNCTION)) {
+
+            onStart = DEFAULT_ON_START_FUNCTION;
+        
+        } else {
+            
+            return;
+        }
+        
+        interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
+    }
+    
     @Override
     protected void onStart() throws Exception {
 
@@ -157,15 +243,22 @@ public class PythonActor extends AkkaActor {
     }
     
     @Override
-    public void onData(Object value) {  
+    public void onData(Object value) throws Exception {  
 
-        if (outputTypeIsInputType) {
-            outputType = value.getClass();
+        if (onData == null) {
+            throw new Exception("No onData handler for actor " + this);
         }
         
-        interpreter.set("_KURATOR_INPUT_", value);
-        interpreter.eval("_call_ondata()");
-        broadcastOutputs();
+        if (onData != null) {
+        
+            if (outputTypeIsInputType) {
+                outputType = value.getClass();
+            }
+            
+            interpreter.set("_KURATOR_INPUT_", value);
+            interpreter.eval("_call_ondata()");
+            broadcastOutputs();
+        }
     }
 
     @Override

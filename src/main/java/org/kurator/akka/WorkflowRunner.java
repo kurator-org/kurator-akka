@@ -1,6 +1,5 @@
 package org.kurator.akka;
 
-
 import static akka.pattern.Patterns.ask;
 
 import java.io.InputStream;
@@ -14,8 +13,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.concurrent.TimeoutException;
 
+import org.kurator.akka.messages.ControlMessage;
+import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Start;
 import org.springframework.context.support.GenericApplicationContext;
@@ -31,12 +31,14 @@ import akka.actor.Props;
 
 public class WorkflowRunner {
 
+    public static final String EOL = System.getProperty("line.separator");
+
     private WorkflowConfig workflowConfig;
     private final ActorSystem system;
     private ActorRef inputActor = null;
     private Map<ActorConfig,ActorRef> actorRefForActorConfig = new HashMap<ActorConfig, ActorRef>();
     private Map<String,ActorConfig> actorConfigForActorName = new HashMap<String, ActorConfig>();
-    private ActorRef workflowRef;
+    private ActorRef workflow;
     private ActorConfig inputActorConfig;
     private Map<String, Object> workflowParameters;
     private InputStream inStream = System.in;
@@ -120,7 +122,7 @@ public class WorkflowRunner {
     }
     
     public ActorRef getWorkflowRef() {
-        return workflowRef;
+        return workflow;
     }
     
     public ActorRef root() {
@@ -197,7 +199,7 @@ public class WorkflowRunner {
         throw new Exception("Workflow does not take parameter named " + settingName);
     }
     
-    public ActorRef build() {
+    public WorkflowRunner build() {
         
         Collection<ActorConfig> actorConfigs = actorConfigForActorName.values();
         Set<ActorRef> actors = new HashSet<ActorRef>();
@@ -224,7 +226,7 @@ public class WorkflowRunner {
         }
     
         // create a workflow using the workflow configuration and comprising the actors
-        workflowRef = system.actorOf(Props.create(
+        workflow = system.actorOf(Props.create(
                             WorkflowProducer.class, 
                             system, 
                             actors, 
@@ -234,35 +236,60 @@ public class WorkflowRunner {
                             errStream,
                             this
                        ));
-        
-        return workflowRef;
+
+        return this;
     }
     
     
-    public void tellWorkflow(Object message) {
-        workflowRef.tell(message, system.lookupRoot());
+    public WorkflowRunner tell(Object message) {
+        workflow.tell(message, system.lookupRoot());
+        return this;
     }
-    
-    public void start() throws TimeoutException, InterruptedException {
-        Future<Object> future = ask(workflowRef, new Initialize(), Constants.TIMEOUT);
+
+    public WorkflowRunner tell(Object... messages) {
+        for (Object message : messages) {
+            tell(message);
+        }
+        return this;
+    }
+
+    public WorkflowRunner init() throws Exception {
+        Future<Object> future = ask(workflow, new Initialize(), Constants.TIMEOUT);
         future.ready(Constants.TIMEOUT_DURATION, null);
-        workflowRef.tell(new Start(), system.lookupRoot());
+        ControlMessage result = (ControlMessage)future.value().get().get();
+        if (result instanceof Failure) {
+            throw new Exception(result.toString());
+        }
+        return this;
     }
     
-    public void await() throws Exception {
+    public WorkflowRunner start() throws Exception {        
+        workflow.tell(new Start(), system.lookupRoot());
+        return this;
+    }
+    
+    public WorkflowRunner begin() throws Exception {
+        this.build()
+            .init()
+            .start();
+        return this;
+    }
+    
+    public WorkflowRunner end() throws Exception {
         system.awaitTermination();
         if (lastException != null) {
             throw(lastException);
         }
+        return this;
     }
-
-    public void run() throws Exception {
-        this.start();
-        this.await();
+    
+    public WorkflowRunner run() throws Exception {
+        this.begin()
+            .end();
+        return this;
     }
 
     public void setLastException(Exception e) {
         lastException = e;
     }
-    
 }

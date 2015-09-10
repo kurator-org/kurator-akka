@@ -3,10 +3,11 @@ package org.kurator.akka.actors;
 import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.PythonActor;
+import org.kurator.akka.PythonClassActor;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
+public class TestPythonClassActor_InlinedCode extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     
@@ -20,10 +21,37 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
              .errorStream(stderrStream);
     }
     
-    public void testPythonActor_DefaultOnData() throws Exception {
+    public void testPythonClassActor_DefaultOnData() throws Exception {
         
-        ActorConfig actor = wr.actor(PythonActor.class)
-                              .config("code", "def on_data(n):  print 'Received data: ' + str(n)");
+        ActorConfig actor = 
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "actor")
+          .config("code",
+                  "class actor(object):"                                        + EOL +
+                  "  def on_data(self, n):  print 'Received data: ' + str(n)"   );
+               
+        wr.inputActor(actor);
+        
+        wr.begin()
+          .tell(1, 2, 3, new EndOfStream())
+          .end();
+        
+        assertEquals(
+                "Received data: 1"      + EOL +
+                "Received data: 2"      + EOL +
+                "Received data: 3"      + EOL,   
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_CustomOnData() throws Exception {
+        
+        ActorConfig actor = 
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "actor")
+          .config("onData", "echo")
+          .config("code",
+                  "class actor(object):"                                    + EOL +
+                  "  def echo(self, n):  print 'Received data: ' + str(n)"  );
                
         wr.inputActor(actor)
           .begin()
@@ -37,44 +65,30 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
     
-    public void testPythonActor_CustomOnData() throws Exception {
-        
-        ActorConfig actor = wr.actor(PythonActor.class)
-                              .config("onData", "echo")
-                              .config("code", "def echo(n):  print 'Received data: ' + str(n)");
-               
-        wr.inputActor(actor)
-          .begin()
-          .tell(1, 2, 3, new EndOfStream())
-          .end();
-        
-        assertEquals(
-                "Received data: 1"      + EOL +
-                "Received data: 2"      + EOL +
-                "Received data: 3"      + EOL,   
-                stdoutBuffer.toString());
-    }
-    
-    public void testPythonActor_MissingCustomOnData() throws Exception {
-        
-        wr.actor(PythonActor.class)
-          .config("onData", "echo");
-               
-        wr.build();
-
-        Exception caught = null;
-        try {
-          wr.init();
-        } catch (Exception e) {
-            caught = e;
-        }
-        
-        assertNotNull(caught);
-        assertEquals(
-                "Error initializing workflow"                           +  EOL +
-                "Custom onData handler 'echo' not defined for actor", 
-                caught.getMessage());
-    }
+//    public void testPythonClassActor_MissingCustomOnData() throws Exception {
+//        
+//        wr.actor(PythonClassActor.class)
+//          .config("pythonClass", "actor")
+//          .config("onData", "echo")
+//          .config("code",
+//                  "class actor(object):"            + EOL +
+//                  "  def on_data(self, n): pass"    );
+//               
+//        wr.build();
+//
+//        Exception caught = null;
+//        try {
+//          wr.init();
+//        } catch (Exception e) {
+//            caught = e;
+//        }
+//        
+//        assertNotNull(caught);
+//        assertEquals(
+//                "Error initializing workflow"                           +  EOL +
+//                "Custom onData handler 'echo' not defined for actor", 
+//                caught.getMessage());
+//    }
 
     public void testPythonActor_Multiplier() throws Exception {
 

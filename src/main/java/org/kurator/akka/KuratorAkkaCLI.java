@@ -98,9 +98,7 @@ public class KuratorAkkaCLI {
             runner.apply(settings)
                    .outputStream(outStream)
                    .errorStream(errStream)
-                   .build();
-            
-            runner.run();
+                   .run();
         }
         
         return 0;
