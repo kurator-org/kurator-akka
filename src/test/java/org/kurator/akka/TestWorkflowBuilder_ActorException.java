@@ -35,7 +35,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
      public void testWorkflowBuilder_NoActorException() throws Exception {
 
          wr.begin();
-         wr.tell(1, 2, 3, 4, 5, new EndOfStream());
+         wr.tellWorkflow(1, 2, 3, 4, 5, new EndOfStream());
          wr.end();
 
          assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
@@ -45,7 +45,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
      public void testWorkflowBuilder_ActorException() throws Exception {
          
          wr.begin();
-         wr.tell(1, 2, 3, TestActor.exceptionTriggerValue, 4, 5, new EndOfStream());
+         wr.tellWorkflow(1, 2, 3, TestActor.exceptionTriggerValue, 4, 5, new EndOfStream());
          
          Exception exception = null;
          try {

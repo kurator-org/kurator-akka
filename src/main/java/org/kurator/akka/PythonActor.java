@@ -49,14 +49,6 @@ public class PythonActor extends AkkaActor {
             "def _is_function(f):"                          + EOL +
             "  return f in globals() and inspect.isfunction(globals()[f])"   + EOL +
             ""                                              + EOL +
-            "def _is_member(class_name, method_name):"                  + EOL +
-//            "  if not class_name in globals(): return False"            + EOL +
-            "  class_object = globals()[class_name]"                    + EOL +
-            "  if not inspect.isclass(class_object): return False"      + EOL +
-            "  if not method_name in dir(class_object): return False"   + EOL +
-            "  method_object = getattr(class_object, method_name)"      + EOL +
-            "  return inspect.ismethod(method_object)"                  + EOL +
-            ""                                              + EOL +
             "def _function_arg_count(f):"                   + EOL +
             "  return len(inspect.getargspec(f)[0])"        + EOL +
             ""                                              + EOL +
@@ -105,9 +97,10 @@ public class PythonActor extends AkkaActor {
         configureCustomCode();
         loadOnStartWrapper();
         loadOnDataWrapper();
+        applySettings();
     }
 
-    protected void configureCustomCode() {
+    protected void configureCustomCode() throws Exception {
     }
     
     protected void loadCommonHelperFunctions() {
@@ -221,9 +214,9 @@ public class PythonActor extends AkkaActor {
         interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
     }
     
-    @Override
-    protected void onStart() throws Exception {
-
+    
+    protected void applySettings() {
+    
         if (settings != null) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {
                 String name = setting.getKey();
@@ -231,7 +224,11 @@ public class PythonActor extends AkkaActor {
                 interpreter.set(name, value);
             }
         }
-        
+    }    
+    
+    @Override
+    protected void onStart() throws Exception {
+
         if (onStart != null) {
             interpreter.eval("_call_onstart()");
             broadcastOutputs();

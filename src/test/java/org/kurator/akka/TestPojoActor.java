@@ -29,7 +29,7 @@ public class TestPojoActor extends KuratorAkkaTestCase {
                .errorStream(stderrStream);
         
         wr.begin();
-        wr.tell(1, new EndOfStream());
+        wr.tellWorkflow(1, new EndOfStream());
         wr.end();
         
         assertEquals("1", stdoutBuffer.toString());
@@ -44,7 +44,7 @@ public class TestPojoActor extends KuratorAkkaTestCase {
                .errorStream(stderrStream);
         
         wr.begin();
-        wr.tell(1, 2, new EndOfStream());
+        wr.tellWorkflow(1, 2, new EndOfStream());
         wr.end();
         
         assertEquals("1, 2", stdoutBuffer.toString());
@@ -59,7 +59,7 @@ public class TestPojoActor extends KuratorAkkaTestCase {
           .errorStream(stderrStream);
         
         wr.begin();
-        wr.tell(1, 2, 3, 4, 5, 6, 4, 3, new EndOfStream());
+        wr.tellWorkflow(1, 2, 3, 4, 5, 6, 4, 3, new EndOfStream());
         wr.end();
         
         assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());

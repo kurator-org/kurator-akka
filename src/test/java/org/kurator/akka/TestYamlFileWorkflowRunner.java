@@ -28,7 +28,7 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
         wr.outputStream(stdoutStream)
           .errorStream(stderrStream)
           .begin()
-          .tell(1, new EndOfStream())
+          .tellWorkflow(1, new EndOfStream())
           .end();
         
         assertEquals("1", stdoutBuffer.toString());
@@ -42,7 +42,7 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
         wr.outputStream(stdoutStream)
          .errorStream(stderrStream)
          .begin()
-         .tell(1,2, new EndOfStream())
+         .tellWorkflow(1,2, new EndOfStream())
          .end();
         
         assertEquals("1, 2", stdoutBuffer.toString());
@@ -56,7 +56,7 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
         wr.outputStream(stdoutStream)
           .errorStream(stderrStream)
           .begin()
-          .tell(1,2,3,4,5,6,4,3,new EndOfStream())
+          .tellWorkflow(1,2,3,4,5,6,4,3,new EndOfStream())
           .end();
         
         assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());
@@ -70,7 +70,7 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
         wr.outputStream(stdoutStream)
           .errorStream(stderrStream)
           .begin()
-          .tell(1,2,3,4,5,6,4,3,new EndOfStream())
+          .tellWorkflow(1,2,3,4,5,6,4,3,new EndOfStream())
           .end();
         
         assertEquals("1, 2, 3, 4, 5", stdoutBuffer.toString());

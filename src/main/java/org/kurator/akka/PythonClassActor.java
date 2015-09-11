@@ -1,6 +1,9 @@
 package org.kurator.akka;
 
+import java.util.Map;
+
 import org.python.core.PyBoolean;
+import org.python.core.PyException;
 
 
 public class PythonClassActor extends PythonActor {
@@ -14,7 +17,7 @@ public class PythonClassActor extends PythonActor {
     }
 
     @Override
-    protected void configureCustomCode() {
+    protected void configureCustomCode() throws Exception {
 
         pythonClassConfig = (String)configuration.get("pythonClass");
         
@@ -27,12 +30,20 @@ public class PythonClassActor extends PythonActor {
             pythonClassName = pythonClassConfig.substring(lastDotIndex + 1);
         }
 
-        if (pythonClassModule != null) {
-            interpreter.exec("from " + pythonClassModule + " import " + pythonClassName);
+            if (pythonClassModule != null) {
+                try {
+                    interpreter.exec("from " + pythonClassModule + " import " + pythonClassName);
+                } catch (PyException e) {
+                    throw new Exception("Error importing class '" + pythonClassConfig + "': " + e.value);
+                }
+            }
+            
+        try {
+            interpreter.exec("_PYTHON_CLASS_INSTANCE_=" + pythonClassName + "()");
+        } catch (PyException e) {
+            throw new Exception("Error instantiating class '" + pythonClassConfig + "': " + e.value);
         }
-        
-        interpreter.exec("_PYTHON_CLASS_INSTANCE_=" + pythonClassName + "()");            
-    }
+     }
 
     @Override
     protected void loadOnDataWrapper() throws Exception {
@@ -40,28 +51,51 @@ public class PythonClassActor extends PythonActor {
         String onDataConfig = (String)configuration.get("onData");
         
         if (onDataConfig != null) {
-            
-//            if (!isMember(pythonClass, onDataConfig)) {
-//                throw new Exception("Custom onData handler '" + onDataConfig + "' not defined for actor");
-//            }
+
+            try {
+                PyBoolean isMethod = (PyBoolean)interpreter.eval("inspect.ismethod(" + functionQualifier + onDataConfig + ")");
+                if (!isMethod.getBooleanValue()) {
+                    throw new Exception("Error binding to onData method: '" + onDataConfig + 
+                                        "' is not a method on " + pythonClassName);
+                }
+
+            } catch (PyException e) {
+                throw new Exception("Error binding to onData method '" + onDataConfig + "': " + e.value);
+            }
             onData = onDataConfig;
         
-        } else  { //if (isMember(pythonClass, DEFAULT_ON_DATA_FUNCTION)) {
+        } else  {
 
-            onData = DEFAULT_ON_DATA_FUNCTION;
-        
+            try {
+                PyBoolean isMethod = (PyBoolean)interpreter.eval("inspect.ismethod(" + functionQualifier + DEFAULT_ON_DATA_FUNCTION + ")");
+                if (isMethod.getBooleanValue()) {
+                    onData = DEFAULT_ON_DATA_FUNCTION;
+                } else {                    
+                    throw new Exception("Error binding to default onData method: '" + DEFAULT_ON_DATA_FUNCTION + 
+                                        "' is not a method on " + pythonClassName);
+                }
+            } catch (PyException e) {
+                return;
+            }
         } 
-//        else {
-//            
-//            return;
-//        }
         
         interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
     }
     
-    private Boolean isMember(String c, String f) {
-        String call = "_is_member('" + c + "','" + f + "')";
-        PyBoolean result = (PyBoolean)interpreter.eval(call);
-        return result.getBooleanValue();
-    }
+    @Override
+    protected void applySettings() {
+        
+        if (settings != null) {
+            for(Map.Entry<String, Object> setting : settings.entrySet()) {
+                String name = functionQualifier + setting.getKey();
+                Object value = setting.getValue();
+                if (value instanceof String) {
+                    interpreter.exec(name + "='" + value + "'");
+                } else {
+                    interpreter.exec(name + "=" + value);
+                }
+            }
+        }
+    }   
+
 }

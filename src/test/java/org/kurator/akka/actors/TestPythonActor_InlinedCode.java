@@ -27,7 +27,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                
         wr.inputActor(actor)
           .begin()
-          .tell(1, 2, 3, new EndOfStream())
+          .tellWorkflow(1, 2, 3, new EndOfStream())
           .end();
         
         assertEquals(
@@ -45,7 +45,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                
         wr.inputActor(actor)
           .begin()
-          .tell(1, 2, 3, new EndOfStream())
+          .tellWorkflow(1, 2, 3, new EndOfStream())
           .end();
         
         assertEquals(
@@ -92,7 +92,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                
         wr.inputActor(repeater)
           .begin()
-          .tell(1, 2, 3, 4, 5, new EndOfStream())
+          .tellWorkflow(1, 2, 3, 4, 5, new EndOfStream())
           .end();
         
         assertEquals(
@@ -121,7 +121,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                
         wr.inputActor(repeater)
           .begin()
-          .tell(1, 2, 3, 4, 5, new EndOfStream())
+          .tellWorkflow(1, 2, 3, 4, 5, new EndOfStream())
           .end();
         
         assertEquals(
@@ -149,7 +149,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                
         wr.inputActor(repeater)
           .begin()
-          .tell(1, 2, 3, 4, 5, new EndOfStream())
+          .tellWorkflow(1, 2, 3, 4, 5, new EndOfStream())
           .end();
         
         assertEquals(

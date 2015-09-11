@@ -241,18 +241,31 @@ public class WorkflowRunner {
     }
     
     
-    public WorkflowRunner tell(Object message) {
+    public WorkflowRunner tellWorkflow(Object message) {
         workflow.tell(message, system.lookupRoot());
         return this;
     }
 
-    public WorkflowRunner tell(Object... messages) {
+    public WorkflowRunner tellWorkflow(Object... messages) {
         for (Object message : messages) {
-            tell(message);
+            tellWorkflow(message);
         }
         return this;
     }
 
+    public WorkflowRunner tellActor(ActorConfig actor, Object message) {
+        ActorRef actorRef = this.actorRefForActorConfig.get(actor);
+        actorRef.tell(message, system.lookupRoot());
+        return this;
+    }
+
+    public WorkflowRunner tellActor(ActorConfig actor, Object... messages) {
+        for (Object message : messages) {
+            tellActor(actor, message);
+        }
+        return this;
+    }
+    
     public WorkflowRunner init() throws Exception {
         Future<Object> future = ask(workflow, new Initialize(), Constants.TIMEOUT);
         future.ready(Constants.TIMEOUT_DURATION, null);

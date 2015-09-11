@@ -45,7 +45,7 @@ public class TestPythonActor_ExternalScripts extends KuratorAkkaTestCase {
     public void testPythonActor() throws Exception {
         
         wr.begin();
-        wr.tell(1, 2, 3, 4, 5, new EndOfStream());
+        wr.tellWorkflow(1, 2, 3, 4, 5, new EndOfStream());
         wr.end();
         
         assertEquals("2,4,6,8,10", stdoutBuffer.toString());

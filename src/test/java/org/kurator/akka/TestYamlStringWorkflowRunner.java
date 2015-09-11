@@ -52,7 +52,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
         wr.build();
 
         wr.start();        
-        wr.tell(1, new EndOfStream());
+        wr.tellWorkflow(1, new EndOfStream());
         wr.end();
     }
     
@@ -89,7 +89,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
             .errorStream(stdoutStream);
                 
         wr.begin();
-        wr.tell(1, 2, new EndOfStream());
+        wr.tellWorkflow(1, 2, new EndOfStream());
         wr.end();
     }
 
@@ -138,7 +138,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
             .errorStream(stdoutStream);
         
         wr.begin();
-        wr.tell(1, 2, 3, 4, 5, 6, 4, 3, new EndOfStream());
+        wr.tellWorkflow(1, 2, 3, 4, 5, 6, 4, 3, new EndOfStream());
         wr.end();
     }
     

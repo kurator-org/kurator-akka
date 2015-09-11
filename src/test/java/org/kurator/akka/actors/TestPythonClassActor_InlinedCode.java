@@ -21,19 +21,32 @@ public class TestPythonClassActor_InlinedCode extends KuratorAkkaTestCase {
              .errorStream(stderrStream);
     }
     
+  public void testPythonClassActor_NoOnData() throws Exception {
+        
+        ActorConfig actor = 
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "actor")
+          .config("code",
+                  "class actor(object):"                                            + EOL +
+                  "  a=3"   );
+        wr.build()
+          .init();
+        
+    }
+  
     public void testPythonClassActor_DefaultOnData() throws Exception {
         
         ActorConfig actor = 
         wr.actor(PythonClassActor.class)
           .config("pythonClass", "actor")
           .config("code",
-                  "class actor(object):"                                        + EOL +
+                  "class actor(object):"                                            + EOL +
                   "  def on_data(self, n):  print 'Received data: ' + str(n)"   );
                
         wr.inputActor(actor);
         
         wr.begin()
-          .tell(1, 2, 3, new EndOfStream())
+          .tellWorkflow(1, 2, 3, new EndOfStream())
           .end();
         
         assertEquals(
@@ -55,7 +68,7 @@ public class TestPythonClassActor_InlinedCode extends KuratorAkkaTestCase {
                
         wr.inputActor(actor)
           .begin()
-          .tell(1, 2, 3, new EndOfStream())
+          .tellWorkflow(1, 2, 3, new EndOfStream())
           .end();
         
         assertEquals(
@@ -64,49 +77,152 @@ public class TestPythonClassActor_InlinedCode extends KuratorAkkaTestCase {
                 "Received data: 3"      + EOL,   
                 stdoutBuffer.toString());
     }
-    
-//    public void testPythonClassActor_MissingCustomOnData() throws Exception {
-//        
-//        wr.actor(PythonClassActor.class)
-//          .config("pythonClass", "actor")
-//          .config("onData", "echo")
-//          .config("code",
-//                  "class actor(object):"            + EOL +
-//                  "  def on_data(self, n): pass"    );
-//               
-//        wr.build();
-//
-//        Exception caught = null;
-//        try {
-//          wr.init();
-//        } catch (Exception e) {
-//            caught = e;
-//        }
-//        
-//        assertNotNull(caught);
-//        assertEquals(
-//                "Error initializing workflow"                           +  EOL +
-//                "Custom onData handler 'echo' not defined for actor", 
-//                caught.getMessage());
-//    }
 
-    public void testPythonActor_Multiplier() throws Exception {
-
-        ActorConfig repeater = wr.actor(PythonActor.class)
-                .config("code", "on_data = lambda n: n");
+    public void testPythonClassActor_MissingPythonClass() throws Exception {
         
-        ActorConfig multiplier =  wr.actor(PythonActor.class)
-                .listensTo(repeater)
-                .param("factor", 2)
-                .config("code", "on_data = lambda n: factor*n");
-
-        ActorConfig printer = wr.actor(PythonActor.class)
-                .listensTo(multiplier)
-                .config("code", "def on_data(n):  print n");
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "my_actor");
                
-        wr.inputActor(repeater)
-          .begin()
-          .tell(1, 2, 3, 4, 5, new EndOfStream())
+        wr.build();
+
+        Exception caught = null;
+        try {
+          wr.init();
+        } catch (Exception e) {
+            caught = e;
+        }
+        
+        assertNotNull(caught);
+        assertEquals(
+                "Error initializing workflow"   +  EOL +
+                "Error instantiating class 'my_actor': name 'my_actor' is not defined", 
+                caught.getMessage());
+    }
+
+    public void testPythonClassActor_MissingModule() throws Exception {
+        
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "my_module.my_submodule.my_actor");
+        
+        wr.build();
+
+        Exception caught = null;
+        try {
+          wr.init();
+        } catch (Exception e) {
+            caught = e;
+        }
+        
+        assertNotNull(caught);
+        assertEquals(
+                "Error initializing workflow"  +  EOL +
+                "Error importing class 'my_module.my_submodule.my_actor': No module named my_module",
+                caught.getMessage());
+    }
+    
+    public void testPythonClassActor_MissingCustomOnData() throws Exception {
+        
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "my_actor")
+          .config("onData", "echo")
+          .config("code",
+                  "class my_actor(object):"  + EOL +
+                  "  def on_data(self, n): pass"    );
+               
+        wr.build();
+
+        Exception caught = null;
+        try {
+          wr.init();
+        } catch (Exception e) {
+            caught = e;
+        }
+        
+        assertNotNull(caught);
+        assertEquals(
+                "Error initializing workflow"   +  EOL +
+                "Error binding to onData method 'echo': AttributeError(\"'my_actor' object has no attribute 'echo'\",)", 
+                caught.getMessage());
+    }
+
+
+    public void testPythonClassActor_DefaultOnDataIsNotMethod() throws Exception {
+        
+        ActorConfig actor = 
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "actor")
+          .config("code",
+                  "class actor(object):"                                            + EOL +
+                  "  on_data=3"   );
+        wr.build();
+
+        Exception caught = null;
+        try {
+          wr.init();
+        } catch (Exception e) {
+            caught = e;
+        }
+        
+        assertNotNull(caught);
+        assertEquals(
+                "Error initializing workflow"   +  EOL +
+                "Error binding to default onData method: 'on_data' is not a method on actor", 
+                caught.getMessage());
+    }
+    
+    public void testPythonClassActor_CustomOnDataIsNotMethod() throws Exception {
+        
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "my_actor")
+          .config("onData", "echo")
+          .config("code",
+                  "class my_actor(object):"  + EOL +
+                  "  echo=3"    );
+               
+        wr.build();
+
+        Exception caught = null;
+        try {
+          wr.init();
+        } catch (Exception e) {
+            caught = e;
+        }
+        
+        assertNotNull(caught);
+        assertEquals(
+                "Error initializing workflow"   +  EOL +
+                "Error binding to onData method: 'echo' is not a method on my_actor", 
+                caught.getMessage());
+    }
+
+    public void testPythonClassActor_Multiplier() throws Exception {
+
+        WorkflowRunner wr = new WorkflowRunner()
+             .outputStream(stdoutStream)
+             .errorStream(stderrStream);
+        
+        ActorConfig multiplier =  
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "multiplier_actor")
+          .config("code", 
+                  "class multiplier_actor(object):"             + EOL +
+                  "  def __init__(self):"                       + EOL +
+                  "    self.factor = 1"                         + EOL +
+                  "  def on_data(self,n): return self.factor*n")
+          .param("factor", 2);
+
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "printer_actor")
+          .config("code", 
+                  "class printer_actor(object):" + EOL +
+                  "  def on_data(self, n): print n")
+          .listensTo(multiplier);
+               
+        wr.begin();
+        
+        Thread.sleep(10);
+        
+        wr.tellActor(multiplier, 1, 2, 3, 4, 5, new EndOfStream())
           .end();
         
         assertEquals(
@@ -119,23 +235,24 @@ public class TestPythonClassActor_InlinedCode extends KuratorAkkaTestCase {
     }
 
     
-    public void testPythonActor_IntegerTuples() throws Exception {
+    public void testPythonClassActor_IntegerTuples() throws Exception {
 
-        ActorConfig repeater = wr.actor(PythonActor.class)
-                .config("code", "on_data = lambda n: n");
-        
-        ActorConfig double_and_triple =  wr.actor(PythonActor.class)
-                .listensTo(repeater)
-                .param("factor", 2)
-                .config("code", "on_data = lambda n: (n*2, n*3)");
+        ActorConfig double_and_triple =  
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "multiplier_actor")
+          .config("code", 
+                  "class multiplier_actor(object):" + EOL +
+                  "  on_data = lambda self, n: (n*2, n*3)");
 
-        ActorConfig printer = wr.actor(PythonActor.class)
-                .listensTo(double_and_triple)
-                .config("code", "def on_data(n):  print n");
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "printer_actor")
+          .config("code", 
+                  "class printer_actor(object):" + EOL +
+                  "  def on_data(self, n): print n")
+          .listensTo(double_and_triple);
                
-        wr.inputActor(repeater)
-          .begin()
-          .tell(1, 2, 3, 4, 5, new EndOfStream())
+        wr.begin()
+          .tellActor(double_and_triple, 1, 2, 3, 4, 5, new EndOfStream())
           .end();
         
         assertEquals(
@@ -148,22 +265,23 @@ public class TestPythonClassActor_InlinedCode extends KuratorAkkaTestCase {
     }
     
     public void testPythonActor_MixedTuples() throws Exception {
-
-        ActorConfig repeater = wr.actor(PythonActor.class)
-                .config("code", "on_data = lambda n: n");
         
-        ActorConfig double_and_triple =  wr.actor(PythonActor.class)
-                .listensTo(repeater)
-                .param("factor", 2)
-                .config("code", "on_data = lambda n: (n, str(n))");
+        ActorConfig to_int_string_tuple =  
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "to_int_string_tuple")
+          .config("code", 
+                "class to_int_string_tuple(object):" + EOL +
+                "  on_data = lambda self, n: (n, str(n))");
 
-        ActorConfig printer = wr.actor(PythonActor.class)
-                .listensTo(double_and_triple)
-                .config("code", "def on_data(n):  print n");
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "printer_actor")
+          .config("code", 
+                "class printer_actor(object):" + EOL +
+                "  def on_data(self, n): print n")
+          .listensTo(to_int_string_tuple);
                
-        wr.inputActor(repeater)
-          .begin()
-          .tell(1, 2, 3, 4, 5, new EndOfStream())
+        wr.begin()
+          .tellActor(to_int_string_tuple, 1, 2, 3, 4, 5, new EndOfStream())
           .end();
         
         assertEquals(

@@ -17,7 +17,7 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
         wr.outputStream(stdoutStream);
         
         wr.begin();
-        wr.tell(1, 2, 3, 4, 5, new EndOfStream());
+        wr.tellWorkflow(1, 2, 3, 4, 5, new EndOfStream());
         wr.end();
         
         assertEquals("2,4,6,8,10", stdoutBuffer.toString());
@@ -30,7 +30,7 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
         wr.outputStream(stdoutStream);
         
         wr.begin();
-        wr.tell(5, 1, 3, new EndOfStream());
+        wr.tellWorkflow(5, 1, 3, new EndOfStream());
         wr.end();
         
         assertEquals("1,2,3,4,5,1,1,2,3", stdoutBuffer.toString());
