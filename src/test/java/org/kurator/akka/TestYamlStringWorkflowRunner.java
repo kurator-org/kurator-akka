@@ -50,7 +50,7 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
             .errorStream(stdoutStream);
             
         wr.build();
-
+        wr.init();
         wr.start();        
         wr.tellWorkflow(1, new EndOfStream());
         wr.end();

@@ -46,40 +46,39 @@ public class PythonClassActor extends PythonActor {
      }
 
     @Override
-    protected void loadOnDataWrapper() throws Exception {
+    protected String loadEventHandler(String handlerName, String defaultMethodName, String wrapperTemplate) throws Exception {
 
-        String onDataConfig = (String)configuration.get("onData");
+        String actualMethodName = null;
         
-        if (onDataConfig != null) {
-
+        String customMethodName = (String)configuration.get(handlerName);
+        if (customMethodName != null) {
             try {
-                PyBoolean isMethod = (PyBoolean)interpreter.eval("inspect.ismethod(" + functionQualifier + onDataConfig + ")");
+                PyBoolean isMethod = (PyBoolean)interpreter.eval("inspect.ismethod(" + functionQualifier + customMethodName + ")");
                 if (!isMethod.getBooleanValue()) {
-                    throw new Exception("Error binding to onData method: '" + onDataConfig + 
+                    throw new Exception("Error binding to " + handlerName + " method: '" + customMethodName + 
                                         "' is not a method on " + pythonClassName);
                 }
-
             } catch (PyException e) {
-                throw new Exception("Error binding to onData method '" + onDataConfig + "': " + e.value);
+                throw new Exception("Error binding to " + handlerName + " method '" + customMethodName + "': " + e.value);
             }
-            onData = onDataConfig;
-        
+            actualMethodName = customMethodName;
         } else  {
-
             try {
-                PyBoolean isMethod = (PyBoolean)interpreter.eval("inspect.ismethod(" + functionQualifier + DEFAULT_ON_DATA_FUNCTION + ")");
+                PyBoolean isMethod = (PyBoolean)interpreter.eval("inspect.ismethod(" + functionQualifier + defaultMethodName + ")");
                 if (isMethod.getBooleanValue()) {
-                    onData = DEFAULT_ON_DATA_FUNCTION;
+                    actualMethodName = defaultMethodName;
                 } else {                    
-                    throw new Exception("Error binding to default onData method: '" + DEFAULT_ON_DATA_FUNCTION + 
+                    throw new Exception("Error binding to default " + handlerName + " method: '" + defaultMethodName + 
                                         "' is not a method on " + pythonClassName);
                 }
-            } catch (PyException e) {
-                return;
-            }
+            } catch (PyException e) {}
         } 
         
-        interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
+        if (actualMethodName != null) {
+            interpreter.exec(String.format(wrapperTemplate, functionQualifier, actualMethodName));
+        }
+        
+        return actualMethodName;
     }
     
     @Override

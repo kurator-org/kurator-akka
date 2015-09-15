@@ -11,10 +11,10 @@ import org.python.util.PythonInterpreter;
 
 public class PythonActor extends AkkaActor {
     
-    protected static String DEFAULT_ON_INIT_FUNCTION    = "on_initialize";
-    protected static String DEFAULT_ON_START_FUNCTION   = "on_start";
-    protected static String DEFAULT_ON_DATA_FUNCTION    = "on_data";
-    protected static String DEFAULT_ON_END_FUNCTION     = "on_end";
+    protected static String DEFAULT_ON_INIT    = "on_init";
+    protected static String DEFAULT_ON_START   = "on_start";
+    protected static String DEFAULT_ON_DATA    = "on_data";
+    protected static String DEFAULT_ON_END     = "on_end";
     
     public Class<? extends Object> inputType = Object.class;
     public Class<? extends Object> outputType = Object.class;
@@ -27,14 +27,11 @@ public class PythonActor extends AkkaActor {
     protected String onStart = null;
     protected String onData = null;
     protected String onEnd = null;
-    protected String script = null;
     
     protected PythonInterpreter interpreter;
     protected PyObject none;
-
-    protected boolean onDataIsGenerator = false;
     
-    protected String commonScriptHeader =
+    private String commonScriptHeader =
             "_KURATOR_INPUT_=None"                          + EOL +
             "_KURATOR_RESULT_=None"                         + EOL +
             "_KURATOR_OUTPUT_=None"                         + EOL +
@@ -63,7 +60,11 @@ public class PythonActor extends AkkaActor {
             "    _KURATOR_OUTPUT_=None"                     + EOL +
             "    _KURATOR_MORE_DATA_=False"                 + EOL;
     
-    private static final String onStartWrapperFormat = 
+    private static final String onInitWrapperTemplate = 
+            "def _call_oninit():"                           + EOL +
+            "  %s%s()"                                      + EOL;
+
+    private static final String onStartWrapperTemplate = 
             "def _call_onstart():"                          + EOL +
             "  global _KURATOR_OUTPUT_"                     + EOL +
             "  global _KURATOR_RESULT_"                     + EOL +
@@ -75,7 +76,7 @@ public class PythonActor extends AkkaActor {
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
             "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
    
-    protected String onDataWrapperFormat = 
+    private static String onDataWrapperTemplate = 
             "def _call_ondata():"                           + EOL +
             "  global _KURATOR_INPUT_"                      + EOL +
             "  global _KURATOR_OUTPUT_"                     + EOL +
@@ -88,16 +89,29 @@ public class PythonActor extends AkkaActor {
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
             "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
 
+    private static final String onEndWrapperTemplate = 
+            "def _call_onend():"                            + EOL +
+            "  %s%s()"                                      + EOL;
+    
     @Override
     protected void onInitialize() throws Exception {
+        
         initializeJythonInterpreter();        
         configureJythonSysPath();
         loadCommonHelperFunctions();
         loadCustomCode();
         configureCustomCode();
-        loadOnStartWrapper();
-        loadOnDataWrapper();
+        
+        onInit = loadEventHandler("onInit", DEFAULT_ON_INIT, onInitWrapperTemplate);
+        onStart = loadEventHandler("onStart", DEFAULT_ON_START, onStartWrapperTemplate);
+        onData = loadEventHandler("onData", DEFAULT_ON_DATA, onDataWrapperTemplate);
+        onEnd = loadEventHandler("onEnd", DEFAULT_ON_END, onEndWrapperTemplate);
+        
         applySettings();
+        
+        if (onInit != null) {
+            interpreter.eval("_call_oninit()");
+        }
     }
 
     protected void configureCustomCode() throws Exception {
@@ -108,9 +122,10 @@ public class PythonActor extends AkkaActor {
     }
     
     protected void loadCustomCode() {
+        
         // read the script into the interpreter
         interpreter.set("__name__",  "__kurator_actor__");
-        this.script = (String)configuration.get("script");
+        String script = (String)configuration.get("script");
         if (script != null) interpreter.execfile(script);
         
         String code = (String)configuration.get("code");
@@ -169,49 +184,26 @@ public class PythonActor extends AkkaActor {
         PyInteger result = (PyInteger)interpreter.eval("_function_arg_count(" + f + ")");
         return result.asInt();
     }
-
-    protected void loadOnDataWrapper() throws Exception {
-
-        String onDataConfig = (String)configuration.get("onData");
-        if (onDataConfig != null) {
-            
-            if (!isFunction(onDataConfig)) {
-                throw new Exception("Custom onData handler '" + onDataConfig + "' not defined for actor");
-            }
-            onData = onDataConfig;
-        
-        } else if (isFunction(DEFAULT_ON_DATA_FUNCTION)) {
-
-            onData = DEFAULT_ON_DATA_FUNCTION;
-        
-        } else {
-            
-            return;
-        }
-        
-        interpreter.exec(String.format(onDataWrapperFormat, functionQualifier, onData));
-    }
     
-    private void loadOnStartWrapper() throws Exception {
+    protected String loadEventHandler(String handlerName, String defaultMethodName, String wrapperTemplate) throws Exception {
 
-        String onStartConfig = (String)configuration.get("onStart");
-        if (onStartConfig != null) {
-            
-            if (!isFunction(onStartConfig)) {
-                throw new Exception("Custom onStart handler '" + onStartConfig + "' not defined for actor");
+        String actualMethodName = null;
+        
+        String customMethodName = (String)configuration.get(handlerName);
+        if (customMethodName != null) {
+            if (!isFunction(customMethodName)) {
+                throw new Exception("Custom " + handlerName + " handler '" + customMethodName + "' not defined for actor");
             }
-            onStart = onStartConfig;
+            actualMethodName = customMethodName;
+        } else if (isFunction(defaultMethodName)) {
+            actualMethodName = defaultMethodName;
+        } 
         
-        } else if (isFunction(DEFAULT_ON_START_FUNCTION)) {
-
-            onStart = DEFAULT_ON_START_FUNCTION;
-        
-        } else {
-            
-            return;
+        if (actualMethodName != null) {
+            interpreter.exec(String.format(wrapperTemplate, functionQualifier, actualMethodName));
         }
         
-        interpreter.exec(String.format(onStartWrapperFormat, functionQualifier, onStart));
+        return actualMethodName;
     }
     
     
@@ -262,9 +254,8 @@ public class PythonActor extends AkkaActor {
     protected void onEnd() {
         
         // call script end function if defined
-        this.onEnd = (String)configuration.get("onEnd");
         if (onEnd != null) {
-            interpreter.eval(onEnd + "()");
+            interpreter.eval("_call_onend()");
         }
         
         // shut down the interpreter
