@@ -72,42 +72,15 @@ public abstract class AkkaActor extends UntypedActor {
     private WorkflowRunner runner;
     protected Map<String,Object> settings;
     protected Map<String, Object> configuration;
+    protected ActorFSM state = ActorFSM.CONSTRUCTED;
     
-    /** 
-     * Specifies the list of listeners for this actor in the current workflow.
-     * 
-     * <p>The input parameter is given in terms of {@link org.kurator.akka.ActorConfig ActorConfig} 
-     * instances (rather than {@link akka.actor.ActorRef ActorRef} instances)
-     * because the actors may not have been constructed yet.  The ActorRef corresponding
-     * to each ActorConfig is looked up and the list of listeners in terms of ActorRef 
-     * instances composed by {@link #onReceive(Object) onReceive()} when the 
-     * {@link org.kurator.akka.messages.Initialize Initialize} message is received.</p>
-     * 
-     * @param listenerConfigs The list of actor configurations corresponding to this actor's listeners.
-     * @return this AkkaActor
-     */
-    public AkkaActor listeners(List<ActorConfig> listenerConfigs) {
-        if (listenerConfigs != null) {
-            this.listenerConfigs = listenerConfigs;
-        }
-        return this;
+    private enum ActorFSM {
+        CONSTRUCTED,
+        BUILT,
+        INITIALIZED,
+        STARTED,
+        ENDED
     }
-    
-    /** 
-     * Specifies the {@link org.kurator.akka.WorkflowRunner WorkflowRunner} for the current workflow.
-     * 
-     * <p>The workflow runner is used for accessing the mapping of listener {@link org.kurator.akka.ActorConfig ActorConfig} 
-     * instances to {@link akka.actor.ActorRef ActorRef} instances, and for reporting exceptions to the runner.</p>
-     * 
-     * @param runner The {@link org.kurator.akka.WorkflowRunner WorkflowRunner} that built and is currently 
-     *               executing the workflow containing this actor.
-     * @return this AkkaActor
-     */
-    public AkkaActor runner(WorkflowRunner runner) {
-        this.runner = runner;
-        return this;
-    }
-    
     
     /** 
      * Specifies the output stream to be used by an actor that needs
@@ -152,9 +125,62 @@ public abstract class AkkaActor extends UntypedActor {
     public AkkaActor outputStream(PrintStream outStream) {
         this.outStream = outStream;
         return this;
-    }    
-
+    }
     
+    /** 
+     * Specifies the list of listeners for this actor in the current workflow.
+     * 
+     * <p>The input parameter is given in terms of {@link org.kurator.akka.ActorConfig ActorConfig} 
+     * instances (rather than {@link akka.actor.ActorRef ActorRef} instances)
+     * because the actors may not have been constructed yet.  The ActorRef corresponding
+     * to each ActorConfig is looked up and the list of listeners in terms of ActorRef 
+     * instances composed by {@link #onReceive(Object) onReceive()} when the 
+     * {@link org.kurator.akka.messages.Initialize Initialize} message is received.</p>
+     * 
+     * @param listenerConfigs The list of actor configurations corresponding to this actor's listeners.
+     * @return this AkkaActor
+     */
+    public AkkaActor listeners(List<ActorConfig> listenerConfigs) {
+        Contract.requires(state, ActorFSM.CONSTRUCTED);
+        if (listenerConfigs != null) {
+            this.listenerConfigs = listenerConfigs;
+        }
+        return this;
+    }
+    
+    /** 
+     * Specifies the {@link org.kurator.akka.WorkflowRunner WorkflowRunner} for the current workflow.
+     * 
+     * <p>The workflow runner is used for accessing the mapping of listener {@link org.kurator.akka.ActorConfig ActorConfig} 
+     * instances to {@link akka.actor.ActorRef ActorRef} instances, and for reporting exceptions to the runner.</p>
+     * 
+     * @param runner The {@link org.kurator.akka.WorkflowRunner WorkflowRunner} that built and is currently 
+     *               executing the workflow containing this actor.
+     * @return this AkkaActor
+     */
+    public AkkaActor runner(WorkflowRunner runner) {
+        Contract.requires(state, ActorFSM.CONSTRUCTED);
+        this.runner = runner;
+        return this;
+    }
+
+    public void settings(Map<String, Object> settings) {
+        Contract.requires(state, ActorFSM.CONSTRUCTED);
+        this.settings = settings;
+    }
+
+    public AkkaActor setNeedsTrigger(boolean needsTrigger) {
+        Contract.requires(state, ActorFSM.CONSTRUCTED);
+        this.needsTrigger = needsTrigger;
+        return this;
+    }
+
+    public AkkaActor configuration(Map<String, Object> configuration) {
+        Contract.requires(state, ActorFSM.CONSTRUCTED);
+        this.configuration = configuration;
+        return this;
+    }
+        
     /** 
      * Initial handler for all messages received by this actor via the Akka framework.  
      * 
@@ -178,6 +204,8 @@ public abstract class AkkaActor extends UntypedActor {
     @Override
     public final void onReceive(Object message) throws Exception {
 
+        Contract.disallows(state, ActorFSM.ENDED);
+
         try {
             
             // handle control messages (subclasses of ControlMessage)
@@ -185,6 +213,8 @@ public abstract class AkkaActor extends UntypedActor {
                 
                 if (message instanceof Initialize) {
                 
+                    Contract.requires(state, ActorFSM.CONSTRUCTED);
+
                     // compose the list of listeners from the configured list of listener configurations
                     for (ActorConfig listenerConfig : listenerConfigs) {
                         ActorRef listener = runner.getActorForConfig(listenerConfig);
@@ -201,25 +231,38 @@ public abstract class AkkaActor extends UntypedActor {
                         return;
                     }
                     
+                    state = ActorFSM.INITIALIZED;
+                    
                     // report success
                     getSender().tell(new Success(), getSelf());
                     
                 } else if (message instanceof Start) {
                     
-                    // invoke the Start event handler
-                    onStart();
-                    if (this.needsTrigger) {
-                        onTrigger();
+                    Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
+                    
+                    if (state == ActorFSM.INITIALIZED) {
+                        state = ActorFSM.STARTED;
+                        handleOnStart();
                     }
                 
                 } else if (message instanceof EndOfStream) {
                     
+                    Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
+
                     // invoke the EndOfStream message handler
                     onEndOfStream((EndOfStream)message);
                 }            
                 
-            // allow child classes to handle non-control messages
+            // all other messages are assumed to be data
             } else {
+                
+                Contract.requires(state, ActorFSM.STARTED, ActorFSM.INITIALIZED);
+                
+                if (state == ActorFSM.INITIALIZED) {
+                    state = ActorFSM.STARTED;
+                    handleOnStart();
+                }
+                
                 onData(message);
             }
             
@@ -228,6 +271,13 @@ public abstract class AkkaActor extends UntypedActor {
             errStream.println(e);
             endStreamAndStop();
         }
+    }
+    
+    private void handleOnStart() throws Exception {
+        onStart();
+        if (this.needsTrigger) {
+            onTrigger();
+        }        
     }
     
     /** 
@@ -320,6 +370,9 @@ public abstract class AkkaActor extends UntypedActor {
      * @param message The message to send.
      */
     protected final void broadcast(Object message) {
+        
+        Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
+        
         for (ActorRef listener : listeners) {
             listener.tell(message, this.getSelf());
         }
@@ -353,6 +406,8 @@ public abstract class AkkaActor extends UntypedActor {
         
         // stop the actor
         getContext().stop(getSelf());
+        
+        state = ActorFSM.ENDED;
     }
     
     
@@ -386,19 +441,5 @@ public abstract class AkkaActor extends UntypedActor {
         ActorRef workflowRef = runner.getWorkflowRef();
         ExceptionMessage em = new ExceptionMessage(exception);
         workflowRef.tell(em, this.getSelf());
-    }
-
-    public void settings(Map<String, Object> settings) {
-        this.settings = settings;
-    }
-
-    public AkkaActor setNeedsTrigger(boolean needsTrigger) {
-        this.needsTrigger = needsTrigger;
-        return this;
-    }
-
-    public AkkaActor configuration(Map<String, Object> configuration) {
-        this.configuration = configuration;
-        return this;
     }
 }

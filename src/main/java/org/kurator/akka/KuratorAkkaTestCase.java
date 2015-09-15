@@ -27,5 +27,7 @@ public abstract class KuratorAkkaTestCase extends TestCase {
     
         stderrBuffer = new ByteArrayOutputStream();
         stderrStream = new PrintStream(stderrBuffer);
+        
+        Contract.enforceContract(true);
     }
 }
