@@ -149,12 +149,19 @@ public class WorkflowRunner {
     
     protected void loadWorkflowFromSpringContext(GenericApplicationContext context) throws Exception {
 
-        context.refresh();
-
+        try {
+            context.refresh();
+        } catch (Exception e) {
+//            String message = e.getMessage().replace("; ", ": " + EOL);
+            throw new KuratorException(e.getMessage());
+        }        
+        
         // get the workflow configuration bean
         String workflowNames[] = context.getBeanNamesForType(Class.forName("org.kurator.akka.WorkflowConfig"));
-        if (workflowNames.length != 1) {
-            throw new Exception("Workflow definition must contain at exactly one instance of WorkflowConfig.");
+        if (workflowNames.length == 0) {
+            throw new KuratorException("Workflow definition does not include a Workflow configuration object.");
+        } else  if (workflowNames.length > 1) {
+            throw new KuratorException("Workflow definition contains multiple Workflow configuration objects.");
         }
         
         name = workflowNames[0];

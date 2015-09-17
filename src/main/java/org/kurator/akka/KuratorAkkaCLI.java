@@ -94,16 +94,25 @@ public class KuratorAkkaCLI {
         
         if (yamlFilePath != null) {
             
-            WorkflowRunner runner = new YamlFileWorkflowRunner(yamlFilePath);
-            
-            runner.apply(settings)
-                   .outputStream(outStream)
-                   .errorStream(errStream);
+            WorkflowRunner runner;
             
             try {
-                runner.run();
+                runner = new YamlFileWorkflowRunner(yamlFilePath);                
             } catch(KuratorException ke) {
-                System.out.println(ke.getMessage());
+                errStream.println("Error loading workflow definition from " + yamlFilePath);
+                errStream.println(ke.getMessage());
+                return -1;
+            }
+            
+            try {
+                runner.apply(settings)
+                       .outputStream(outStream)
+                       .errorStream(errStream);
+                
+                runner.run();
+
+            } catch(KuratorException ke) {
+                errStream.println(ke.getMessage());
                 return -1;
             }
         }

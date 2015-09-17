@@ -1,5 +1,7 @@
 package org.kurator.akka;
 
+import org.kurator.util.FileIO;
+
 public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
 
     private static String EXPECTED_HELP_OUTPUT =
@@ -56,27 +58,24 @@ public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
 
     public void testKuratorAkka_FileOption_MissingFile_Classpath() throws Exception {
         String[] args = {"-f", "classpath:/org/kurator/akka/samples/no_such_file.yaml"};
-        Exception exception = null;
-        try {
-            KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
-        } catch (Exception e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-        assertTrue(exception.getMessage().contains(
-                "class path resource [org/kurator/akka/samples/no_such_file.yaml] cannot be opened because it does not exist"));
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        assertEquals("", stdoutBuffer.toString());
+        assertEquals(
+                "Error loading workflow definition from classpath:/org/kurator/akka/samples/no_such_file.yaml"                  + EOL +
+                "class path resource [org/kurator/akka/samples/no_such_file.yaml]"                                              + EOL +
+                "class path resource [org/kurator/akka/samples/no_such_file.yaml] cannot be opened because it does not exist"   + EOL, 
+                stderrBuffer.toString());
     }
 
     public void testKuratorAkka_FileOption_MissingFile_FileSystem() throws Exception {
         String[] args = {"-f", "file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml"};
-        Exception exception = null;
-        try {
-            KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
-        } catch (Exception e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-//        assertTrue(exception.getMessage().contains("(The system cannot find the file specified"));
+        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        assertEquals("", stdoutBuffer.toString());
+        assertEquals(
+                "Error loading workflow definition from file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml" + EOL +
+                "URL [file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml]"                                  + EOL +
+                "src/main/resources/org/kurator/akka/samples/no_such_file.yaml (No such file or directory)"                 + EOL, 
+                stderrBuffer.toString());
     }
 
     
