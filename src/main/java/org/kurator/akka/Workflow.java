@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.ExceptionMessage;
@@ -28,9 +27,10 @@ import akka.actor.UntypedActor;
 
 public class Workflow extends UntypedActor {
 
-    ActorSystem actorSystem;
-    Set<ActorRef> actors = new HashSet<ActorRef>();
-    ActorRef inputActor;
+    private final ActorSystem actorSystem;
+    private final Set<ActorRef> actors = new HashSet<ActorRef>();
+    private final String name;
+    private ActorRef inputActor;
 
     @SuppressWarnings("unused")
     private final InputStream inStream;
@@ -41,8 +41,9 @@ public class Workflow extends UntypedActor {
     
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
-    public Workflow(ActorSystem actorSystem, InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
+    public Workflow(ActorSystem actorSystem, String name, InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
         this.actorSystem = actorSystem;
+        this.name = name;
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -94,8 +95,9 @@ public class Workflow extends UntypedActor {
         }
 
         ControlMessage result = (failures.size() == 0) ? 
-                new Success() : new Failure("Error initializing workflow", failures);
-       getSender().tell(result, getSelf());
+                new Success() : new Failure("Error initializing workflow '" + name + "'" , failures);
+
+        getSender().tell(result, getSelf());
     }
 
     @Override

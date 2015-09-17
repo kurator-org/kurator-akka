@@ -18,6 +18,7 @@ import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Start;
+import org.kurator.exceptions.KuratorException;
 import org.springframework.context.support.GenericApplicationContext;
 
 import com.typesafe.config.Config;
@@ -46,6 +47,7 @@ public class WorkflowRunner {
     private PrintStream errStream = System.err;
     private Exception lastException = null;
     private int actorIndex = 0;
+    private String name = "Workflow";
     
     static {
         String localPythonPackages = System.getenv("KURATOR_LOCAL_PACKAGES");
@@ -91,16 +93,24 @@ public class WorkflowRunner {
     }
     
     private ActorConfig addActorConfig(ActorConfig actorConfig) {
-        String actorName = actorConfig.actorName;
+        String actorName = actorConfig.getName();
         if (actorName == null) {
-            actorName = actorConfig.actorClass().getName().toString() + "_" + actorIndex;
-            actorConfig.actorName = actorName;
+            actorName = actorConfig.actorClass().getName().toString() + "_" + ++actorIndex;
+            actorConfig.name(actorName);
         }
         actorConfigForActorName.put(actorName, actorConfig);
-        actorIndex++;
         return actorConfig;
     }
 
+    public WorkflowRunner name(String name) {
+        this.name = name;
+        return this;
+    }
+    
+    public String name() {
+        return this.name;
+    }
+    
     public WorkflowRunner inputStream(InputStream inStream) {
         this.inStream = inStream;
         return this;
@@ -146,7 +156,10 @@ public class WorkflowRunner {
         if (workflowNames.length != 1) {
             throw new Exception("Workflow definition must contain at exactly one instance of WorkflowConfig.");
         }
-        workflowConfig = (WorkflowConfig) context.getBean(workflowNames[0]);
+        
+        name = workflowNames[0];
+        
+        workflowConfig = (WorkflowConfig) context.getBean(name);
         
         inputActorConfig = workflowConfig.getInputActor(); 
 
@@ -230,7 +243,8 @@ public class WorkflowRunner {
                             WorkflowProducer.class, 
                             system, 
                             actors, 
-                            inputActor, 
+                            name,
+                            inputActor,
                             inStream,
                             outStream,
                             errStream,
@@ -271,7 +285,7 @@ public class WorkflowRunner {
         future.ready(Constants.TIMEOUT_DURATION, null);
         ControlMessage result = (ControlMessage)future.value().get().get();
         if (result instanceof Failure) {
-            throw new Exception(result.toString());
+            throw new KuratorException(result.toString());
         }
         return this;
     }

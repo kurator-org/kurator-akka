@@ -14,7 +14,6 @@ public class ActorConfig implements BeanNameAware {
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     protected Map<String,Object> config = new HashMap<String,Object>();
-    String actorName = null;
 
     public ActorConfig() {
     }
@@ -26,16 +25,16 @@ public class ActorConfig implements BeanNameAware {
 
     @Override
     public void setBeanName(String name) {
-        actorName = name;
+        this.name(name);
     }
 
     public ActorConfig name(String name) {
-        actorName = name;
+        config.put("name", name);
         return this;
     }
     
     public String getName() {
-        return actorName;
+        return (String) config.get("name");
     }
     
   

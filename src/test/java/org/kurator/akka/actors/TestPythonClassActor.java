@@ -284,7 +284,8 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"   +  EOL +
+                "Error initializing workflow 'Workflow'"        + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'"        + EOL +
                 "Error instantiating class 'my_actor': name 'my_actor' is not defined", 
                 caught.getMessage());
     }
@@ -305,7 +306,8 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"  +  EOL +
+                "Error initializing workflow 'Workflow'"                            + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'"     + EOL +
                 "Error importing class 'my_module.my_submodule.my_actor': No module named my_module",
                 caught.getMessage());
     }
@@ -332,8 +334,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"                       +  EOL +
-                "Error binding to onInit method 'custom_on_init': " +
+                "Error initializing workflow 'Workflow'"                        + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'" + EOL +
+                "Error binding to onInit method 'custom_on_init': "             +
                 "AttributeError(\"'actor' object has no attribute 'custom_on_init'\",)", 
                 caught.getMessage());
     }
@@ -358,9 +361,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"               +  EOL +
-                "Error binding to onStart method 'send': "  +
-                "'my_actor' object has no attribute 'send'", 
+                "Error initializing workflow 'Workflow'"                                            + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'"                     + EOL +
+                "Error binding to onStart method 'send': 'my_actor' object has no attribute 'send'", 
                 caught.getMessage());   
     }
     
@@ -384,9 +387,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"               +  EOL +
-                "Error binding to onData method 'echo': "   +
-                "'my_actor' object has no attribute 'echo'", 
+                "Error initializing workflow 'Workflow'"                        + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'" + EOL +
+                "Error binding to onData method 'echo': 'my_actor' object has no attribute 'echo'", 
                 caught.getMessage());
     }
     
@@ -411,9 +414,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"                       +  EOL +
-                "Error binding to onEnd method 'custom_on_end': "   +
-                "'actor' object has no attribute 'custom_on_end'", 
+                "Error initializing workflow 'Workflow'" + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'" + EOL +
+                "Error binding to onEnd method 'custom_on_end': 'actor' object has no attribute 'custom_on_end'", 
                 caught.getMessage());
     }
 
@@ -436,9 +439,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"               +  EOL +
-                "Error binding to default onData method: "  + 
-                "'on_data' is not a method on actor", 
+                "Error initializing workflow 'Workflow'"                        + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'" + EOL +
+                "Error binding to default onData method: 'on_data' is not a method on actor", 
                 caught.getMessage());
     }
     
@@ -462,7 +465,8 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"   +  EOL +
+                "Error initializing workflow 'Workflow'" + EOL +
+                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'" + EOL +
                 "Error binding to onData method: 'echo' is not a method on my_actor", 
                 caught.getMessage());
     }

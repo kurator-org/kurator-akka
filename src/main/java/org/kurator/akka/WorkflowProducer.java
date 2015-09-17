@@ -13,6 +13,7 @@ public class WorkflowProducer implements IndirectActorProducer {
 
     private ActorSystem system;
     private Set<ActorRef> actors;
+    private String name;
     private ActorRef inputActor;
     private InputStream inStream;
     private PrintStream outStream;
@@ -24,10 +25,11 @@ public class WorkflowProducer implements IndirectActorProducer {
         this.actors = actors;
     }
 
-    public WorkflowProducer(ActorSystem system, Set<ActorRef> actors, ActorRef inputActor,
+    public WorkflowProducer(ActorSystem system, Set<ActorRef> actors, String name, ActorRef inputActor,
             InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
        this(system, actors);
        this.inputActor = inputActor;
+       this.name = name;
        this.inStream = inStream;
        this.outStream = outStream;
        this.errStream = errStream;
@@ -41,7 +43,7 @@ public class WorkflowProducer implements IndirectActorProducer {
 
     @Override
     public Workflow produce() {
-        Workflow workflow = new Workflow(system, inStream, outStream, errStream, workflowRunner);        
+        Workflow workflow = new Workflow(system, name, inStream, outStream, errStream, workflowRunner);        
         workflow.setActors(actors);
         workflow.setInput(inputActor);
         return workflow;

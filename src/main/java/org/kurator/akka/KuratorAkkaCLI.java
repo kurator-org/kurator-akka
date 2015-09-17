@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.kurator.exceptions.KuratorException;
 import org.yaml.snakeyaml.Yaml;
 
 import joptsimple.OptionException;
@@ -97,8 +98,14 @@ public class KuratorAkkaCLI {
             
             runner.apply(settings)
                    .outputStream(outStream)
-                   .errorStream(errStream)
-                   .run();
+                   .errorStream(errStream);
+            
+            try {
+                runner.run();
+            } catch(KuratorException ke) {
+                System.out.println(ke.getMessage());
+                return -1;
+            }
         }
         
         return 0;

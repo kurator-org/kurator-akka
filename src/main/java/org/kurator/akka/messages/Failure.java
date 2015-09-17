@@ -37,9 +37,7 @@ public class Failure implements ControlMessage {
         }
         
         for (Failure f : failures) {
-            if (f.message != null) {
-                errorMessage.append(f.toString());
-            }
+            errorMessage.append(f.toString());
         }
         
         return errorMessage.toString();

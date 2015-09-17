@@ -58,6 +58,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
     public void testPythonActor_MissingCustomOnData() throws Exception {
         
         wr.actor(PythonActor.class)
+          .config("name", "Repeater")
           .config("onData", "echo");
                
         wr.build();
@@ -71,8 +72,9 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow"                           +  EOL +
-                "Custom onData handler 'echo' not defined for actor", 
+                "Error initializing workflow 'Workflow'" + EOL +
+                "Error intializing actor 'Repeater'" + EOL +
+                "Custom onData handler 'echo' not defined for actor 'Repeater'", 
                 caught.getMessage());
     }
 

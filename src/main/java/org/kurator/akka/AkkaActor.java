@@ -70,6 +70,7 @@ public abstract class AkkaActor extends UntypedActor {
     private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
+    protected String name;
     protected Map<String,Object> settings;
     protected Map<String, Object> configuration;
     protected ActorFSM state = ActorFSM.CONSTRUCTED;
@@ -214,6 +215,8 @@ public abstract class AkkaActor extends UntypedActor {
                 if (message instanceof Initialize) {
                 
                     Contract.requires(state, ActorFSM.CONSTRUCTED);
+                    
+                    name = (String) configuration.get("name");
 
                     // compose the list of listeners from the configured list of listener configurations
                     for (ActorConfig listenerConfig : listenerConfigs) {
@@ -224,9 +227,11 @@ public abstract class AkkaActor extends UntypedActor {
                     // invoke the Initialize event handler
                     try {
                         onInitialize();
-                    } catch(Exception e) {
-                        ControlMessage status = new Failure(e.getMessage());
-                        getSender().tell(status, getSelf());
+                    } catch(Exception initializationException) {
+                        List<Failure> failures = new LinkedList<Failure>();
+                        failures.add(new Failure("Error intializing actor '" + name + "'"));
+                        failures.add(new Failure(initializationException.getMessage()));
+                        getSender().tell(new Failure(failures), getSelf());
                         getContext().stop(getSelf());
                         return;
                     }

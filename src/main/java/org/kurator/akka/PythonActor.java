@@ -192,7 +192,8 @@ public class PythonActor extends AkkaActor {
         String customMethodName = (String)configuration.get(handlerName);
         if (customMethodName != null) {
             if (!isFunction(customMethodName)) {
-                throw new Exception("Custom " + handlerName + " handler '" + customMethodName + "' not defined for actor");
+                throw new Exception("Custom " + handlerName + " handler '" + customMethodName + 
+                                    "' not defined for actor '" + name + "'");
             }
             actualMethodName = customMethodName;
         } else if (isFunction(defaultMethodName)) {
