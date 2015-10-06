@@ -3,8 +3,10 @@ Kurator-Akka Framework
 
 The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts source code and examples for the **Kurator-Akka** scientific workflow framework.  This software toolkit is being developed as part of the [Kurator project](http://wiki.datakurator.net/web/Kurator) and is designed to make it easy to develop and run high-performance data cleaning workflows.
 
-
 **Kurator-Akka** is based on the [Akka actor toolkit and runtime](http://akka.io).  It aims to accelerate development of new data cleaning actors and to facilitate development of new workflows assembled from these actors.  **Kurator-Akka** supports actors implemented either in Java or Python, and the framework shields actor developers from the complexities of using the Akka API directly.  Workflows are specified using a YAML-based language that defines how data flows between the actors at run time.
+
+The TDWG 2015 presentation [Data cleaning with the Kurator toolkit: Bridging the gap between conventional scripting and 
+high-performance workflow automation](http://www.slideshare.net/TimothyMcPhillips/data-cleaning-with-the-kurator-toolkit-bridging-the-gap-between-conventional-scripting-and-highperformance-workflow-automation) provides an overview of the Kurator project and tools described in this README.
 
 Example actor and workflow
 --------------------------
