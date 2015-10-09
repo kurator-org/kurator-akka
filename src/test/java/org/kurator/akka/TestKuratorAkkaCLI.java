@@ -184,6 +184,7 @@ public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
         assertEquals("", stderrBuffer.toString());
     }
     
+    @SuppressWarnings("deprecation")
     public void testKuratorAkkaCLI_YamlInputStream() throws Exception {
         String yaml = 
                 "imports:"                                      + EOL +
