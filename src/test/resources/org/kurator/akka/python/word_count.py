@@ -25,6 +25,20 @@ def split_text(text, max_chunks=1):
 
     yield text[chunk_start:text_size]
 
+def split_text_exact_chunks(text, chunk_count=1):
+    chunk_index = 1
+    for text_chunk in split_text(text, chunk_count):
+        yield chunk_index, chunk_count, text_chunk
+        chunk_index += 1
+    while chunk_index <= chunk_count:
+        yield chunk_index, chunk_count, ''
+        chunk_index += 1
+
+def split_text_with_counts(text, chunk_count=1):
+    chunk_index = 1
+    for text_chunk in split_text(text, chunk_count):
+        yield chunk_index, chunk_count, text_chunk
+        chunk_index += 1
 
 def count_words(text):
 
@@ -65,8 +79,8 @@ def merge_counts(counts):
 if __name__ == '__main__':
     text = "= _#Every _ good_ boy _ _ _ _ does _,@@# fine.."
     for max_chunks in range (1, 20):
-        chunks = list(split_text(text, max_chunks))
-        print max_chunks, chunks, len(chunks)
+        chunks = list(split_text_exact_chunks(text, max_chunks))
+        print chunks
 
     text = "= _#Every, every _ good, good, good, boy _ _ _ _ does _,@@# fine.."
     counts =  count_words(text)
