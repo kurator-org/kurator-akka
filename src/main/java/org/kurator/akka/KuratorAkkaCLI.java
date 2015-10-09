@@ -4,6 +4,7 @@ package org.kurator.akka;
 import static java.util.Arrays.asList;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,10 @@ public class KuratorAkkaCLI {
     }
 
     public static int runWorkflowForArgs(String[] args, PrintStream outStream, PrintStream errStream) throws Exception {
+        return runWorkflowForArgs(args, null, outStream, errStream);
+    }
+
+    public static int runWorkflowForArgs(String[] args, InputStream yamlStream, PrintStream outStream, PrintStream errStream) throws Exception {
 
         enableLog4J();
         
@@ -50,24 +55,10 @@ public class KuratorAkkaCLI {
             errStream.println(exception.getMessage());
             return -1;
         }
-            
-        if (args.length == 0) {
-            errStream.println("Error: No workflow definition file was provided");
-            errStream.println();
-            parser.printHelpOn(errStream);
-            return -1;
-        }
-        
-//        InputStream yamlInputStream = null;
-        String yamlFilePath = null;
-        Map<String,Object> settings = null;
-        
-        OptionSet options = null;
-        
+
+        OptionSet options = null;        
         try {
-
             options = parser.parse(args);
-
         } catch (OptionException exception) {
             errStream.println("Error parsing command-line options:");
             errStream.println(exception.getMessage());
@@ -75,51 +66,62 @@ public class KuratorAkkaCLI {
             parser.printHelpOn(errStream);
             return -1;
         }
-        
-        
+                
         if (options.has("h")) {
             errStream.println();
             parser.printHelpOn(errStream);
             return 0;            
         }
         
-        yamlFilePath = extractYamlFilePathFromOptions(options);
-            
-        settings = parseParameterSettingsFromOptions(options);
+        WorkflowRunner runner = null;
+        String yamlFilePath = extractYamlFilePathFromOptions(options);
         
-//        if (yamlFilePath == null) {
-//            yamlInputStream = System.in;
-//        }
-        
-        
-        if (yamlFilePath != null) {
-            
-            WorkflowRunner runner;
+        if (yamlStream != null) {
             
             try {
-                runner = new YamlFileWorkflowRunner(yamlFilePath);                
+                runner = new YamlStreamWorkflowRunner(yamlStream);
             } catch(KuratorException ke) {
-                errStream.println("Error loading workflow definition from " + yamlFilePath);
+                errStream.println("Error loading workflow definition from input stream");
                 errStream.println(ke.getMessage());
                 return -1;
             }
-            
-            try {
-                runner.apply(settings)
-                       .outputStream(outStream)
-                       .errorStream(errStream);
-                
-                runner.run();
 
+        } else if (yamlFilePath != null){
+        
+            try {
+                runner = new YamlFileWorkflowRunner(yamlFilePath);
             } catch(KuratorException ke) {
+                errStream.println("Error loading workflow definition from file " + yamlFilePath);
                 errStream.println(ke.getMessage());
                 return -1;
             }
+
+        } else {
+
+            errStream.println("Error: No workflow definition was provided.");
+            errStream.println();
+            parser.printHelpOn(errStream);
+            return -1;
+        }
+
+        Map<String,Object> settings = parseParameterSettingsFromOptions(options);
+        try {
+            runner.apply(settings)
+                  .outputStream(outStream)
+                  .errorStream(errStream)
+                  .run();
+
+        } catch(KuratorException ke) {
+            errStream.println(ke.getMessage());
+            return -1;
         }
         
         return 0;
     }
 
+    
+    
+    
     private static String extractYamlFilePathFromOptions(OptionSet options) {
         
         String yamlFilePath = null;

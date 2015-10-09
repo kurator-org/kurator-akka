@@ -1,6 +1,6 @@
 package org.kurator.akka;
 
-import org.kurator.util.FileIO;
+import java.io.StringBufferInputStream;
 
 public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
 
@@ -22,7 +22,7 @@ public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
         KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stdoutBuffer.toString());
         assertEquals(
-            "Error: No workflow definition file was provided"   + EOL +
+            "Error: No workflow definition was provided."   + EOL +
             EXPECTED_HELP_OUTPUT,
             stderrBuffer.toString());
     }
@@ -61,7 +61,7 @@ public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
         KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stdoutBuffer.toString());
         assertEquals(
-                "Error loading workflow definition from classpath:/org/kurator/akka/samples/no_such_file.yaml"                  + EOL +
+                "Error loading workflow definition from file classpath:/org/kurator/akka/samples/no_such_file.yaml"             + EOL +
                 "class path resource [org/kurator/akka/samples/no_such_file.yaml]"                                              + EOL +
                 "class path resource [org/kurator/akka/samples/no_such_file.yaml] cannot be opened because it does not exist"   + EOL, 
                 stderrBuffer.toString());
@@ -72,9 +72,9 @@ public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
         KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stdoutBuffer.toString());
         assertEquals(
-                "Error loading workflow definition from file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml" + EOL +
-                "URL [file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml]"                                  + EOL +
-                "src/main/resources/org/kurator/akka/samples/no_such_file.yaml (No such file or directory)"                 + EOL, 
+                "Error loading workflow definition from file file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml" + EOL +
+                "URL [file:src/main/resources/org/kurator/akka/samples/no_such_file.yaml]"                                       + EOL +
+                "src/main/resources/org/kurator/akka/samples/no_such_file.yaml (No such file or directory)"                      + EOL, 
                 stderrBuffer.toString());
     }
 
@@ -182,6 +182,59 @@ public class TestKuratorAkkaCLI extends KuratorAkkaTestCase {
             "5",
             stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
+    }
+    
+    public void testKuratorAkkaCLI_YamlInputStream() throws Exception {
+        String yaml = 
+                "imports:"                                      + EOL +
+                "  - classpath:/org/kurator/akka/types.yaml"    + EOL +
+                ""                                              + EOL +
+                "components:"                                   + EOL +
+                ""                                              + EOL +
+                "  - id: SendIntegers"                          + EOL +
+                "    type: PythonActor"                         + EOL +
+                "    properties:"                               + EOL +
+                "      code: |"                                 + EOL +
+                "        def on_start():"                       + EOL +
+                "          yield 1"                             + EOL +
+                "          yield 7"                             + EOL +
+                "          yield -31"                           + EOL +
+                ""                                              + EOL +
+                "  - id: MultiplyByThree"                       + EOL +
+                "    type: PythonActor"                         + EOL +
+                "    properties:"                               + EOL +
+                "      code: |"                                 + EOL +
+                "        def on_data(n):"                       + EOL +
+                "          return 3 * n"                        + EOL +
+                "      listensTo:"                              + EOL +
+                "        - !ref SendIntegers"                   + EOL +
+                ""                                              + EOL +
+                "  - id: PrintProducts"                         + EOL +
+                "    type: PythonActor"                         + EOL +
+                "    properties:"                               + EOL +
+                "      code: |"                                 + EOL +
+                "        def on_data(n):"                       + EOL +
+                "           print n"                            + EOL +
+                "      listensTo:"                              + EOL +
+                "        - !ref MultiplyByThree"                + EOL +
+                ""                                              + EOL +
+                "  - id: MultiplyByTwoWorkflow"                 + EOL +
+                "    type: Workflow"                            + EOL +
+                "    properties:"                               + EOL +
+                "      actors:"                                 + EOL +
+                "        - !ref SendIntegers"                   + EOL +                
+                "        - !ref MultiplyByThree"                + EOL +
+                "        - !ref PrintProducts"                  + EOL +
+                "";
+
+        String[] args = {};
+        KuratorAkkaCLI.runWorkflowForArgs(args, new StringBufferInputStream(yaml), stdoutStream, stderrStream);
+        assertEquals("", stderrBuffer.toString());
+        assertEquals(
+            "3"     + EOL +
+            "21"    + EOL +
+            "-93"   + EOL,
+            stdoutBuffer.toString());
     }
 
 }
