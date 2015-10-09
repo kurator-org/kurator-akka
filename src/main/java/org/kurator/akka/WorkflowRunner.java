@@ -19,7 +19,6 @@ import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Start;
 import org.kurator.exceptions.KuratorException;
-import org.springframework.context.support.GenericApplicationContext;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -34,20 +33,19 @@ public class WorkflowRunner {
 
     public static final String EOL = System.getProperty("line.separator");
 
-    private WorkflowConfig workflowConfig;
     private final ActorSystem system;
     private ActorRef inputActor = null;
     private Map<ActorConfig,ActorRef> actorRefForActorConfig = new HashMap<ActorConfig, ActorRef>();
     private Map<String,ActorConfig> actorConfigForActorName = new HashMap<String, ActorConfig>();
     private ActorRef workflow;
-    private ActorConfig inputActorConfig;
-    private Map<String, Object> workflowParameters;
+    protected ActorConfig inputActorConfig;
+    protected Map<String, Object> workflowParameters;
     private InputStream inStream = System.in;
     private PrintStream outStream = System.out;
     private PrintStream errStream = System.err;
     private Exception lastException = null;
     private int actorIndex = 0;
-    private String name = "Workflow";
+    protected String workflowName = "Workflow";
     
     static {
         String localPythonPackages = System.getenv("KURATOR_LOCAL_PACKAGES");
@@ -92,7 +90,7 @@ public class WorkflowRunner {
         return actor(new ActorConfig(), actorClass);
     }
     
-    private ActorConfig addActorConfig(ActorConfig actorConfig) {
+    protected ActorConfig addActorConfig(ActorConfig actorConfig) {
         String actorName = actorConfig.getName();
         if (actorName == null) {
             actorName = actorConfig.actorClass().getName().toString() + "_" + ++actorIndex;
@@ -103,12 +101,12 @@ public class WorkflowRunner {
     }
 
     public WorkflowRunner name(String name) {
-        this.name = name;
+        this.workflowName = name;
         return this;
     }
     
     public String name() {
-        return this.name;
+        return this.workflowName;
     }
     
     public WorkflowRunner inputStream(InputStream inStream) {
@@ -147,35 +145,6 @@ public class WorkflowRunner {
         return actorRefForActorConfig.get(config);
     }
     
-    protected void loadWorkflowFromSpringContext(GenericApplicationContext context) throws Exception {
-
-        try {
-            context.refresh();
-        } catch (Exception e) {
-//            String message = e.getMessage().replace("; ", ": " + EOL);
-            throw new KuratorException(e.getMessage());
-        }        
-        
-        // get the workflow configuration bean
-        String workflowNames[] = context.getBeanNamesForType(Class.forName("org.kurator.akka.WorkflowConfig"));
-        if (workflowNames.length == 0) {
-            throw new KuratorException("Workflow definition does not include a Workflow configuration object.");
-        } else  if (workflowNames.length > 1) {
-            throw new KuratorException("Workflow definition contains multiple Workflow configuration objects.");
-        }
-        
-        name = workflowNames[0];
-        
-        workflowConfig = (WorkflowConfig) context.getBean(name);
-        
-        inputActorConfig = workflowConfig.getInputActor(); 
-
-        for (ActorConfig actor : workflowConfig.getActors()) {
-            addActorConfig(actor);
-        }
-
-        workflowParameters = workflowConfig.getParameters();
-    }
     
     public WorkflowRunner apply(Map<String, Object> workflowSettings) throws Exception {
         
@@ -250,7 +219,7 @@ public class WorkflowRunner {
                             WorkflowProducer.class, 
                             system, 
                             actors, 
-                            name,
+                            workflowName,
                             inputActor,
                             inStream,
                             outStream,

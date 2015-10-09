@@ -3,18 +3,13 @@ package org.kurator.akka;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
 
-import org.restflow.yaml.spring.YamlBeanDefinitionReader;
-import org.springframework.context.support.GenericApplicationContext;
-
 @SuppressWarnings("deprecation")
-public class YamlStringWorkflowRunner extends WorkflowRunner {
+public class YamlStringWorkflowRunner extends YamlWorkflowRunner {
     
-    public YamlStringWorkflowRunner(String definitionString) throws Exception {
+    public YamlStringWorkflowRunner(String yamlString) throws Exception {
         super();
-        GenericApplicationContext context = new GenericApplicationContext();
-        YamlBeanDefinitionReader reader = new YamlBeanDefinitionReader(context);
-        InputStream stream = new StringBufferInputStream(definitionString);
-        reader.loadBeanDefinitions(stream, "-");
-        super.loadWorkflowFromSpringContext(context);
+        InputStream stream = new StringBufferInputStream(yamlString);
+        yamlBeanReader.loadBeanDefinitions(stream, "-");
+        super.loadWorkflowFromSpringContext();
     }
 }
