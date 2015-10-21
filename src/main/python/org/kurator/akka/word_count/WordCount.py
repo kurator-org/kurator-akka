@@ -16,7 +16,8 @@ class TextChunker(TextProcessor):
     """
 
     def __init__(self):
-        self.max_chunks=1 
+        self.max_chunks=1
+        self.text_index=0
 
     def split_text(self, text):
 
@@ -45,8 +46,9 @@ class TextChunker(TextProcessor):
             chunk_index += 1
 
     def split_text_with_counts(self, text):
+        self.text_index+=1
         for chunk_id, text_chunk in enumerate(self.split_text_exact_chunks(text)):
-            yield chunk_id+1, max_chunks, text_chunk
+            yield self.text_index, chunk_id+1, self.max_chunks, text_chunk
 
 class WordCounter(TextProcessor):
 

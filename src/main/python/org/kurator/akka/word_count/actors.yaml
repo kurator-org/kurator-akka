@@ -1,0 +1,23 @@
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+
+types:
+
+- id: TextChunker
+  type: PythonClassActor
+  properties:
+    pythonClass: org.kurator.akka.python.word_count.WoRMSCurator.TextChunker
+    onData: split_text_with_counts
+
+- id: WordCounter
+  type: PythonClassActor
+  properties:
+    pythonClass: org.kurator.akka.python.word_count.WoRMSCurator.WordCounter
+    onData: count_words
+
+- id: CountAccumulator
+  type: PythonClassActor
+  properties:
+    pythonClass: org.kurator.akka.python.word_count.WoRMSCurator.CountAccumulator
+    onData: accumulate_word_counts
