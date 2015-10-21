@@ -7,7 +7,7 @@ import org.kurator.akka.PythonClassActor;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-public class TestWordCountTextChunker extends KuratorAkkaTestCase {
+public class TestTextChunker extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     private ActorConfig textSource;
@@ -41,7 +41,7 @@ public class TestWordCountTextChunker extends KuratorAkkaTestCase {
     }
    
 
-    public void testWordCountTextChunker_DefaultMaxChunks() throws Exception {
+    public void testTextChunker_DefaultMaxChunks() throws Exception {
 
         wr.begin();
         wr.tellWorkflow("The quick brown fox jumps over the lazy dog.");
@@ -53,7 +53,7 @@ public class TestWordCountTextChunker extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
 
-    public void testWordCountTextChunker_TwoChunks() throws Exception {
+    public void testTextChunker_TwoChunks() throws Exception {
 
         textChunker.param("max_chunks", 2);
         
@@ -68,7 +68,7 @@ public class TestWordCountTextChunker extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
 
-    public void testWordCountTextChunker_ThreeChunks() throws Exception {
+    public void testTextChunker_ThreeChunks() throws Exception {
 
         textChunker.param("max_chunks", 3);    
         
@@ -84,7 +84,7 @@ public class TestWordCountTextChunker extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
 
-    public void testWordCountTextChunker_NineChunks() throws Exception {
+    public void testTextChunker_NineChunks() throws Exception {
 
         textChunker.param("max_chunks", 9);    
         
@@ -106,7 +106,7 @@ public class TestWordCountTextChunker extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
     
-    public void testWordCountTextChunker_TwelveChunks() throws Exception {
+    public void testTextChunker_TwelveChunks() throws Exception {
 
         textChunker.param("max_chunks", 12);    
         
@@ -131,7 +131,7 @@ public class TestWordCountTextChunker extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }    
     
-    public void testWordCountTextChunker_MultipleTexts_DefaultMaxChunks() throws Exception {
+    public void testTextChunker_MultipleTexts_DefaultMaxChunks() throws Exception {
 
         wr.begin();
         wr.tellWorkflow("The quick brown fox jumps over the lazy dog.");
@@ -147,7 +147,7 @@ public class TestWordCountTextChunker extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
     
-    public void testWordCountTextChunker_MultipleTexts_FiveChunks() throws Exception {
+    public void testTextChunker_MultipleTexts_FiveChunks() throws Exception {
 
         textChunker.param("max_chunks", 5);
         

@@ -1,3 +1,5 @@
+import collections
+
 class TextProcessor(object):
 
     def next_alpha(self, text, start):
@@ -54,7 +56,7 @@ class WordCounter(TextProcessor):
 
     def count_words(self, text):
 
-        count = {}
+        word_counts = collections.OrderedDict()
         start = 0
         text_size = len(text)
     
@@ -68,14 +70,18 @@ class WordCounter(TextProcessor):
     
             word = text[word_start:word_end].lower()
     
-            if (count.has_key(word)):
-                count[word] += 1
+            if (word_counts.has_key(word)):
+                word_counts[word] += 1
             else:
-                count[word] = 1
+                word_counts[word] = 1
     
             start = word_end
 
-        return count
+        return word_counts
+        
+        
+    def count_words_in_chunk(self, chunk_tuple):
+        return chunk_tuple[0], chunk_tuple[1], chunk_tuple[2], self.count_words(chunk_tuple[3])
 
 class CountAccumulator(TextProcessor):
 
