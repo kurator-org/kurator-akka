@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.python.core.PyBoolean;
+import org.python.core.PyDictionary;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
@@ -30,6 +31,8 @@ public class PythonActor extends AkkaActor {
     
     protected PythonInterpreter interpreter;
     protected PyObject none;
+    
+    private static Boolean jythonInitialized = false;
     
     private String commonScriptHeader =
             "_KURATOR_INPUT_=None"                          + EOL +
@@ -96,8 +99,7 @@ public class PythonActor extends AkkaActor {
     @Override
     protected void onInitialize() throws Exception {
         
-        initializeJythonInterpreter();        
-        configureJythonSysPath();
+        initializeJythonInterpreter();
         loadCommonHelperFunctions();
         loadCustomCode();
         configureCustomCode();
@@ -134,23 +136,34 @@ public class PythonActor extends AkkaActor {
 
     
     protected void initializeJythonInterpreter() {
-        
-        Properties properties = System.getProperties();
-        properties.put("python.import.site", "false");
-                
-        // create a python interpreter
-        PySystemState.initialize(properties, null, new String[] {""});
-        interpreter = new PythonInterpreter();
-        
-        // set output streams of interpreter to that set for this actor
-        interpreter.setOut(super.outStream);
-        interpreter.setErr(super.errStream);
-        
-        interpreter.exec("import sys"); 
+
+        synchronized(jythonInitialized) {
+
+            Properties properties = System.getProperties();
+            properties.put("python.import.site", "false");
+    
+            // create a python interpreter
+            if (jythonInitialized == false) {
+                PySystemState.initialize(properties, null, new String[] {""});
+            }
+    
+            interpreter = new PythonInterpreter();
+            interpreter.setOut(super.outStream);
+            interpreter.setErr(super.errStream);
+            
+            interpreter.exec("import sys"); 
+            
+            // configure Jython sys.path variable.
+            if (jythonInitialized == false) {
+                configureJythonSysPath();
+                jythonInitialized = true;
+            }
+        }
         
         // cache a python None object
         none = interpreter.eval("None");
     }
+    
     
     protected void configureJythonSysPath() {
         
@@ -161,18 +174,19 @@ public class PythonActor extends AkkaActor {
             prependSysPath(kuratorLocalPythonLib);
         }
 
-        // add to python sys.path jython libraries distributed via kurator-jython Git repo
-        prependSysPath("kurator-jython");
-        prependSysPath("../kurator-jython");
-        
-        // add to python sys.path library directory of packages bundled within Kurator jar
-        prependSysPath("src/main/python");
         
         // add to python sys.path optional local packages directory
         String kuratorLocalPackages = System.getenv("KURATOR_LOCAL_PACKAGES");
         if (kuratorLocalPackages != null) {
             prependSysPath(kuratorLocalPackages); 
         }
+
+        // add to python sys.path jython libraries distributed via kurator-jython Git repo
+        prependSysPath("kurator-jython");
+        prependSysPath("../kurator-jython");
+        
+        // add to python sys.path library directory of packages bundled within Kurator jar
+        prependSysPath("src/main/python");
     }
     
     private Boolean isFunction(String f) {
