@@ -83,15 +83,15 @@ class WordCounter(TextProcessor):
     def count_words_in_chunk(self, chunk_tuple):
         return chunk_tuple[0], chunk_tuple[1], chunk_tuple[2], self.count_words(chunk_tuple[3])
 
-class CountAccumulator(TextProcessor):
+class WordCountReducer(TextProcessor):
 
     def __init__(self):
-        self.merged_counts={} 
+        self.merged_counts=collections.OrderedDict()
         self.packet_count = 0
         
-    def accumulate_word_counts(self, word_count_tuple):
+    def reduce_word_counts(self, word_count_tuple):
 
-        chunk_id, chunk_count, word_counts = word_count_tuple
+        text_id, chunk_id, chunk_count, word_counts = word_count_tuple
 
         for word, count in word_counts.iteritems():
             if (self.merged_counts.has_key(word)):
@@ -102,7 +102,18 @@ class CountAccumulator(TextProcessor):
         self.packet_count += 1
 
         if self.packet_count == chunk_count:
-            return self.merged_counts
+            return text_id, self.merged_counts
+
+    def reduce_word_counts_sorted(self, word_count_tuple):
+    
+         unsorted_word_count_tuple = self.reduce_word_counts(word_count_tuple)
+         
+         if unsorted_word_count_tuple != None:
+            text_id, unsorted_counts = unsorted_word_count_tuple
+            sorted_counts = collections.OrderedDict()
+            for word in sorted(unsorted_counts):
+                sorted_counts[word] = unsorted_counts[word]
+            return text_id, sorted_counts    
 
 if __name__ == '__main__':
 

@@ -84,7 +84,6 @@ public class TestWordCounter extends KuratorAkkaTestCase {
 
     public void testWordCounter_LargeChunk() throws Exception {
         
-        
         String warAndPeaceExcerpt = 
                 "Each visitor performed the ceremony of greeting this old aunt whom"        + EOL +
                 "not one of them knew, not one of them wanted to know, and not one of"      + EOL +
