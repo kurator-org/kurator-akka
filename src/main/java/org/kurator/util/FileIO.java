@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 
 public class FileIO {
 
@@ -15,7 +16,7 @@ public class FileIO {
         return readTextFromReader(r);
     }
 
-    public static String readTextFromReader(InputStreamReader fileReader) throws IOException {
+    public static String readTextFromReader(Reader fileReader) throws IOException {
         BufferedReader br = new BufferedReader(fileReader);
         String line = null;
         StringBuilder stringBuilder = new StringBuilder();

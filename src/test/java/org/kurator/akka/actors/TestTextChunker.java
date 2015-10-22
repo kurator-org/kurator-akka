@@ -86,7 +86,7 @@ public class TestTextChunker extends KuratorAkkaTestCase {
 
     public void testTextChunker_NineChunks() throws Exception {
 
-        textChunker.param("max_chunks", 9);    
+        textChunker.param("max_chunks", 9);
         
         wr.begin();
         wr.tellWorkflow("The quick brown fox jumps over the lazy dog.");
