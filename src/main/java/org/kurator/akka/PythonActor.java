@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.python.core.PyBoolean;
-import org.python.core.PyDictionary;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
@@ -290,14 +289,14 @@ public class PythonActor extends AkkaActor {
             if (output != null) broadcastOutput(output);
         } while (interpreter.get("_KURATOR_MORE_DATA_", Boolean.class));
     }
-    
-    
+
+
     protected void broadcastOutput(Object output) {
         if (output != null || broadcastNulls) {
             broadcast(output);
         }
     }
-         
+
     private void prependSysPath(String path) {
         interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
     }

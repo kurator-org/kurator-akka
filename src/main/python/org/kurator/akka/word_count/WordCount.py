@@ -59,15 +59,13 @@ class WordCounter(TextProcessor):
         word_counts = collections.OrderedDict()
         start = 0
         text_size = len(text)
-    
-        while (start < text_size):
+
+        while (start < text_size - 1):
     
             word_start = self.next_alpha(text, start)
             if (word_start >= text_size): break
     
-            word_end = self.next_non_alpha(text, word_start)
-            if (word_end == text_size): word_end = text_size - 1
-    
+            word_end = self.next_non_alpha(text, word_start)    
             word = text[word_start:word_end].lower()
     
             if (word_counts.has_key(word)):
@@ -77,8 +75,7 @@ class WordCounter(TextProcessor):
     
             start = word_end
 
-        return word_counts
-        
+        return word_counts        
         
     def count_words_in_chunk(self, chunk_tuple):
         return chunk_tuple[0], chunk_tuple[1], chunk_tuple[2], self.count_words(chunk_tuple[3])
@@ -102,7 +99,10 @@ class WordCountReducer(TextProcessor):
         self.packet_count += 1
 
         if self.packet_count == chunk_count:
-            return text_id, self.merged_counts
+            word_counts = self.merged_counts
+            self.packet_count = 0
+            self.merged_counts=collections.OrderedDict()
+            return text_id, word_counts
 
     def reduce_word_counts_sorted(self, word_count_tuple):
     
