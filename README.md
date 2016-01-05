@@ -189,17 +189,32 @@ If you would like to browse and edit the sample workflows included in the **Kura
 
 To run a script residing on the filesystem, you can use the file scheme:
 
-    $ ka -f file:org/kurator/akka/samples/hello.yaml
+    $ java -jar kurator-akka.jar -f file:org/kurator/akka/samples/hello.yaml
     Hello World!
 
 The `file:` qualifier is optional, however. By default **Kurator-Akka** looks for workflows on your filesystem. So this will work, too:
 
 
-    $ ka -f org/kurator/akka/samples/hello.yaml
+    $ java -jar kurator-akka.jar -f org/kurator/akka/samples/hello.yaml
     Hello World!
 
 Note that the path to `hello.yaml` above is relative (it does not start with a `/`).
 
+Building Kurator-Akka
+------------------
+
+mvn package -DskipTests
+
+TODO: How to get a fresh checkout to build without skipping tests.
+
+TODO: Details
+
+Development for Kurator-Akka
+----------------------------
+
+TODO: Documentation of development for framework, and for included Java actors.
+
+TODO: Including Java libraries of actors
 
 Developing new Python actors
 ----------------------------
