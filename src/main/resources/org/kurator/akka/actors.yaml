@@ -65,6 +65,11 @@ types:
   properties:
     actorClass: org.kurator.akka.actors.CsvFileWriter
 
+- id: StringFileWriter
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.StringFileWriter
+    
 - id: RequiredFieldsRecordSelector
   type: Actor
   properties:

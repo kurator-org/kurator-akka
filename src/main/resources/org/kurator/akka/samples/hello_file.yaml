@@ -1,0 +1,31 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: GreetingSource
+  type: ConstantSourceActor
+  properties:
+    parameters:
+      value: Hello World!
+
+- id: FileWriter
+  type: StringFileWriter
+  properties:
+    listensTo:
+      - !ref GreetingSource
+    parameters:
+      filePath: hello_out.csv
+  
+- id: HelloWorldWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref GreetingSource
+      - !ref FileWriter
+    parameters:
+      greeting:
+        actor: !ref GreetingSource
+        parameter: value
+ 
