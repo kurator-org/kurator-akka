@@ -17,13 +17,32 @@ components:
       - !ref GreetingSource
     parameters:
       filePath: hello_out.csv
-  
+
+- id: DoneSource
+  type: ConstantSourceActor
+  properties:
+    listensTo:
+      - !ref FileWriter
+    parameters:
+      value: Done
+ 
+- id: GreetingPrinter
+  type: PrinterActor
+  properties:
+    listensTo:
+      - !ref DoneSource
+    parameters:
+      endWithSeparator: true
+ 
+
 - id: HelloWorldWorkflow
   type: Workflow
   properties:
     actors:
       - !ref GreetingSource
       - !ref FileWriter
+      - !ref DoneSource
+      - !ref GreetingPrinter
     parameters:
       greeting:
         actor: !ref GreetingSource

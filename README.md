@@ -11,7 +11,11 @@ high-performance workflow automation](http://www.slideshare.net/TimothyMcPhillip
 Example actor and workflow
 --------------------------
 
-A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow that it is configured to listen to. Actors in **Kurator-Akka** may be defined either in Java or Python. Actors in a **Kurator-Akka** workflow run concurrently (in different threads).
+A *workflow* is a collection of actors configured to carry out some set of tasks.  
+An *actor* is a software component that receives data either from outside the workflow, 
+or from other actors within the same workflow that it is configured to listen to. Actors 
+in **Kurator-Akka** may be defined either in Java or Python. Actors in a **Kurator-Akka** 
+workflow run concurrently (in different threads).
 
 ##### Java implementation of a Multiplier actor
 
@@ -26,7 +30,12 @@ The Java class below defines a simple actor type for multiplying an integer by a
         }
     }
 
-As shown above, a new Java actor type can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.AkkaActor` class.  This method will be called by the **Kurator-Akka** framework each an actor of this type receives any data.  The `broadcast()` method is used within the `onData()` method to send data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
+As shown above, a new Java actor type can be implemented by declaring a new Java class that 
+overrides the `onData()` method of the `org.kurator.akka.AkkaActor` class.  This method will 
+be called by the **Kurator-Akka** framework each an actor of this type receives any data.  
+The `broadcast()` method is used within the `onData()` method to send data (usually the results of 
+performing some computation on the data received by the actor) to any other actors in the workflow 
+configured to listen to this one.
 
 ##### Python implementation of the Multiplier actor
 
@@ -36,11 +45,15 @@ An implementation of the same actor type in Python does not require a class to b
     def multiply(i):
         return factor * i
 
-The **Kurator-Akka** framework calls the `multiply()` method on each data item received by this actor.  The value returned from the function is automatically broadcast to listeners.
+The **Kurator-Akka** framework can be configured to call the `multiply()` method on each data item 
+received by this actor.  The value returned from the function is automatically broadcast to listeners.
 
 ##### YAML declaration of the Python version of the Multiplier actor
 
-In addition to the Java or Python definition of an actor, an *actor type* declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that actors of type `Multiplier`, a subtype of actor type `PythonActor`, invoke the `multiply()` function defined in the file `multiplier.py`:
+In addition to the Java or Python definition of an actor, an *actor type* declaration authored 
+in YAML is needed to make the actor available for use in workflows.  The following declares 
+that actors of type `Multiplier`, a subtype of actor type `PythonActor`, invoke the 
+`multiply()` function defined in the file `multiplier.py`:
 
     types:
 
@@ -49,6 +62,10 @@ In addition to the Java or Python definition of an actor, an *actor type* declar
       properties:
         script: multiplier.py
         onData: multiply
+        
+Compare this declaration with the Java class Multiplier class above.  The Java class extends AkkaActor and implements 
+an onData() method.  The Java class PythonActor extends AkkaActor and is configured in the declaration above to
+invoke the multiply() method in the python script multiplyer.py when PythoActor.onData() method is called.          
 
 ##### Defining a workflow that uses the Multiplier actor
 
@@ -215,6 +232,24 @@ Development for Kurator-Akka
 TODO: Documentation of development for framework, and for included Java actors.
 
 TODO: Including Java libraries of actors
+
+To make a Java class file available as a core Kurator-Akka actor that can be invoked 
+from Kurator-Akka using a yaml workflow declaration, you will need to:  
+
+(1) Create a java class (which either contains the desired functionality or wraps it), 
+which extends AkkaActor.
+
+(2) Add a type definition block to src/main/resources/org/kurator/akka/types.yaml 
+giving an ID for the actor, and the classpath for the actor.
+
+(3) Invoke the actor by ID in a workflow defined in a yaml file.
+
+The Kurator-Akka class AkkaActor is an implementation of Akkal's UntypedActor.  Sybtypes
+of AkkaActor implement specific Kurator workflow functionality throguh implementations 
+of an onData(Object value) method.  Akka triggers actions by UntypedActors through the 
+onRecieve(Object message) method, AkkaActor implements onRecieve() for its subclasses, 
+allowing the Kurator-Akka framework to implement workflows as a series of actors connected
+by inputs and outputs.
 
 Developing new Python actors
 ----------------------------
