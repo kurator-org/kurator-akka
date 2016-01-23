@@ -1,8 +1,12 @@
 package org.kurator.akka;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +85,11 @@ public class ActorProducer implements IndirectActorProducer {
                  parameterWasSet = (setParameter(name, value));
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
-            }
+            } catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
             
             if (!parameterWasSet) {
                 unappliedSettings.put(name, value);
@@ -93,19 +101,57 @@ public class ActorProducer implements IndirectActorProducer {
         return actor;
     }
     
-    
-    private boolean setParameter(String name, Object value) throws IllegalAccessException {        
+    /**
+     * Attempt to set an instance variable of actor to a provided value.
+     * 
+     * @param pameterName the name of the instance variable to set.
+     * @param value the value to set it to
+     * @return true if the value was successfully set, otherwise false.
+     * 
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     */
+    private boolean setParameter(String pameterName, Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {        
 
-        boolean parameterWasSet = false;
-        try {
-            Field field = actor.getClass().getField(name);
-            field.setAccessible(true);
-            field.set(actor, value);
-            parameterWasSet = true;
-        } catch (NoSuchFieldException e) {
-            parameterWasSet = false;
-        }
+    	boolean parameterWasSet = false;
+    	try {
+    		// First try setting the property with the Java Bean getter and setter convention.
+    		Method set = findSetFor(actor.getClass(), pameterName);
+    		set.invoke(actor, value);
+    		parameterWasSet = true;
+    	} catch (IntrospectionException e1) {
+    		// If the set method doesn't exist, try setting the property directly
+    		// in case it is simply exposed as public without encapsulation
+    		try {
+    			Field field = actor.getClass().getField(pameterName);
+    			boolean accessible = field.isAccessible();
+    			field.setAccessible(true);
+    			field.set(actor, value);
+    			field.setAccessible(accessible);
+    			parameterWasSet = true;
+    		} catch (NoSuchFieldException e) {
+    			parameterWasSet = false;
+    		}
+    	}
         
         return parameterWasSet;
     }
+    
+    /**
+     * Using reflection, return the setter method for a property of a class that follows the
+     * java bean convention for setter methods. 
+     * 
+     * @see java.beans.PropertyDescriptor.PropertyDescriptor
+     * 
+     * @param beanClass the class which to check for a setter
+     * @param propertyName the property name for which to look for a setter, expectation is that 
+     * the property name will begin with a lower case character, which will be capitalized in 
+     * the setter name, property foo is expected to have a setter setFoo().
+     * @return the set method, which can be invoked with .invoke(class, value);
+     * @throws IntrospectionException if a set method following the java convention is not met.  
+     */
+    private Method findSetFor(@SuppressWarnings("rawtypes") final Class beanClass,final String propertyName) throws IntrospectionException {
+        return new PropertyDescriptor(propertyName,beanClass).getWriteMethod();
+    }    
 }
