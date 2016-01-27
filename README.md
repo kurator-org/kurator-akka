@@ -7,12 +7,12 @@ The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts
 
 The remainder of this README provides simple examples of actors and workflows implemented using Kurator-Akka, describes how to run example workflows at the command line, and outlines the setup required to develop with or extend the **Kurator-Akka** source code.  Detailed user documentation will be provided elsewhere.
 
-The TDWG 2015 presentation [Data cleaning with the Kurator toolkit](http://www.slideshare.net/TimothyMcPhillips/data-cleaning-with-the-kurator-toolkit-bridging-the-gap-between-conventional-scripting-and-highperformance-workflow-automation) provides an overview of the Kurator project and tools described in this README.  
+The TDWG 2015 presentation [Data cleaning with the Kurator toolkit](http://www.slideshare.net/TimothyMcPhillips/data-cleaning-with-the-kurator-toolkit-bridging-the-gap-between-conventional-scripting-and-highperformance-workflow-automation) provides an overview of the Kurator project and tools described in this README.
 
 Example actor and workflow
 --------------------------
 
-A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow. Actors in **Kurator-Akka** may be implemented either in Java or in Python. Actors in a **Kurator-Akka** workflow run concurrently in different threads.  
+A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow. Actors in **Kurator-Akka** may be implemented either in Java or in Python. Actors in a **Kurator-Akka** workflow run concurrently in different threads.
 
 ##### Java implementation of a Multiplier actor
 
@@ -21,56 +21,76 @@ The Java class below defines a simple actor type for multiplying an integer by a
     import org.kurator.akka.AkkaActor;
     public class Multiplier extends AkkaActor {
         public double factor = 1;
-        
         @Override public void onData(Object i) {
         	broadcast((double)i * factor);
         }
     }
 
-As shown above, a new Java actor type can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.AkkaActor` class.  This method will be called by the **Kurator-Akka** framework each an actor of this type receives any data.  The `broadcast()` method is used within the `onData()` method to send data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
+As shown above, a new Java actor type can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.AkkaActor` base class.  This method will be called by the **Kurator-Akka** framework each an actor of this type receives any data.  The call to `broadcast()` within the `onData()` method sends data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
 
-An alternative approach to defining Java actors is to implement the actor as a Plain Old Java Object (POJO) and declare to the Kurator-Akka framework which public method is to be called for each received data object (by default the method named `onData` will be used).  This method must return the value to be broadcast to actors listing to this one.  A POJO implementation of the above Multiplier actor is as follows:
+An alternative approach to defining Java actors is to implement the actor as a Plain Old Java Object (POJO) and declare to the Kurator-Akka framework which public method is to be called for each received data object (by default the method named `onData()` will be used).  This method must return the value to be broadcast to other actors.  A POJO implementation of the above Multiplier actor is as follows:
 
     public class Multiplier {
         public double factor = 1;
-
         public void multiply(Object i) {
         	return((double)i * factor);
         }
     }
 
-No class inheritance is required when using using the POJO approach.  However, POJO actors have the limitation that only one value may be returned and communicated to other actors for each data item the actor receives.  In contrast, Java actors derived from `org.kurator.akka.AkkaActor` may call the `broadcast()` method multiple times within the `onData()` method and so produce multiple outputs per input data item received.
+No class inheritance is required when using using the POJO approach.  However, POJO actors have the limitation that only one output data item may be returned and communicated to other actors for each input data item the actor receives.  In contrast, Java actors derived from `org.kurator.akka.AkkaActor` may call the `broadcast()` method multiple times within the `onData()` method and so produce multiple outputs per input.
+
+Besides `onData()`, both approaches for Java actors support additional event handlers. These include `onInitialize()`, called before any actor produces output; `onStart()`, which allows actors to produce output data before any input data is received; and `onEnd()`, which is called after an actor handles the last data item it will receive during a workflow run.
 
 ##### Python implementations of the Multiplier actor
 
-An implementation of the same actor type in Python is analogous to the POJO approach above, but does not require a class to be defined:
+An implementation of the same actor in Python is analogous to the POJO approach above, but the input data handler does not need to be defined as method in a class. Any name may be used for the input data handing function; `on_data()` is assumed by default. 
+
+Thus, the following Python snippet can serve as a valid actor implementaion:
 
     factor = 1
     def multiply(i):
         return factor * i
 
-As for POJOs, the **Kurator-Akka** framework can be configured to call the `multiply()` method on each data item received by this actor.  The value returned from the function is automatically broadcast to listeners.  Unlike POJO actors, actors implemented as Python functions may produce a sequence of output data items for each input data item received by using the `yield` keyword instead of `return`.
+And methods defined in Python classes work as well:
 
-Python actors also may be implemented using methods in a Python class.
+    class MultiplierActor(object):
+        def __init__(self):
+            self.factor = 1
+        def multiply(i):
+            return self.factor * i
+
+
+As for POJOs, the **Kurator-Akka** framework can be configured to call the `multiply()` function on each data item received by either of the above implementations of an actor.  The value returned from the function is automatically broadcast to listeners.  Unlike POJO actors, actors implemented as Python functions may produce a sequence of output data items for each input data item received by using the `yield` keyword instead of `return`.
+
+Similar to Java actors, Python actors may provide `on_initialize()`, `on_start()`, and `on_end()` event handlers (and may name these functions arbitrarily).
 
 ##### YAML declaration of a Python implementation of the Multiplier actor
 
-In addition to the Java or Python definition of an actor, an *actor type* declaration authored in YAML is needed to make the actor available for use in workflows.  The following declares that actors of type `Multiplier`, a subtype of actor type `PythonActor`, invoke the `multiply()` function defined in the file `multiplier.py`:
+In addition to the Java or Python definition of an actor, an *actor type declaration* authored in YAML is needed to make the actor available for use in workflows.  The following declares that actors of type `Multiplier`, a subtype of `PythonActor`, invoke the `multiply()` function defined in the file `multiplier.py` to handle incoming data:
 
     types:
-
     - id: Multiplier
       type: PythonActor
       properties:
         script: multiplier.py
         onData: multiply
 
-Analogous declaration must be provided for Java actors.
+A declaration corresponding to the Python class implementation of the actor is as follows:
+
+    types:
+    - id: Multiplier
+      type: PythonClassActor
+      properties:
+        pythonClass: multiplier.py
+        onData: multiply
+
+
+Analogous declarations must be provided for Java actors as well.
 
 
 ##### Defining a workflow that uses the Multiplier actor
 
-With the above YAML saved to a file named `actors.yaml`, the Python-based`Multiplier` actor can be used in a workflow also defined in YAML. The workflow below accepts an input value from the user, multiplies it by 3, and outputs the result:
+With either of the above YAML snippets saved to a file named `actors.yaml`, the Python-based`Multiplier` actor can be used in a workflow also defined in YAML. The workflow below accepts an input value from the user, multiplies it by 3, and outputs the result:
 
     imports:
 
