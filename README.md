@@ -154,10 +154,10 @@ can be replaced with:
 The Python code defining the `multiply()` function is now defined within the same YAML file that declares the workflow as a whole. Inlined Python actors are useful for implementing simple actors needed for specific workflows.
 
 
-Setting up Kurator-Akka
------------------------
+Using Kurator-Akka
+------------------
 
-The following describes how to set up an environment for writing your own actors and workflows, and executing them using **Kurator-Akka**.
+This section describes how to set up an environment for writing your own actors and workflows, and executing them using **Kurator-Akka**. Instructions for building and extending the **Kurator-Akka** framework itself are provided following this section.
 
 #### Check installed version of Java
 Kurator-Akka requires Java version 1.7 or higher. To determine the version of java installed on your computer use the `-version` option to the `java` command. For example,
@@ -225,7 +225,7 @@ If you would like to browse and edit the sample workflows included in the **Kura
 
     jar xf kurator-akka.jar org/kurator/akka/samples
 
-To run a script residing on the filesystem, you can use the file scheme:
+To run a script residing on the filesystem, you can use the `file:` qualifier instead of `claasspath:`:
 
     $ java -jar kurator-akka.jar -f file:org/kurator/akka/samples/hello.yaml
     Hello World!
