@@ -154,8 +154,8 @@ can be replaced with:
 The Python code defining the `multiply()` function is now defined within the same YAML file that declares the workflow as a whole. Inlined Python actors are useful for implementing simple actors needed for specific workflows.
 
 
-Using Kurator-Akka
-------------------
+Preparing to run Kurator-Akka
+-----------------------------
 
 This section describes how to set up an environment for writing your own actors and workflows, and executing them using **Kurator-Akka**. Instructions for building and extending the **Kurator-Akka** framework itself are provided following this section.
 
@@ -218,8 +218,7 @@ On all platforms the `hello.yaml` demo now can be run using the short command:
     Hello World!
     $
 
-
-#### Extract the samples (optional)
+#### Extract and run sample workflows (optional)
 
 If you would like to browse and edit the sample workflows included in the **Kurator-Akka** jar, type the following (qualifying the path to `kurator-akka.jar` as necessary) to extract its contents to your filesystem:
 
@@ -237,6 +236,48 @@ The `file:` qualifier is optional, however. By default **Kurator-Akka** looks fo
     Hello World!
 
 Note that the path to `hello.yaml` above is relative (it does not start with a `/`).
+
+
+Developing new Java actors
+-------------------------------
+New Java actors can be implemented using standard Java development tools.  Simply make sure that the `kurator-akka.jar` file is on the CLASSPATH when compiling your actors, and that the compiled `.class` files are on the CLASSPATH when running **Kurator-Akka**.
+
+For example, if your new actor is defined in the file `MyActor.java`, and `kurator-akka.jar` is stored in `~/bin`, the following command will compile your actor to produce `MyActor.class`:
+
+    javac -classpath ~/bin/kurator-akka.jar MyActor.java
+
+Note that including `kurator-akka.jar` on the classpath during compilation is unnecessary if your actor is a POJO, i.e. not a subclass of `org.kurator.akka.AkkaActor`.
+
+Developing new Python actors
+--------------------------------------
+New Python actors can be used in **Kurator-Akka** workflows without any manual compilation step. Simple Python actors that do not need to import packages can be developed without any preparation other than downloading the `kurator-akka.jar`.
+
+For Python actors that do depend on packages not automatically loaded by Python, a local installation of Jython 2.7.0 is required.  Jython is a Java implementation of the Python language and runtime, and `kurator-akka.jar` includes the core of the Jython system.  Any 3rd-party Python packages required by actors need be installed locally and made available to **Kurator-Akka** via the Jython installation as follows:
+
+#### Install the Jython 2.7.0 distribution
+
+* Download the [Jython 2.7 installer jar](http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.7.0/jython-installer-2.7.0.jar) from the Jython.org [downloads page](http://www.jython.org/downloads.html). The downloaded jar file will be named `jython_installer-2.7.0.jar`.
+
+* Follow the [Jython 2.7.0 Basic Install instructions](https://wiki.python.org/jython/InstallationInstructions#id2).  The installer can be started either by double-clicking the downloaded jar file (on Windows or OS X) or executing the downloaded jar at the command prompt using the `java -jar` command:
+
+        java -jar jython_installer-2.7.0.jar
+
+* Note the location of the Jython installation directory created by the installer.
+
+#### Make the Jython package library available to Kurator
+
+Define the environment variable `JYTHON_HOME` to indicate the path to the newly installed Jython 2.7.0 distribution. **Kurator-Akka** uses this variable to locate Python packages that specific actors depend upon.
+
+In a bash shell the environment variable can be assigned with the following command if Jython was installed to the `jython2.7.0` directory within your home directory:
+
+    export JYTHON_HOME=$HOME/jython2.7.0/
+
+On Windows it is easiest to define the variable using the Advanced system settings Environment Variables dialog:
+
+    Control Panel -> System -> Advanced system settings -> Advanced -> Environment Variables
+
+**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 2.7.0 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.
+
 
 Building Kurator-Akka
 ------------------
@@ -272,35 +313,7 @@ onRecieve(Object message) method, AkkaActor implements onRecieve() for its subcl
 allowing the Kurator-Akka framework to implement workflows as a series of actors connected
 by inputs and outputs.
 
-Developing new Python actors
-----------------------------
-You can develop new Python actors and use them within **Kurator-Akka** workflows using the `kurator-akka.jar` file (see the instructions above) and a local installation of Jython 2.7.0.  Jython is a Java implementation of the Python language and runtime.  Although `kurator-akka.jar` includes the core of the Jython system, specific actors may have dependencies on additional, 3rd-party Python packages.  These packages need to be installed locally and made available **Kurator-Akka**.  A local Jython installation is a convenient place to install 3rd-party packages; a standalone installation of Jython also is useful for confirming that these packages work correctly with Jython.
 
-#### Install the Jython 2.7.0 distribution
-
-* Download the [Jython 2.7 installer jar](http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.7.0/jython-installer-2.7.0.jar) from the Jython.org [downloads page](http://www.jython.org/downloads.html). The downloaded jar file will be named `jython_installer-2.7.0.jar`.
-
-* Follow the [Jython 2.7.0 Basic Install instructions](https://wiki.python.org/jython/InstallationInstructions#id2).  The installer can be started either by double-clicking the downloaded jar file (on Windows or OS X) or executing the downloaded jar at the command prompt using the `java -jar` command:
-
-
-
-        java -jar jython_installer-2.7.0.jar
-
-* Note the location of the Jython installation directory created by the installer.
-
-#### Make the Jython package library available to Kurator
-
-Define the environment variable `KURATOR_LOCAL_PYTHON_LIB` to provide the path to the `Lib` subdirectory of the newly installed Jython 2.7.0 distribution. **Kurator-Akka** uses this directory to locate 3rd-party Python packages that specific actors depend upon.
-
-In a bash shell the environment variable can be assigned with the following command if Jython was installed to the `jython2.7.0` directory within your home directory:
-
-    export KURATOR_LOCAL_PYTHON_LIB=$HOME/jython2.7.0/Lib/
-
-On Windows it is easiest to define the variable using the Advanced system settings Environment Variables dialog:
-
-    Control Panel -> System -> Advanced system settings -> Advanced -> Environment Variables
-
-**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 2.7.0 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.
 
 
 
