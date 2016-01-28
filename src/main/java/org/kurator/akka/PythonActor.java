@@ -150,7 +150,10 @@ public class PythonActor extends AkkaActor {
             interpreter.setOut(super.outStream);
             interpreter.setErr(super.errStream);
             
+            interpreter.exec("from org import python");
             interpreter.exec("import sys"); 
+            interpreter.exec("import types"); 
+            interpreter.exec("import inspect"); 
             
             // configure Jython sys.path variable.
             if (jythonInitialized == false) {

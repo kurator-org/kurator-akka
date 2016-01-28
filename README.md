@@ -43,7 +43,7 @@ Besides `onData()`, both approaches for Java actors support additional event han
 
 ##### Python implementations of the Multiplier actor
 
-An implementation of the same actor in Python is analogous to the POJO approach above, but the input data handler does not need to be defined as method in a class. Any name may be used for the input data handing function; `on_data()` is assumed by default. 
+An implementation of the same actor in Python is analogous to the POJO approach above, but the input data handler does not need to be defined as method in a class. Any name may be used for the input data handing function; `on_data()` is assumed by default.
 
 Thus, the following Python snippet can serve as a valid actor implementaion:
 
@@ -166,7 +166,7 @@ Kurator-Akka requires Java version 1.7 or higher. To determine the version of ja
     java version "1.7.0_71"
     Java(TM) SE Runtime Environment (build 1.7.0_71-b14)
     Java HotSpot(TM) 64-Bit Server VM (build 24.71-b01, mixed mode)
-    $
+
 
 Instructions for installing Java may be found at [http://docs.oracle.com/javase/7/docs/webnotes/install/](http://docs.oracle.com/javase/7/docs/webnotes/install/).  If you plan to develop new actors in Java (not just in Python) be sure to install the JDK.  Otherwise a JRE is sufficient.
 
@@ -188,13 +188,11 @@ If the Kurator-Akka jar is stored elsewhere, qualify `kurator-akka.jar` with the
 
     $ java -jar ~/bin/kurator-akka.jar -f classpath:/org/kurator/akka/samples/hello.yaml
     Hello World!
-    $
 
 On Windows platforms the command is similar:
 
     $ java -jar %USERPROFILE%\bin\kurator-akka.jar -f classpath:/org/kurator/akka/samples/hello.yaml
     Hello World!
-    $
 
 #### Define a short command for running Kurator-Akka at the prompt
 
@@ -216,7 +214,6 @@ On all platforms the `hello.yaml` demo now can be run using the short command:
 
     $ ka -f classpath:/org/kurator/akka/samples/hello.yaml
     Hello World!
-    $
 
 #### Extract and run sample workflows (optional)
 
@@ -250,11 +247,11 @@ Note that including `kurator-akka.jar` on the classpath during compilation is un
 
 Developing new Python actors
 --------------------------------------
-New Python actors can be used in **Kurator-Akka** workflows without any manual compilation step. Simple Python actors that do not need to import packages can be developed without any preparation other than downloading the `kurator-akka.jar`.
+New Python actors can be used in **Kurator-Akka** workflows without any manual compilation step. Python actors that depend only on packages provided as part of a standard Python distribution can be developed without any preparation other than downloading the **Kurator-Akka** jar file.
 
-For Python actors that do depend on packages not automatically loaded by Python, a local installation of Jython 2.7.0 is required.  Jython is a Java implementation of the Python language and runtime, and `kurator-akka.jar` includes the core of the Jython system.  Any 3rd-party Python packages required by actors need be installed locally and made available to **Kurator-Akka** via the Jython installation as follows:
+For Python actors that do depend on 3rd-party packages not included wth Python, a local installation of Jython 2.7.0 is required.  Jython is a Java implementation of the Python language and runtime. While `kurator-akka.jar` includes within it a copy of the standard Jython distribution, any 3rd-party Python packages required by actors need to be installed locally and made available to **Kurator-Akka** as follows:
 
-#### Install the Jython 2.7.0 distribution
+#### Install the Jython 2.7.0 distribution to support 3rd party Python packages
 
 * Download the [Jython 2.7 installer jar](http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.7.0/jython-installer-2.7.0.jar) from the Jython.org [downloads page](http://www.jython.org/downloads.html). The downloaded jar file will be named `jython_installer-2.7.0.jar`.
 
@@ -266,9 +263,9 @@ For Python actors that do depend on packages not automatically loaded by Python,
 
 #### Make the Jython package library available to Kurator
 
-Define the environment variable `JYTHON_HOME` to indicate the path to the newly installed Jython 2.7.0 distribution. **Kurator-Akka** uses this variable to locate Python packages that specific actors depend upon.
+Define the environment variable `JYTHON_HOME` to indicate the path to the newly installed Jython 2.7.0 distribution. **Kurator-Akka** uses this variable to locate 3rd-party Python packages that specific actors depend upon.
 
-In a bash shell the environment variable can be assigned with the following command if Jython was installed to the `jython2.7.0` directory within your home directory:
+In a bash shell the environment variable can be assigned with the following command (assuming, for example, that Jython was installed to the `jython2.7.0` directory within your home directory):
 
     export JYTHON_HOME=$HOME/jython2.7.0/
 
@@ -276,7 +273,10 @@ On Windows it is easiest to define the variable using the Advanced system settin
 
     Control Panel -> System -> Advanced system settings -> Advanced -> Environment Variables
 
-**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 2.7.0 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.
+**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 2.7.0 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.  For example, this following command installs the `suds-jurko` package which subsequently can be imported by Python actors:
+
+    $JYTHON_HOME/bin/pip install suds-jurko
+
 
 
 Building Kurator-Akka
