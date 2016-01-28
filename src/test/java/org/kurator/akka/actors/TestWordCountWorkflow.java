@@ -31,19 +31,19 @@ public class TestWordCountWorkflow extends KuratorAkkaTestCase {
 
          textChunker = 
          wr.actor(PythonClassActor.class)
-           .config("pythonClass", "org.kurator.akka.word_count.WordCount.TextChunker")
+           .config("pythonClass", "kurator_akka.word_count.WordCount.TextChunker")
            .config("onData", "split_text_with_counts")
            .listensTo(textSource);
          
          wordCounter = 
          wr.actor(PythonClassActor.class)
-           .config("pythonClass", "org.kurator.akka.word_count.WordCount.WordCounter")
+           .config("pythonClass", "kurator_akka.word_count.WordCount.WordCounter")
            .config("onData", "count_words_in_chunk")
            .listensTo(textChunker);
 
          countReducer = 
          wr.actor(PythonClassActor.class)
-           .config("pythonClass", "org.kurator.akka.word_count.WordCount.WordCountReducer")
+           .config("pythonClass", "kurator_akka.word_count.WordCount.WordCountReducer")
            .config("onData", "reduce_word_counts_sorted")
            .listensTo(wordCounter);
          

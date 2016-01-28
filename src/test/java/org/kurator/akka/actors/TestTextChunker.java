@@ -29,7 +29,7 @@ public class TestTextChunker extends KuratorAkkaTestCase {
 
          textChunker = 
          wr.actor(PythonClassActor.class)
-           .config("pythonClass", "org.kurator.akka.word_count.WordCount.TextChunker")
+           .config("pythonClass", "kurator_akka.word_count.WordCount.TextChunker")
            .config("onData", "split_text_with_counts")
            .listensTo(textSource);
 

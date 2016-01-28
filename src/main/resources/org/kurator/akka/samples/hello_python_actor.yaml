@@ -1,0 +1,18 @@
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+
+components:
+
+- id: HelloPythonActor
+  type: Workflow
+  properties:
+    actors:
+      - !ref PrintGreeting
+      
+- id: PrintGreeting
+  type: PythonActor
+  properties:
+    code: |
+      def on_start():
+        print 'Hello Python Actor'
