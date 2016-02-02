@@ -107,7 +107,7 @@ public class CurationStep {
 	}
 
 	/**
-	 * @param actorName the actorName to set
+	 * @param validationMethodSpecification The validation method specification to set.
 	 */
 	public void setValidationMethodSpecification(String validationMethodSpecification) {
 		this.validationMethodSpecification = validationMethodSpecification;
