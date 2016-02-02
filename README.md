@@ -347,7 +347,7 @@ Last successful build | https://opensource.ncsa.illinois.edu/bamboo/browse/KURAT
 
 The link to the latest successful build is useful for obtaining the most recently built jar file without building it yourself.  Follow the link to the [last successful build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA "last successful build"), click the Artifacts tab, then download the executable jar.
 
-
+<!---
 
 Development for Kurator-Akka
 ----------------------------
@@ -367,7 +367,7 @@ giving an ID for the actor, and the classpath for the actor.
 
 (3) Invoke the actor by ID in a workflow defined in a yaml file.
 
-
+--->
 
 
 
