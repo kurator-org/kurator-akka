@@ -12,7 +12,12 @@ The TDWG 2015 presentation [Data cleaning with the Kurator toolkit](http://www.s
 Example actor and workflow
 --------------------------
 
-A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow; and either communicates the results of its computations to other actors, or saves the results outside the running workflow. Actors in **Kurator-Akka** may be implemented either in Java or in Python. Actors in a **Kurator-Akka** workflow run concurrently in different threads.
+A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow; and either communicates the results of its computations to other actors, or saves the results outside the running workflow.  Actors in a **Kurator-Akka** workflow run concurrently in different threads.
+
+**Kurator-Akka** simplifies use of the underlying Akka actor framework by providing the `AkkaActor` class as an alternative to Akka's `UntypedActor` class.  A sub-class of `UntypedActor`, `AkkaActor` makes scientific-workflow specific capabilites available to actor and workflow authors, most critically through the `onData()` event handling method.  When Akka triggers events handled by  the `UntypedActor.onRecieve()` method, the `AkkaActor` implementation of `onRecieve()` makes calls to the `onData()` methods defined by Kurator-Akka actors.  **Kurator-Akka** further provides automated means for orchestrating actors in ways compatible with computational pipelines typically used to automate scientific workflows.  For example, **Kurator-Akka** correctly times actor initialization and actor shutdown events so that workflow authors need not concern themselves with these otherwise complex--yet critical--workflow management details.
+
+Actors in **Kurator-Akka** may be implemented either in Java or in Python.
+
 
 ##### Java implementation of a Multiplier actor
 
@@ -279,14 +284,70 @@ On Windows it is easiest to define the variable using the Advanced system settin
 
 
 
-Building Kurator-Akka
-------------------
+Instructions for developers
+---------------------------
 
-mvn package -DskipTests
+#### JDK and Maven configuration
 
-TODO: How to get a fresh checkout to build without skipping tests.
+The **Kurator-Akka** framework is built using Maven 3. Before building **Kurator-Akka** confirm that the `mvn` command is in your path, that your version of Maven is at least 3.0.5, and that a JDK version 1.7 (or higher) is found by Maven:
 
-TODO: Details
+    $ mvn --version
+    Apache Maven 3.2.3 (33f8c3e1027c3ddde99d3cdebad2656a31e8fdf4; 2014-08-11T13:58:10-07:00)
+    Maven home: c:\Program Files\apache-maven-3.2.3
+    Java version: 1.7.0_67, vendor: Oracle Corporation
+    Java home: c:\Program Files\Java\jdk1.7.0_67\jre
+    Default locale: en_US, platform encoding: Cp1252
+    OS name: "windows 7", version: "6.1", arch: "amd64", family: "windows"
+    $
+
+JDK 7 and Maven 3 downloads and detailed installation instructions can be found at the following links:
+
+- [Instructions for installing and configuring JDK 1.7](http://docs.oracle.com/javase/7/docs/webnotes/install/) (Oracle Java Documentation)
+- [Instructions for installing and configuring Maven 3](http://maven.apache.org/download.cgi) (Apache Maven Project)
+
+
+#### Project directory layout
+
+**Kurator-Akka** adopts the default organization of source code, resources, and tests as defined by Maven.  See [maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html](http://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html) for more information.  The most important directories are listed below:
+
+Directory            | Description
+---------------------|-----------
+src/main/java        | Source code to be built and packaged for distribution.
+src/main/resources   | Resource files to be packaged with production code.
+src/test/java        | Source code for unit tests. Not included in packaged distributions.
+src/test/resources   | Resource files available to tests. Not included in packaged distributions.
+target               | Destination directory for packaged distributions (jar files) built by maven.
+target/classes       | Compiled java classes for source code found under src/main/java.
+target/test-classes  | Compiled java classes for test code found under src/test/java.
+target/dependency    | Automatically resolved and downloaded dependencies (jars) that will be included in the standalone distribution.
+target/apidocs/      | Local build of Javadoc documentation.
+
+
+#### Building and testing with maven
+
+**Kurator-Akka** can be built and tested from the command line using the following commands:
+
+Maven command | Description
+--------------|------------
+mvn clean     | Delete the target directory including all compiled classes.
+mvn compile   | Download required dependencies and compile source code in src/main/java.  Only those source files changes since the last compilation or clean are built.
+mvn test      | Compile the classes in src/test/java and run all tests found therein. Peforms *mvn compile* first.
+mvn package   | Package the compiled classes in target/classes and files found in src/main/resources in two jar files, **kurator-akka-0.3-SNAPSHOT.jar** and **kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar**.  The latter also contains all jar dependencies. Performs *mvn compile* and *mvn test* first, and will not perform packaging step if any tests fail. Use the `-DskipTests` option to bypass tests.
+mvn javadoc:javadoc | Build Javadoc documentation. The `mvn package` command also builds Javadoc.
+
+#### Continuous integration with Bamboo
+
+All code is built and tests run automatically on a build server at NCSA whenever changes are committed to directories used by maven.  Please confirm that the automated build and tests succeed after committing changes to code or resource files (it may take up to two minutes for a commit-triggered build to start).  Functional tests depend on the scripts in src/main/resources and are likely to fail if not updated following changes to these scripts.
+
+Site                  | Url
+----------------------| ---
+Build history         | https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA
+Last build            | https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latest
+Last successful build | https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latestSuccessful
+
+The link to the latest successful build is useful for obtaining the most recently built jar file without building it yourself.  Follow the link to the [last successful build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA "last successful build"), click the Artifacts tab, then download the executable jar.
+
+
 
 Development for Kurator-Akka
 ----------------------------
@@ -295,7 +356,7 @@ TODO: Documentation of development for framework, and for included Java actors.
 
 TODO: Including Java libraries of actors
 
-To make a Java class file available as a core Kurator-Akka actor that can be invoked 
+To make a Java class file available as a core Kurator-Akka actor that can be invoked
 from Kurator-Akka using a yaml workflow declaration, you will need to:  
 
 (1) Create a java class (which either contains the desired functionality or wraps it), 
@@ -306,12 +367,7 @@ giving an ID for the actor, and the classpath for the actor.
 
 (3) Invoke the actor by ID in a workflow defined in a yaml file.
 
-The Kurator-Akka class AkkaActor is an implementation of Akkal's UntypedActor.  Sybtypes
-of AkkaActor implement specific Kurator workflow functionality throguh implementations 
-of an onData(Object value) method.  Akka triggers actions by UntypedActors through the 
-onRecieve(Object message) method, AkkaActor implements onRecieve() for its subclasses, 
-allowing the Kurator-Akka framework to implement workflows as a series of actors connected
-by inputs and outputs.
+
 
 
 
