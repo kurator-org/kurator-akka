@@ -201,7 +201,7 @@ On Windows platforms the command is similar:
 
 #### Define a short command for running Kurator-Akka at the prompt
 
-If you are running **Kurator-Akka** on an Apple OSX or Linux system (or use Git Bash or Cygwin on Windows), you may define an *alias* to simplify running YesWorkflow at the command line. On Windows platforms you similarly may define a *doskey macro* for running **Kurator-Akka** at the prompt.
+If you are running **Kurator-Akka** on an Apple OSX or Linux system (or use Git Bash or Cygwin on Windows), you may define an *alias* to simplify running **Kurator-Akka** at the command line. On Windows platforms you similarly may define a *doskey macro* for running **Kurator-Akka** at the prompt.
 
 For example, if you have saved `kurator-akka.jar` to the bin subdirectory of your home directory, the following command will create a `bash` alias for running **Kurator-Akka** simply by typing `ka`:
 
