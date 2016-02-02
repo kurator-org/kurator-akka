@@ -12,11 +12,11 @@ The TDWG 2015 presentation [Data cleaning with the Kurator toolkit](http://www.s
 Example actor and workflow
 --------------------------
 
-A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow. Actors in **Kurator-Akka** may be implemented either in Java or in Python. Actors in a **Kurator-Akka** workflow run concurrently in different threads.
+A *workflow* is a collection of actors configured to carry out some set of tasks.  An *actor* is a software component that receives data either from outside the workflow, or from other actors within the same workflow; and either communicates the results of its computations to other actors, or saves the results outside the running workflow. Actors in **Kurator-Akka** may be implemented either in Java or in Python. Actors in a **Kurator-Akka** workflow run concurrently in different threads.
 
 ##### Java implementation of a Multiplier actor
 
-The Java class below defines a simple actor type for multiplying an integer by a configurable constant:
+The Java class below defines a simple actor for multiplying an integer by a configurable constant:
 
     import org.kurator.akka.AkkaActor;
     public class Multiplier extends AkkaActor {
@@ -26,9 +26,9 @@ The Java class below defines a simple actor type for multiplying an integer by a
         }
     }
 
-As shown above, a new Java actor type can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.AkkaActor` base class.  This method will be called by the **Kurator-Akka** framework each an actor of this type receives any data.  The call to `broadcast()` within the `onData()` method sends data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
+As shown above, a new Java actor can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.AkkaActor` base class.  This method will be called by the **Kurator-Akka** framework each time the actor receives any data.  The call to `broadcast()` within the `onData()` method sends data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
 
-An alternative approach to defining Java actors is to implement the actor as a Plain Old Java Object (POJO) and declare to the Kurator-Akka framework which public method is to be called for each received data object (by default the method named `onData()` will be used).  This method must return the value to be broadcast to other actors.  A POJO implementation of the above Multiplier actor is as follows:
+An alternative approach to defining a **Kurator-Akka** Java actor is to implement the actor as a Plain Old Java Object (POJO) and declare to the Kurator-Akka framework which public method is to be called for each received data object. By default the method named `onData()` will be used. This method must be a function that returns the value to be broadcast to other actors.  A POJO implementation of the above Multiplier actor is as follows:
 
     public class Multiplier {
         public double factor = 1;
@@ -39,11 +39,11 @@ An alternative approach to defining Java actors is to implement the actor as a P
 
 No class inheritance is required when using using the POJO approach.  However, POJO actors have the limitation that only one output data item may be returned and communicated to other actors for each input data item the actor receives.  In contrast, Java actors derived from `org.kurator.akka.AkkaActor` may call the `broadcast()` method multiple times within the `onData()` method and so produce multiple outputs per input.
 
-Besides `onData()`, both approaches for Java actors support additional event handlers. These include `onInitialize()`, called before any actor produces output; `onStart()`, which allows actors to produce output data before any input data is received; and `onEnd()`, which is called after an actor handles the last data item it will receive during a workflow run.
+Both approaches for Java actors support event handlers in addition to `onData()`. These include `onInitialize()`, called before any actor produces output; `onStart()`, which allows actors to produce output data before any input data is received; and `onEnd()`, which is called after an actor has handled the last data item it will receive during a workflow run.
 
 ##### Python implementations of the Multiplier actor
 
-An implementation of the same actor in Python is analogous to the POJO approach above, but the input data handler does not need to be defined as method in a class. Any name may be used for the input data handing function; `on_data()` is assumed by default.
+An implementation of the same actor in Python is analogous to the POJO approach above, with the differnce that the input data handler can, but does not need to be, defined as a method in a class. Any name may be used for the input data handing function; `on_data()` is assumed by default.
 
 Thus, the following Python snippet can serve as a valid actor implementaion:
 
@@ -60,7 +60,7 @@ And methods defined in Python classes work as well:
             return self.factor * i
 
 
-As for POJOs, the **Kurator-Akka** framework can be configured to call the `multiply()` function on each data item received by either of the above implementations of an actor.  The value returned from the function is automatically broadcast to listeners.  Unlike POJO actors, actors implemented as Python functions may produce a sequence of output data items for each input data item received by using the `yield` keyword instead of `return`.
+As for POJOs, the **Kurator-Akka** framework can be configured to call the `multiply()` function on each data item received by either of the above implementations of the actor.  The value returned from the function is automatically broadcast to listeners.  Unlike POJO actors, actors implemented as Python functions alternatively may produce a sequence of output data items for each input data item received by using the `yield` keyword instead of `return`.
 
 Similar to Java actors, Python actors may provide `on_initialize()`, `on_start()`, and `on_end()` event handlers (and may name these functions arbitrarily).
 
@@ -81,7 +81,7 @@ A declaration corresponding to the Python class implementation of the actor is a
     - id: Multiplier
       type: PythonClassActor
       properties:
-        pythonClass: multiplier.py
+        pythonClass: MultiplierActor
         onData: multiply
 
 
@@ -172,7 +172,7 @@ Instructions for installing Java may be found at [http://docs.oracle.com/javase/
 
 #### Download the Kurator-Akka jar
 
-Kurator-Akka is distributed as a jar (Java archive) file that can be executed using the `java -jar` command. To download the most recent build of the latest **Kurator-Akka** code, navigate to the [Latest Successful Build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latestSuccessful), click on the *Artifacts* tab, and download the *executable jar* artifact for the *kurator-akka* job.  The downloaded file will be named `kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar`.
+Kurator-Akka is distributed as an executiable jar (Java archive) file that can be invoked using the `java -jar` command. To download the most recent build of the latest **Kurator-Akka** code, navigate to the [Latest Successful Build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latestSuccessful), click on the *Artifacts* tab, and download the *executable jar* artifact for the *kurator-akka* job.  The downloaded file will be named `kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar`.
 
 Note that while released distributions of **Kurator-Akka** are available for download from the [Kurator Software Releases](https://opensource.ncsa.illinois.edu/confluence/display/KURATOR/Software+Releases) page, the remainder of this README pertains to the latest development version available in the GitHub repository.
 
@@ -249,7 +249,7 @@ Developing new Python actors
 --------------------------------------
 New Python actors can be used in **Kurator-Akka** workflows without any manual compilation step. Python actors that depend only on packages provided as part of a standard Python distribution can be developed without any preparation other than downloading the **Kurator-Akka** jar file.
 
-For Python actors that do depend on 3rd-party packages not included wth Python, a local installation of Jython 2.7.0 is required.  Jython is a Java implementation of the Python language and runtime. While `kurator-akka.jar` includes within it a copy of the standard Jython distribution, any 3rd-party Python packages required by actors need to be installed locally and made available to **Kurator-Akka** as follows:
+For Python actors that do depend on 3rd-party packages not included wth Python, a local installation of Jython 2.7.0 is required.  Jython is a Java implementation of the Python language and runtime. While `kurator-akka.jar` includes within it a copy of the standard Jython distribution, any 3rd-party Python packages required by actors need to be installed locally and made available to **Kurator-Akka** as follows.
 
 #### Install the Jython 2.7.0 distribution to support 3rd party Python packages
 
