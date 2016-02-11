@@ -253,7 +253,7 @@ public class PythonActor extends AkkaActor {
         return result.getBooleanValue();
     }
     
-    private Integer getArgCount(String f) {
+    protected Integer getArgCount(String f) {
         PyInteger result = (PyInteger)interpreter.eval("_function_arg_count(" + f + ")");
         return result.asInt();
     }
