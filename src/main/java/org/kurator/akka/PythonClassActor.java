@@ -46,7 +46,7 @@ public class PythonClassActor extends PythonActor {
      }
 
     @Override
-    protected String loadEventHandler(String handlerName, String defaultMethodName, String wrapperTemplate) throws Exception {
+    protected String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount, String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
 
         String actualMethodName = null;
         
@@ -75,7 +75,7 @@ public class PythonClassActor extends PythonActor {
         } 
         
         if (actualMethodName != null) {
-            interpreter.exec(String.format(wrapperTemplate, functionQualifier, actualMethodName));
+            interpreter.exec(String.format(statelessWrapperTemplate, functionQualifier, actualMethodName));
         }
         
         return actualMethodName;
