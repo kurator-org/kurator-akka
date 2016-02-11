@@ -498,6 +498,72 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());    
     }
     
+    public void testPythonActor_TwoActors_onStart_onData() throws Exception {
     
+        ActorConfig start_actor =  wr.actor(PythonActor.class)
+                .param("factor", 2)
+                .param("prompt", "Command")
+                .config("code", "def on_start(state):"      + EOL +
+                                "  print 'Starting'"        + EOL +
+                                "  print state"             + EOL +
+                                "  yield 1"                 + EOL +
+                                "  yield 2"                 + EOL +
+                                "  yield 3"                 + EOL);
+        
+        @SuppressWarnings("unused")
+        ActorConfig printer =  wr.actor(PythonActor.class)
+                               .listensTo(start_actor)
+                               .param("factor", 2)
+                               .param("prompt", "Command")
+                               .config("code", "def on_data(value, state):" + EOL +
+                                               "  print 'in on_data'"       + EOL +
+                                               "  print state"              + EOL +
+                                               "  print value"              + EOL);
+
+        wr.run();
+        
+        assertEquals(
+                "Starting"                                  + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "in on_data"                                + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "1"                                         + EOL +
+                "in on_data"                                + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "2"                                         + EOL +
+                "in on_data"                                + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "3"                                         + EOL,
+                stdoutBuffer.toString());    
+    }
+    
+    public void testPythonActor_UpdatingState() throws Exception {
+        
+        ActorConfig actor =  wr.actor(PythonActor.class)
+                               .param("factor", 2)
+                               .param("prompt", "Command")
+                               .config("code", "def on_data(value, state):"                 + EOL +
+                                               "  print 'in on_data'"                       + EOL +
+                                               "  print state"                              + EOL +
+                                               "  print value"                              + EOL +
+                                               "  state['factor'] = state['factor'] + 1"    + EOL);
+
+        wr.inputActor(actor)
+          .begin()
+          .tellWorkflow(1, 2, 3, new EndOfStream())
+          .end();
+        
+        assertEquals(
+                "in on_data"                            + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
+                "1"                                     + EOL +
+                "in on_data"                            + EOL +
+                "{u'factor': 3, u'prompt': u'Command'}" + EOL +
+                "2"                                     + EOL +
+                "in on_data"                            + EOL +
+                "{u'factor': 4, u'prompt': u'Command'}" + EOL +
+                "3"                                     + EOL,
+                stdoutBuffer.toString());    
+    }  
 
 }
