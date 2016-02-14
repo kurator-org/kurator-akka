@@ -4,6 +4,21 @@ imports:
 
 types:
 
+- id: RESTActor
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.RESTActor
+
+- id: GeoValidatorToDQReport
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.GeoValidatorToDQReport
+
+- id: PrintDQReport
+  type: Actor
+  properties:
+    actorClass: org.kurator.akka.actors.DQReportWriter
+
 - id: RepeaterActor
   type: Actor
   properties:
@@ -59,7 +74,7 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.CsvFileReader
-    
+
 - id: CsvFileWriter
   type: Actor
   properties:
@@ -69,7 +84,7 @@ types:
   type: Actor
   properties:
     actorClass: org.kurator.akka.actors.StringFileWriter
-    
+
 - id: RequiredFieldsRecordSelector
   type: Actor
   properties:

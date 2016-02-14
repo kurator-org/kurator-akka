@@ -77,6 +77,12 @@
 	       <version>3.1.2.RELEASE</version>
 	   </dependency>
 
+		 <dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
 	   <dependency>
 	       <groupId>org.springframework</groupId>
 	       <artifactId>spring-context</artifactId>
@@ -131,7 +137,7 @@
           <artifactId>commons-beanutils</artifactId>
           <version>1.8.3</version>
         </dependency>
-    
+
 	</dependencies>
 
 	<build>
@@ -163,7 +169,7 @@
 	           </executions>
       	 </plugin>
 
-    	   <!-- Add the manifest file to the jar and force classpath to the 
+    	   <!-- Add the manifest file to the jar and force classpath to the
                 dependency directory to automatically include the dependency jars -->
     	   <plugin>
     	       <groupId>org.apache.maven.plugins</groupId>
@@ -177,8 +183,8 @@
     	               </manifest>
     	           </archive>
                 </configuration>
-    	   </plugin>      	
-    
+    	   </plugin>
+
             <!-- Plugin for building javadocs -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -218,13 +224,13 @@
                     </execution>
                 </executions>
             </plugin>
-    
+
     	</plugins>
 
         <pluginManagement>
         	<plugins>
-            
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. 
+
+        		<!--This plugin's configuration is used to store Eclipse m2e settings only.
                     It has no influence on the Maven build itself -->
         		<plugin>
                     <groupId>org.eclipse.m2e</groupId>
@@ -261,7 +267,7 @@
 
 	       </plugins>
 	   </pluginManagement>
-       
+
 	</build>
-	  
+
 </project>

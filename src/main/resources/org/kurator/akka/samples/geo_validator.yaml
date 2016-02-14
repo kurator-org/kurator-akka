@@ -1,0 +1,46 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: ReadInput
+  type: CsvFileReader
+  properties:
+    parameters:
+      filePath: './src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv'
+
+- id: RunGeoValidation
+  type: RESTActor
+  properties:
+    parameters:
+      url: 'http://api-geospatial.vertnet-portal.appspot.com/geospatial'
+      method: 'GET'
+      paramsInputMapping: 'decimalLatitude:decimalLatitude,decimalLongitude:decimalLongitude,scientificName:scientificName,countryCode:countryCode'
+    listensTo:
+      - !ref ReadInput
+
+- id: MapToFramework
+  type: GeoValidatorToDQReport
+  properties:
+    listensTo:
+      - !ref RunGeoValidation
+
+- id: WriteDQReport
+  type: PrintDQReport
+  properties:
+    listensTo:
+      - !ref MapToFramework
+
+- id: VertNetGeoValidatorWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref ReadInput
+      - !ref RunGeoValidation
+      - !ref MapToFramework
+      - !ref WriteDQReport
+    parameters:
+      in:
+        actor: !ref ReadInput
+        parameter: filePath
