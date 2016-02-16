@@ -1,0 +1,47 @@
+# This workflow reads a CSV file and outputs to another CSV file the 
+# records that have non-empty values for one more required fields.
+#
+# Example command-line usage:
+# kurator -f record_filter.yaml -p in=specimen_records.csv -p out=filtered_records.csv -p required=[county,year]
+
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: CsvReader
+  type: CsvFileReader
+  properties:
+
+- id: RecordSelector
+  type: RequiredFieldsRecordSelector
+  properties:
+    listensTo:
+      - !ref CsvReader
+
+- id: CsvWriter
+  type: CsvFileWriter
+  properties:
+    listensTo:
+      - !ref RecordSelector
+      
+- id: CsvRecordFilter
+  type: Workflow
+  properties:
+    actors:
+      - !ref CsvReader
+      - !ref RecordSelector
+      - !ref CsvWriter
+    parameters:
+      in:
+        actor: !ref CsvReader
+        parameter: filePath
+      required:
+        actor: !ref RecordSelector
+        parameter: requiredFields
+      out:
+        actor: !ref CsvWriter
+        parameter: filePath
+
+        

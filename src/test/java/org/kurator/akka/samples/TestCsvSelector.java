@@ -50,7 +50,7 @@ public class TestCsvSelector extends KuratorAkkaTestCase {
          
          String[] args = {
                  "-f", "classpath:/org/kurator/akka/samples/csv_selector.yaml", 
-                 "-p", "in=src/test/resources/org/kurator/akka/samples/eight_specimen_records.csv",
+                 "-p", "in=src/test/resources/org/kurator/akka/samples/data/eight_specimen_records.csv",
                  "-p", "where={year: '1990'}"
          };
          
@@ -70,7 +70,7 @@ public class TestCsvSelector extends KuratorAkkaTestCase {
          
          String[] args = {
                  "-f", "classpath:/org/kurator/akka/samples/csv_selector.yaml", 
-                 "-p", "in=src/test/resources/org/kurator/akka/samples/eight_specimen_records.csv",
+                 "-p", "in=src/test/resources/org/kurator/akka/samples/data/eight_specimen_records.csv",
                  "-p", "where={year: '1990', day: '11'}"
          };
          
