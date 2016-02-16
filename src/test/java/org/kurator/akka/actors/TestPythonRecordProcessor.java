@@ -13,7 +13,7 @@ public class TestPythonRecordProcessor extends KuratorAkkaTestCase {
 
         String[] args = {
                 "-f", RESOURCE_PATH + "record_filter.yaml", 
-                "-p", "in=src/test/resources/org/kurator/akka/samples/eight_specimen_records.csv"
+                "-p", "in=src/test/resources/org/kurator/akka/samples/data/eight_specimen_records.csv"
         };
         
         KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);

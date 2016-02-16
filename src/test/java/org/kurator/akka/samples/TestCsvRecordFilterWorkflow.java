@@ -14,7 +14,7 @@ import org.kurator.akka.YamlFileWorkflowRunner;
 public class TestCsvRecordFilterWorkflow extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
-    private static final String SAMPLES_DIR = "src/main/resources/org/kurator/akka/samples/";
+    private static final String SAMPLES_DIR = "src/test/resources/org/kurator/akka/samples/";
 
     @SuppressWarnings("unused")
     private ActorConfig printerActor;
@@ -30,7 +30,7 @@ public class TestCsvRecordFilterWorkflow extends KuratorAkkaTestCase {
         writeBuffer = new ByteArrayOutputStream();
         bufferWriter = new OutputStreamWriter(writeBuffer);
        
-        wr = new YamlFileWorkflowRunner("file:" + SAMPLES_DIR + "record_filter.yaml");
+        wr = new YamlFileWorkflowRunner("file:" + SAMPLES_DIR + "/record_filter.yaml");        
         wr.apply("CsvWriter.outputWriter", bufferWriter);
         wr.apply("required", Arrays.asList(new String[] {"county"}));
     }
