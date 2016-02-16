@@ -61,7 +61,7 @@
 
 	   <dependency>
 	       <groupId>org.python</groupId>
-	       <artifactId>jython</artifactId>
+	       <artifactId>jython-standalone</artifactId>
 	       <version>2.7.0</version>
 	   </dependency>
 
@@ -76,6 +76,12 @@
 	       <artifactId>spring-beans</artifactId>
 	       <version>3.1.2.RELEASE</version>
 	   </dependency>
+
+		 <dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 
 	   <dependency>
 	       <groupId>org.springframework</groupId>
@@ -131,7 +137,7 @@
           <artifactId>commons-beanutils</artifactId>
           <version>1.8.3</version>
         </dependency>
-    
+
 	</dependencies>
 
 	<build>
@@ -163,7 +169,7 @@
 	           </executions>
       	 </plugin>
 
-    	   <!-- Add the manifest file to the jar and force classpath to the 
+    	   <!-- Add the manifest file to the jar and force classpath to the
                 dependency directory to automatically include the dependency jars -->
     	   <plugin>
     	       <groupId>org.apache.maven.plugins</groupId>
@@ -177,17 +183,25 @@
     	               </manifest>
     	           </archive>
                 </configuration>
-    	   </plugin>      	
-    
-        	<!-- Build javadocs -->      	
-        	<plugin>
+    	   </plugin>
+
+            <!-- Plugin for building javadocs -->
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                </configuration>            
-        	</plugin>
-    
+                </configuration>
+            </plugin>
+
             <!-- Make a standalone jar file -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -210,13 +224,13 @@
                     </execution>
                 </executions>
             </plugin>
-    
+
     	</plugins>
 
         <pluginManagement>
         	<plugins>
-            
-        		<!--This plugin's configuration is used to store Eclipse m2e settings only. 
+
+        		<!--This plugin's configuration is used to store Eclipse m2e settings only.
                     It has no influence on the Maven build itself -->
         		<plugin>
                     <groupId>org.eclipse.m2e</groupId>
@@ -253,7 +267,7 @@
 
 	       </plugins>
 	   </pluginManagement>
-       
+
 	</build>
-	  
+
 </project>

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.python.core.PyBoolean;
 import org.python.core.PyException;
+import org.python.core.PyInteger;
 
 
 public class PythonClassActor extends PythonActor {
@@ -46,7 +47,14 @@ public class PythonClassActor extends PythonActor {
      }
 
     @Override
-    protected String loadEventHandler(String handlerName, String defaultMethodName, String wrapperTemplate) throws Exception {
+    protected Integer getArgCount(String f) {
+        PyInteger result = (PyInteger)interpreter.eval("_function_arg_count(" + f + ")");
+        return result.asInt();
+    }
+
+    
+    @Override
+    protected String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount, String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
 
         String actualMethodName = null;
         
@@ -75,7 +83,14 @@ public class PythonClassActor extends PythonActor {
         } 
         
         if (actualMethodName != null) {
-            interpreter.exec(String.format(wrapperTemplate, functionQualifier, actualMethodName));
+            
+            int argCount = getArgCount(functionQualifier + actualMethodName);
+            
+            if (argCount == minArgumentCount + 1) {
+                interpreter.exec(String.format(statelessWrapperTemplate, functionQualifier, actualMethodName));
+            } else if (argCount == minArgumentCount + 2) {
+                interpreter.exec(String.format(statefulWrapperTemplate, functionQualifier, actualMethodName));
+            }
         }
         
         return actualMethodName;

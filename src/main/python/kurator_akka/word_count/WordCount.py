@@ -2,19 +2,21 @@ import collections
 
 class TextProcessor(object):
 
-    def next_alpha(self, text, start):
-        i = start
-        while i < len(text) and not text[i].isalpha(): i += 1
-        return i
+    def next_alpha(self, s, begin):
+        """Return index of first alphabetic character, starting search at begin.  Return -1 on failure."""
+        i = begin
+        while i < len(s) and not s[i].isalpha(): i += 1
+        return i if i < len(s) else -1
 
-    def next_non_alpha(self, text, start):
-        i = start
+    def next_non_alpha(self, text, begin):
+        """Return index of first non-alphabetic character, starting search at begin.  Return -1 on failure."""
+        i = begin
         while i < len(text) and text[i].isalpha(): i += 1
-        return i
+        return i if i < len(text) else -1
 
 class TextChunker(TextProcessor):
     """
-    Class for counting occurrences of unique words in a text document. 
+    Class for splitting a text string into a specified number of chunks.
     """
 
     def __init__(self):
@@ -22,6 +24,7 @@ class TextChunker(TextProcessor):
         self.text_index=0
 
     def split_text(self, text):
+        """ Split text into as many as max_chunks chunks. Yields each chunk separately."""
 
         text_size = len(text)
         chunk_size = text_size/self.max_chunks
@@ -29,7 +32,7 @@ class TextChunker(TextProcessor):
 
         for chunk_id in range(1, self.max_chunks):
             chunk_end = self.next_non_alpha(text, chunk_start + chunk_size)
-            if chunk_end >= text_size:
+            if chunk_end == -1:
                 yield text[chunk_start:text_size]
                 return
             else:
@@ -39,6 +42,10 @@ class TextChunker(TextProcessor):
         yield text[chunk_start:text_size]
 
     def split_text_exact_chunks(self, text):
+        """ Split text into exactly max_chunks chunks. Yields each chunk separately.
+        If max_chunks is greater than the number of words in text
+        
+    """
         chunk_index = 1
         for text_chunk in self.split_text(text):
             yield text_chunk
@@ -63,9 +70,10 @@ class WordCounter(TextProcessor):
         while (start < text_size - 1):
     
             word_start = self.next_alpha(text, start)
-            if (word_start >= text_size): break
+            if (word_start == -1): break
     
-            word_end = self.next_non_alpha(text, word_start)    
+            word_end = self.next_non_alpha(text, word_start)
+            if word_end == -1: word_end = text_size   
             word = text[word_start:word_end].lower()
     
             if (word_counts.has_key(word)):
@@ -132,7 +140,7 @@ if __name__ == '__main__':
     counts =  wc.count_words(text)
     print counts
 
-    ca = CountAccumulator()
-    print ca.accumulate_word_counts((1,3,counts))
-    print ca.accumulate_word_counts((2,3,counts))
-    print ca.accumulate_word_counts((3,3,counts))
+    ca = WordCountReducer()
+    print ca.reduce_word_counts_sorted((1,1,3,counts))
+    print ca.reduce_word_counts_sorted((1,2,3,counts))
+    print ca.reduce_word_counts_sorted((1,3,3,counts))

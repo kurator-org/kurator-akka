@@ -540,7 +540,7 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
     
-    public void testPythonActor_MixedTuples() throws Exception {
+    public void testPythonClassActor_MixedTuples() throws Exception {
         
         ActorConfig to_int_string_tuple =  
         wr.actor(PythonClassActor.class)
@@ -569,7 +569,7 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
     
-    public void testPythonActor_MixedTuplesWithUnicode() throws Exception {
+    public void testPythonClassActor_MixedTuplesWithUnicode() throws Exception {
         
         ActorConfig double_and_triple =  wr.actor(PythonClassActor.class)
                 .config("pythonClass", "tuple_actor")
@@ -591,5 +591,356 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
                 "(u'eight_specimen_records', u'csv', 2)"    + EOL +
                 "(459, u'csv', 2)"                          + EOL,   
                 stdoutBuffer.toString());
-    }    
+    }
+    public void testPythonActor_OnInitNoArgument() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_init(self):"          + EOL +
+                        "    print 'Initializing'"      + EOL);
+        wr.run();
+        
+        assertEquals(
+                "Initializing"              + EOL,   
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonActor_OnInitWithArgument_NoParams() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_init(self, state):"   + EOL +
+                        "    print 'Initializing'"      + EOL +
+                        "    print len(state)"          + EOL);
+        wr.run();
+        
+        assertEquals(
+                "Initializing"              + EOL +
+                "0"                         + EOL,
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_OnInitWithArgument_OneParam() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_init(self, state):"   + EOL +
+                        "    print 'Initializing'"      + EOL +
+                        "    print len(state)"          + EOL +
+                        "    print state"               + EOL);
+        wr.run();
+        
+        assertEquals(
+                "Initializing"              + EOL +
+                "1"                         + EOL +
+                "{u'factor': 2}"            + EOL,
+                stdoutBuffer.toString());
+    }
+
+    public void testPythonClassnActor_OnInitWithArgument_TwoParams() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .param("prompt", "Command")
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_init(self, state):"   + EOL +
+                        "    print 'Initializing'"      + EOL +
+                        "    print len(state)"          + EOL +
+                        "    print state"               + EOL);
+        wr.run();
+        
+        assertEquals(
+                "Initializing"                              + EOL +
+                "2"                                         + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                stdoutBuffer.toString());
+    }
+
+    public void testPythonClassActor_OnEndNoArgument() throws Exception {
+
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_end(self):"           + EOL +
+                        "    print 'Ending'"            + EOL);        
+        wr.run();
+        
+        assertEquals(
+                "Ending"                    + EOL,   
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_OnEndWithArgument_NoParams() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_end(self, state):"    + EOL +
+                        "    print 'Ending'"            + EOL +
+                        "    print len(state)"          + EOL);
+
+        wr.run();
+        
+        assertEquals(
+                "Ending"                    + EOL +
+                "0"                         + EOL,
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_OnEndWithArgument_OneParam() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_end(self, state):"    + EOL +
+                        "    print 'Ending'"            + EOL +
+                        "    print len(state)"          + EOL +
+                        "    print state"               + EOL);
+
+        wr.run();
+        
+        assertEquals(
+                "Ending"                    + EOL +
+                "1"                         + EOL +
+                "{u'factor': 2}"            + EOL,
+                stdoutBuffer.toString());
+    }
+    
+    
+    public void testPythonClassActor_OnEndWithArgument_TwoParams() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .param("prompt", "Command")
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_end(self, state):"    + EOL +
+                        "    print 'Ending'"            + EOL +
+                        "    print len(state)"          + EOL +
+                        "    print state"               + EOL);
+
+        wr.run();
+        
+        assertEquals(
+                "Ending"                                    + EOL +
+                "2"                                         + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                stdoutBuffer.toString());
+    }
+    
+   public void testPythonClassActor_OnStartNoArgument() throws Exception {
+
+       @SuppressWarnings("unused")
+       ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+               .config("pythonClass", "test_actor")
+               .config("code",  
+                       "class test_actor(object):"  + EOL +
+                       "  def on_start(self):"      + EOL +
+                       "    print 'Starting'"       + EOL);
+        wr.run();
+        
+        assertEquals(
+                "Starting"                    + EOL,   
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_OnStartWithArgument_NoParams() throws Exception {
+        
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_start(self, state):"  + EOL +
+                        "    print 'Starting'"          + EOL +
+                        "    print len(state)"          + EOL);
+
+        wr.run();
+        
+        assertEquals(
+                "Starting"              + EOL +
+                "0"                     + EOL,
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_OnStartWithArgument_OneParam() throws Exception {
+
+        @SuppressWarnings("unused")
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_start(self, state):"  + EOL +
+                        "    print 'Starting'"          + EOL +
+                        "    print len(state)"          + EOL +
+                        "    print state"               + EOL);
+        wr.run();
+        
+        assertEquals(
+                "Starting"                  + EOL +
+                "1"                         + EOL +
+                "{u'factor': 2}"            + EOL,
+                stdoutBuffer.toString());
+    }
+    
+    
+    public void testPythonClassActor_OnStartWithArgument_TwoParams() throws Exception {
+
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .param("prompt", "Command")
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"     + EOL +
+                        "  def on_start(self, state):"  + EOL +
+                        "    print 'Starting'"          + EOL +
+                        "    print len(state)"          + EOL +
+                        "    print state"               + EOL);
+        wr.run();
+        
+        assertEquals(
+                "Starting"                                  + EOL +
+                "2"                                         + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                stdoutBuffer.toString());
+    }
+    
+   public void testPythonClassActor_OnDataNoArgument() throws Exception {
+    
+       ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+               .config("pythonClass", "test_actor")
+               .config("code",  
+                       "class test_actor(object):"      + EOL +
+                       "  def on_data(self, value):"    + EOL +
+                       "    print 'in on_data'"         + EOL +
+                       "    print value"                + EOL);
+
+        wr.inputActor(test_actor)
+          .begin()
+          .tellWorkflow(1, 2, 3, new EndOfStream())
+          .end();
+        
+        assertEquals(
+                "in on_data"        + EOL +
+                "1"                 + EOL +
+                "in on_data"        + EOL +
+                "2"                 + EOL +
+                "in on_data"        + EOL +
+                "3"                 + EOL,
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_OnDataWithArgument_NoParams() throws Exception {
+                
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"             + EOL +
+                        "  def on_data(self, value, state):"    + EOL +
+                        "    print 'in on_data'"                + EOL +
+                        "    print state"                       + EOL +
+                        "    print value"                       + EOL);
+
+        wr.inputActor(test_actor)
+          .begin()
+          .tellWorkflow(1, 2, 3, new EndOfStream())
+          .end();
+        
+        assertEquals(
+                "in on_data"        + EOL +
+                "{}"                + EOL +
+                "1"                 + EOL +
+                "in on_data"        + EOL +
+                "{}"                + EOL +
+                "2"                 + EOL +
+                "in on_data"        + EOL +
+                "{}"                + EOL +
+                "3"                 + EOL,
+                stdoutBuffer.toString());
+    }
+    
+    public void testPythonClassActor_OnDataWithArgument_OneParam() throws Exception {
+        
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"             + EOL +
+                        "  def on_data(self, value, state):"    + EOL +
+                        "    print 'in on_data'"                + EOL +
+                        "    print state"                       + EOL +
+                        "    print value"                       + EOL);
+
+        wr.inputActor(test_actor)
+          .begin()
+          .tellWorkflow(1, 2, 3, new EndOfStream())
+          .end();
+        
+        assertEquals(
+                "in on_data"        + EOL +
+                "{u'factor': 2}"    + EOL +
+                "1"                 + EOL +
+                "in on_data"        + EOL +
+                "{u'factor': 2}"    + EOL +
+                "2"                 + EOL +
+                "in on_data"        + EOL +
+                "{u'factor': 2}"    + EOL +
+                "3"                 + EOL,
+                stdoutBuffer.toString());    
+    }
+    
+    
+    public void testPythonClassActor_OnDataWithArgument_TwoParams() throws Exception {
+
+        ActorConfig test_actor =  wr.actor(PythonClassActor.class)
+                .param("factor", 2)
+                .param("prompt", "Command")                
+                .config("pythonClass", "test_actor")
+                .config("code",  
+                        "class test_actor(object):"             + EOL +
+                        "  def on_data(self, value, state):"    + EOL +
+                        "    print 'in on_data'"                + EOL +
+                        "    print state"                       + EOL +
+                        "    print value"                       + EOL);
+
+        wr.inputActor(test_actor)
+          .begin()
+          .tellWorkflow(1, 2, 3, new EndOfStream())
+          .end();
+        
+        assertEquals(
+                "in on_data"                            + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
+                "1"                                     + EOL +
+                "in on_data"                            + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
+                "2"                                     + EOL +
+                "in on_data"                            + EOL +
+                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
+                "3"                                     + EOL,
+                stdoutBuffer.toString());    
+    }
 }

@@ -35,7 +35,7 @@ public class TestWordCountReducer extends KuratorAkkaTestCase {
 
          countReducer = 
          wr.actor(PythonClassActor.class)
-           .config("pythonClass", "org.kurator.akka.word_count.WordCount.WordCountReducer")
+           .config("pythonClass", "kurator_akka.word_count.WordCount.WordCountReducer")
            .config("onData", "reduce_word_counts_sorted")
            .listensTo(wordCountSource);
          

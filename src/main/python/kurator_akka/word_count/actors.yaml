@@ -7,17 +7,17 @@ types:
 - id: TextChunker
   type: PythonClassActor
   properties:
-    pythonClass: org.kurator.akka.python.word_count.WoRMSCurator.TextChunker
+    pythonClass: kurator_akka.word_count.TextChunker
     onData: split_text_with_counts
 
 - id: WordCounter
   type: PythonClassActor
   properties:
-    pythonClass: org.kurator.akka.python.word_count.WoRMSCurator.WordCounter
+    pythonClass: kurator_akka.word_count.WordCounter
     onData: count_words
 
 - id: CountAccumulator
   type: PythonClassActor
   properties:
-    pythonClass: org.kurator.akka.python.word_count.WoRMSCurator.CountAccumulator
+    pythonClass: kurator_akka.word_count.CountAccumulator
     onData: accumulate_word_counts

@@ -50,13 +50,13 @@ public abstract class AkkaActor extends UntypedActor {
     
     /** Stream used by actor instead of reading from <code>System.in</code> directly. 
      * Defaults to <code>System.in</code>. 
-     * <p>Non-default value assigned can be assigned via the {@link #inputStream inputStream()} method.<p>
+     * <p>Non-default value assigned can be assigned via the {@link #inputStream inputStream()} method.</p>
      */
     protected InputStream inStream = System.in;
     
     /** Stream used by actor instead of writing to <code>System.out</code> directly. 
      * Defaults to <code>System.out</code>. 
-     * <p>Non-default value assigned can be assigned via the {@link #outputStream outputStream()} method.<p>
+     * <p>Non-default value assigned can be assigned via the {@link #outputStream outputStream()} method.</p>
      */
     protected PrintStream outStream = System.out;
 
@@ -294,7 +294,7 @@ public abstract class AkkaActor extends UntypedActor {
      * is sent to each actor) only after <i>all</i> actors in the workflow receive the 
      * {@link org.kurator.akka.messages.Initialize Initialize} message and return from this handler.</p>
      * 
-     * @throws Exception
+     * @throws Exception If the actor implementation of onInitialize() method throws an exception.
      */
     protected void onInitialize() throws Exception {}
 
@@ -317,11 +317,11 @@ public abstract class AkkaActor extends UntypedActor {
      * <p> Note also that if an actor is not a listener of any other actor then it may delay returning from
      * this method until the actor has performed all of its activity for the workflow run. Thus, an actor serving
      * as a data source for a workflow may in some cases perform all of its work in an override of this method.
-     * The {@link org.kurator.akka.actors.OneShot OneShot} actor provides a {@link org.kurator.akka.actors.OneShot#handleStart 
-     * handleStart()} implementation that formalizes this approach.
+     * The {@link org.kurator.akka.actors.OneShot OneShot} actor provides a {@link org.kurator.akka.actors.OneShot#onStart 
+     * onStart()} implementation that formalizes this approach.
      * </p>
      * 
-     * @throws Exception
+     * @throws Exception If the actor implementation of onStart() method throws an exception.
      */
     protected void onStart() throws Exception {}
     
@@ -336,10 +336,10 @@ public abstract class AkkaActor extends UntypedActor {
      * 
      * <p>If {@link #endOnEos}  is <i>true</I> and an actor simply needs to perform tasks before the
      * {@link org.kurator.akka.messages.EndOfStream EndOfStream} message is forwarded to listeners, 
-     * the {@link #handleEnd handleEnd()}</code> method should be overridden instead.</p>
+     * the <code>{@link #onEnd onEnd()}</code> method should be overridden instead.</p>
      * 
      * @param eos The received {@link org.kurator.akka.messages.EndOfStream EndOfStream} message.
-     * @throws Exception
+     * @throws Exception If the actor implementation of onTrigger() method throws and exception.
      */
     protected void onEndOfStream(EndOfStream eos) throws Exception {
         if (endOnEos) {
@@ -352,7 +352,7 @@ public abstract class AkkaActor extends UntypedActor {
      * Empty default handler for <i>End</i> event.  Called when the actor has stopped sending 
      * messages to receivers and before the actor fully stops.
      *  
-     * @throws Exception
+     * @throws Exception If the actor implementation of onEnd() method throws an exception.
      */
     protected void onEnd() throws Exception {}
     
@@ -364,7 +364,7 @@ public abstract class AkkaActor extends UntypedActor {
      * <p>Most actors will override this method to receive incoming data from other actors.</p>
      *  
      * @param value The received data value.
-     * @throws Exception
+     * @throws Exception If the actor implementation of onEnd() method throws an exception.
      */
     protected void onData(Object value) throws Exception {}
     
@@ -393,11 +393,11 @@ public abstract class AkkaActor extends UntypedActor {
      * message (a new {@link org.kurator.akka.messages.EndOfStream EndOfStream} instance is created
      * if <code>eos</code> is <code>null</code>) to the actor's listeners if the {@link #sendEosOnEnd} 
      * property is <i>true</i>.
-     * The method then calls {@link #handleEnd handleEnd()} and terminates the actor.
+     * The method then calls {@link #onEnd onEnd()} and terminates the actor.
      * 
      * @param eos The {@link org.kurator.akka.messages.EndOfStream EndOfStream} message to broadcast to listeners.
      *            Can be <code>null</code> (see above).
-     * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
+     * @throws Exception if {@link #onEnd onEnd()} throws an exception.
      */
     protected final void endStreamAndStop(EndOfStream eos) throws Exception {
         
@@ -422,7 +422,7 @@ public abstract class AkkaActor extends UntypedActor {
      * <p>Calling this method is the primary means of shutting down an actor if {@link #endOnEos} is <i>false</i>.
      * </p>
      * 
-     * @throws Exception if {@link #handleEnd handleEnd()} throws an exception.
+     * @throws Exception if {@link #onEnd onEnd()} throws an exception.
      */
     protected final void endStreamAndStop() throws Exception {
         endStreamAndStop(null);
