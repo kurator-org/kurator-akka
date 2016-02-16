@@ -31,7 +31,7 @@ import java.util.Map;
 public class CurationStep {
 
 	/**
-	 * Specification of the method by which the input elements are validated.
+	 * String representation of the specification of the method by which the input elements are validated.
 	 */
 	private String validationMethodSpecification;
 	/**
