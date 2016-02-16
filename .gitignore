@@ -6,3 +6,4 @@ target
 .DS_Store
 *py.class
 *.pyc
+output.json

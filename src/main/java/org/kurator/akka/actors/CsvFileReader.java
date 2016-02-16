@@ -93,7 +93,7 @@ public class CsvFileReader extends OneShot {
         try {        
             reader = new FileReader(path);
         } catch (FileNotFoundException e) {
-            throw new FileNotFoundException("Input CSV file not found: " + filePath);
+            throw new FileNotFoundException("Input CSV file not found: " + path);
         }
         
         return reader;
