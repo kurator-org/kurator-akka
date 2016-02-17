@@ -11,7 +11,7 @@ components:
       filePath: './src/main/resources/org/kurator/akka/samples/data/eight_specimen_records.csv'
 
 - id: RunGeoValidation
-  type: RESTActor
+  type: RestActor
   properties:
     parameters:
       url: 'http://api-geospatial.vertnet-portal.appspot.com/geospatial'

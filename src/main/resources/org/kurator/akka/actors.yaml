@@ -4,10 +4,10 @@ imports:
 
 types:
 
-- id: RESTActor
+- id: RestActor
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.RESTActor
+    actorClass: org.kurator.akka.actors.RestActor
 
 - id: PrintDQReport
   type: Actor
