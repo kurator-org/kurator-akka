@@ -21,9 +21,9 @@ public class RESTActor extends AkkaActor {
   public String paramsInputMapping = "";
   public String format = "application/json";
   private Map<String, String> params = new HashMap();
-  private HttpURLConnection conn;
   @Override
   @SuppressWarnings("unchecked")
+  
   public void onData(Object value) {
     Map<String,String> line = (Map<String, String>)value;
     /*
@@ -37,6 +37,7 @@ public class RESTActor extends AkkaActor {
     }
     boolean isFirst = true;
     String p = "";
+    HttpURLConnection conn = null;
     try {
       for ( String key : params.keySet() ) {
         if(isFirst){
@@ -67,11 +68,12 @@ public class RESTActor extends AkkaActor {
     } catch (IOException e) {
       e.printStackTrace();
     }
-  }
-  @Override
-  public void onEnd() throws Exception {
-      if (conn != null) {
-          conn.disconnect();
+    try { 
+      if (conn!=null) { 
+    	  conn.disconnect();
       }
+    } catch (Exception e) { 
+    	// exception thrown trying to disconnect
+    }
   }
 }
