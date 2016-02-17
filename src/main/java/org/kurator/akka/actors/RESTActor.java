@@ -2,6 +2,7 @@ package org.kurator.akka.actors;
 
 import static akka.dispatch.Futures.future;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +14,22 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import akka.dispatch.ExecutionContexts;
 import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
 import akka.dispatch.OnSuccess;
+import akka.dispatch.sysmsg.Failed;
 import akka.util.Timeout;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 import org.kurator.akka.AkkaActor;
 
+import org.kurator.akka.data.DQReport.DQReport;
+import org.kurator.akka.data.DQReport.GeoValidatorToDQReport;
 import org.kurator.akka.messages.EndOfStream;
 import scala.concurrent.Await;
 import scala.concurrent.ExecutionContext;
@@ -38,6 +44,8 @@ import scala.concurrent.Future;
  *
  */
 public class RESTActor extends AkkaActor {
+	public int numThreads = 10;
+
 	public String url = "";
 	public String method = "GET";
 
@@ -50,12 +58,12 @@ public class RESTActor extends AkkaActor {
 	public String format = "application/json";
 	private Map<String, String> params = new HashMap();
 
-	private List<Future<Lookup>> futures = new ArrayList<>();
-
 	private int recordsReceived = 0;
 	private int recordsSent = 0;
 
 	private boolean waitingForFutures = false;
+
+	private ExecutionContext ec;
 
 	public RESTActor() {
 		super();
@@ -63,12 +71,18 @@ public class RESTActor extends AkkaActor {
 	}
 
 	@Override
+	protected void onStart() throws Exception {
+		super.onStart();
+		ec = ExecutionContexts.fromExecutor(Executors.newFixedThreadPool(numThreads));
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public void onData(Object value) {
-		final ExecutionContext ec = this.getContext().dispatcher();
+		//final ExecutionContext ec = this.getContext().dispatcher();
 
-		if (value instanceof Lookup) {
-			broadcast(((Lookup)value).data);
+		if (value instanceof DQReport) {
+			broadcast(value);
 			recordsSent++;
 
 			if (waitingForFutures && recordsSent == recordsReceived) {
@@ -79,6 +93,8 @@ public class RESTActor extends AkkaActor {
 				}
 			}
 		} else {
+			recordsReceived++;
+
 			Map<String, String> line = (Map<String, String>) value;
 			for (String map : this.paramsInputMapping.split(",")) {
 				String[] keyValue = map.split(":");
@@ -89,25 +105,23 @@ public class RESTActor extends AkkaActor {
 			try {
 				for (String key : params.keySet()) {
 					if (isFirst) {
-						p += "?" + key + "=" + line.get(params.get(key)).replace(" ", "%20");
+						p += "?" + key + "=" + URLEncoder.encode(line.get(params.get(key)), "UTF-8");
 						isFirst = false;
 					} else {
-						p += "&" + key + "=" + line.get(params.get(key)).replace(" ", "%20");
+						p += "&" + key + "=" + URLEncoder.encode(line.get(params.get(key)), "UTF-8");
 					}
 				}
+
 				URL iri = new URL(this.url + p);
 
-				Future<Lookup> f = future(new DoLookup<Lookup>(iri, this.format, value), ec);
-				recordsReceived++;
+				Future<Map<String, Object>> f1 = future(new DoLookup<Map<String, Object>>(iri, this.format, value), ec);
+				Future<DQReport> f2 = f1.map(new GeoValidatorToDQReport(), ec);
 
-				f.onComplete(new OnComplete<Lookup>() {
-					@Override
-					public void onComplete(Throwable throwable, Lookup lookup) throws Throwable {
-						self().tell(lookup, getSelf());
+				f2.onComplete(new OnComplete<DQReport>() {
+					public void onComplete(Throwable throwable, DQReport report) throws Throwable {
+						self().tell(report, getSelf());
 					}
 				}, ec);
-
-
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -119,14 +133,6 @@ public class RESTActor extends AkkaActor {
 	@Override
 	protected void onEndOfStream(EndOfStream eos) throws Exception {
 		waitingForFutures = true;
-	}
-
-	private class Lookup {
-		private Map data;
-
-		public Lookup(Map data) {
-			this.data = data;
-		}
 	}
 
 	private class DoLookup<T> implements Callable {
@@ -142,31 +148,32 @@ public class RESTActor extends AkkaActor {
 		}
 
 		@Override
-		public Lookup call() throws Exception {
+		public Map call() {
 			HttpURLConnection conn = null;
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(method);
-			conn.setRequestProperty("Accept", format);
-			if (conn.getResponseCode() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
-			}
-			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			String output = null;
 
-			Map data = new HashMap();
-			while ((output = br.readLine()) != null) {
-				data.put("dataResource",value);
-				data.put("rawResults",output);
-			}
 			try {
-				if (conn!=null) {
-					conn.disconnect();
+				conn = (HttpURLConnection) url.openConnection();
+				conn.setRequestMethod(method);
+				conn.setRequestProperty("Accept", format);
+				if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+					throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
 				}
-			} catch (Exception e) {
-				// exception thrown trying to disconnect, consume.
+				BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+				Map data = new HashMap();
+				String output;
+
+				while ((output = br.readLine()) != null) {
+					data.put("dataResource",value);
+					data.put("rawResults",output);
+				}
+
+				return data;
+			} catch (IOException e) {
+				throw new RuntimeException("Failed: Could not connect to " + url.toExternalForm());
+			} finally {
+				if (conn!=null) { conn.disconnect(); }
 			}
-			return new Lookup(data);
 		}
 	}
-
 }
