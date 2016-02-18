@@ -10,6 +10,15 @@ import scala.concurrent.Future;
 
 import java.util.concurrent.Callable;
 
+/**
+ * Extension of AkkaActor for actors that wrap the action triggered by a message into
+ * a future (which frees the actor up to handle the next incoming message, but 
+ * requires special handling of the end of stream control message to prevent the 
+ * actor system from shutting down while futures are still unfulfilled. 
+ *  
+ * @author David Lowery
+ *
+ */
 public class FutureActor extends AkkaActor {
     private int futuresCompleted = 0;
     private int futuresInitialized = 0;
