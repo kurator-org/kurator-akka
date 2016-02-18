@@ -1,7 +1,5 @@
 package org.kurator.akka.actors;
 
-import static akka.dispatch.Futures.future;
-
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +26,7 @@ import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 import org.kurator.akka.AkkaActor;
 
+import org.kurator.akka.FutureActor;
 import org.kurator.akka.data.DQReport.DQReport;
 import org.kurator.akka.data.DQReport.GeoValidatorToDQReport;
 import org.kurator.akka.messages.EndOfStream;
@@ -43,7 +42,7 @@ import scala.concurrent.Future;
  * @author Allan Viegas
  *
  */
-public class RESTActor extends AkkaActor {
+public class RestActor extends FutureActor {
 	public int numThreads = 10;
 
 	public String url = "";
@@ -56,19 +55,10 @@ public class RESTActor extends AkkaActor {
 	 */
 	public String paramsInputMapping = "";
 	public String format = "application/json";
+
 	private Map<String, String> params = new HashMap();
-
-	private int recordsReceived = 0;
-	private int recordsSent = 0;
-
-	private boolean waitingForFutures = false;
-
 	private ExecutionContext ec;
 
-	public RESTActor() {
-		super();
-		endOnEos = false;
-	}
 
 	@Override
 	protected void onStart() throws Exception {
@@ -79,22 +69,6 @@ public class RESTActor extends AkkaActor {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onData(Object value) {
-		//final ExecutionContext ec = this.getContext().dispatcher();
-
-		if (value instanceof DQReport) {
-			broadcast(value);
-			recordsSent++;
-
-			if (waitingForFutures && recordsSent == recordsReceived) {
-				try {
-					endStreamAndStop();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		} else {
-			recordsReceived++;
-
 			Map<String, String> line = (Map<String, String>) value;
 			for (String map : this.paramsInputMapping.split(",")) {
 				String[] keyValue = map.split(":");
@@ -114,28 +88,16 @@ public class RESTActor extends AkkaActor {
 
 				URL iri = new URL(this.url + p);
 
-				Future<Map<String, Object>> f1 = future(new DoLookup<Map<String, Object>>(iri, this.format, value), ec);
-				Future<DQReport> f2 = f1.map(new GeoValidatorToDQReport(), ec);
-
-				f2.onComplete(new OnComplete<DQReport>() {
-					public void onComplete(Throwable throwable, DQReport report) throws Throwable {
-						self().tell(report, getSelf());
-					}
-				}, ec);
+				final ExecutionContext ec = this.getContext().dispatcher();
+				future(new DoLookup(iri, this.format, value), ec, new GeoValidatorToDQReport());
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-	}
 
-	@Override
-	protected void onEndOfStream(EndOfStream eos) throws Exception {
-		waitingForFutures = true;
-	}
-
-	private class DoLookup<T> implements Callable {
+	private class DoLookup implements Callable {
 
 		URL url;
 		String format;
