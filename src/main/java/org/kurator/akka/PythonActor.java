@@ -33,8 +33,6 @@ public class PythonActor extends AkkaActor {
     protected PyDictionary state;
     protected PyObject none;
     
-    private static Boolean jythonInitialized = false;
-    
     private String commonScriptHeader =
             "_KURATOR_INPUT_=None"                          + EOL +
             "_KURATOR_RESULT_=None"                         + EOL +
@@ -187,32 +185,21 @@ public class PythonActor extends AkkaActor {
     
     protected void initializeJythonInterpreter() {
 
-        synchronized(jythonInitialized) {
+        Properties properties = System.getProperties();
+        properties.put("python.import.site", "false");
 
-            Properties properties = System.getProperties();
-            properties.put("python.import.site", "false");
-    
-            // create a python interpreter
-            if (jythonInitialized == false) {
-                PySystemState.initialize(properties, null, new String[] {""});
-            }
-    
-            interpreter = new PythonInterpreter();
-            interpreter.setOut(super.outStream);
-            interpreter.setErr(super.errStream);
-            
-            interpreter.exec("from org import python");
-            interpreter.exec("import sys"); 
-            interpreter.exec("import types"); 
-            interpreter.exec("import inspect"); 
-            
-            // configure Jython sys.path variable.
-            if (jythonInitialized == false) {
-                configureJythonSysPath();
-                jythonInitialized = true;
-            }
-        }
+        interpreter = new PythonInterpreter(null, new PySystemState());
+        interpreter.setOut(super.outStream);
+        interpreter.setErr(super.errStream);
         
+        interpreter.exec("from org import python");
+        interpreter.exec("import sys"); 
+        interpreter.exec("import types"); 
+        interpreter.exec("import inspect"); 
+            
+        // configure Jython sys.path variable.
+        configureJythonSysPath();
+
         // cache a python None object
         none = interpreter.eval("None");
     }
@@ -343,8 +330,9 @@ public class PythonActor extends AkkaActor {
             interpreter.eval("_call_onend()");
         }
         
-        // shut down the interpreter
-        interpreter.cleanup();
+        // shut down and deallocate the interpreter
+        interpreter.close();
+        interpreter = null;
     }    
 
     protected void broadcastOutputs() {
