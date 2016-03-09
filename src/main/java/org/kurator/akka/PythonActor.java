@@ -1,5 +1,6 @@
 package org.kurator.akka;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
@@ -179,7 +180,7 @@ public class PythonActor extends AkkaActor {
         if (script != null) interpreter.execfile(script);
         
         String code = (String)configuration.get("code");
-        if (code != null) interpreter.exec(code);        
+        if (code != null) interpreter.exec(code);    
     }
 
     
@@ -277,15 +278,18 @@ public class PythonActor extends AkkaActor {
     
     
     protected void applySettings() {
-    
         if (settings != null) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {
-                String name = setting.getKey();
+                String name = functionQualifier + setting.getKey();
                 Object value = setting.getValue();
-                interpreter.set(name, value);
+                if (value instanceof String) {
+                    interpreter.exec(name + "='" + value + "'");
+                } else if (!(value instanceof Collection)) {
+                    interpreter.exec(name + "=" + value);
+                }
             }
         }
-    }    
+    }   
     
     @Override
     protected void onStart() throws Exception {
@@ -357,6 +361,9 @@ public class PythonActor extends AkkaActor {
     }
 
     private void prependSysPath(String path) {
-        interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
+        int i = 1;
+        for (String pathElement : path.split(System.getProperty("path.separator"))) {
+            interpreter.eval(String.format("sys.path.insert(%d, '%s')%s", i, pathElement, EOL));
+        }
     }
 }

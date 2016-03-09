@@ -1,11 +1,7 @@
 package org.kurator.akka;
 
-import java.util.Map;
-
 import org.python.core.PyBoolean;
 import org.python.core.PyException;
-import org.python.core.PyInteger;
-
 
 public class PythonClassActor extends PythonActor {
 
@@ -30,14 +26,17 @@ public class PythonClassActor extends PythonActor {
             pythonClassModule = pythonClassConfig.substring(0, lastDotIndex);
             pythonClassName = pythonClassConfig.substring(lastDotIndex + 1);
         }
-
-            if (pythonClassModule != null) {
-                try {
-                    interpreter.exec("from " + pythonClassModule + " import " + pythonClassName);
-                } catch (PyException e) {
-                    throw new Exception("Error importing class '" + pythonClassConfig + "': " + e.value);
-                }
+        
+//        PyObject syspath = interpreter.eval("sys.path");
+//        System.out.println(syspath);
+        
+        if (pythonClassModule != null) {
+            try {
+                interpreter.exec("from " + pythonClassModule + " import " + pythonClassName);
+            } catch (PyException e) {
+                throw new Exception("Error importing class '" + pythonClassConfig + "': " + e.value);
             }
+        }
             
         try {
             interpreter.exec("_PYTHON_CLASS_INSTANCE_=" + pythonClassName + "()");
@@ -45,13 +44,6 @@ public class PythonClassActor extends PythonActor {
             throw new Exception("Error instantiating class '" + pythonClassConfig + "': " + e.value);
         }
      }
-
-    @Override
-    protected Integer getArgCount(String f) {
-        PyInteger result = (PyInteger)interpreter.eval("_function_arg_count(" + f + ")");
-        return result.asInt();
-    }
-
     
     @Override
     protected String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount, String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
@@ -70,7 +62,7 @@ public class PythonClassActor extends PythonActor {
                 throw new Exception("Error binding to " + handlerName + " method '" + customMethodName + "': " + e.value);
             }
             actualMethodName = customMethodName;
-        } else  {
+        } else {
             try {
                 PyBoolean isMethod = (PyBoolean)interpreter.eval("inspect.ismethod(" + functionQualifier + defaultMethodName + ")");
                 if (isMethod.getBooleanValue()) {
@@ -94,22 +86,5 @@ public class PythonClassActor extends PythonActor {
         }
         
         return actualMethodName;
-    }
-    
-    @Override
-    protected void applySettings() {
-        
-        if (settings != null) {
-            for(Map.Entry<String, Object> setting : settings.entrySet()) {
-                String name = functionQualifier + setting.getKey();
-                Object value = setting.getValue();
-                if (value instanceof String) {
-                    interpreter.exec(name + "='" + value + "'");
-                } else {
-                    interpreter.exec(name + "=" + value);
-                }
-            }
-        }
-    }   
-
+    }  
 }
