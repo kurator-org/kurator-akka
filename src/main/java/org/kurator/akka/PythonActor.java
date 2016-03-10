@@ -234,6 +234,7 @@ public class PythonActor extends AkkaActor {
         
         // add to python sys.path directory of packages bundled within Kurator jar
         prependSysPath("src/main/python");
+        prependSysPath("packages");
     }
     
     private Boolean isFunction(String f) {
