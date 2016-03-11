@@ -26,10 +26,7 @@ public class PythonClassActor extends PythonActor {
             pythonClassModule = pythonClassConfig.substring(0, lastDotIndex);
             pythonClassName = pythonClassConfig.substring(lastDotIndex + 1);
         }
-        
-//        PyObject syspath = interpreter.eval("sys.path");
-//        System.out.println(syspath);
-        
+                
         if (pythonClassModule != null) {
             try {
                 interpreter.exec("from " + pythonClassModule + " import " + pythonClassName);

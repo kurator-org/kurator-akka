@@ -207,31 +207,19 @@ public class PythonActor extends AkkaActor {
     
     
     protected void configureJythonSysPath() {
-        
-        // add to python sys.path library directories from local Jython installation
-        String jythonHome = System.getenv("JYTHON_HOME");
+
+        // add libray of packages installed locally for Jython
+        String jythonHome = System.getenv("JYTHONHOME");
         if (jythonHome != null) {
             prependSysPath(jythonHome + "/Lib/site-packages");
-            prependSysPath(jythonHome + "/Lib");
-        }
-
-        // add to python sys.path custom Python libraries
-        String kuratorLocalPythonLib = System.getenv("KURATOR_LOCAL_PYTHON_LIB");
-        if (kuratorLocalPythonLib != null) {
-            prependSysPath(kuratorLocalPythonLib + "/site-packages");
-            prependSysPath(kuratorLocalPythonLib);
         }
         
-        // add to python sys.path optional local packages directory
-        String kuratorLocalPackages = System.getenv("KURATOR_LOCAL_PACKAGES");
-        if (kuratorLocalPackages != null) {
-            prependSysPath(kuratorLocalPackages); 
+        // add the entire Jython path if defined
+        String jythonPath = System.getenv("JYTHONPATH");
+        if (jythonPath != null) {
+            prependSysPath(jythonPath);
         }
 
-        // add to python sys.path jython libraries distributed via kurator-jython Git repo
-        prependSysPath("kurator-jython");
-        prependSysPath("../kurator-jython");
-        
         // add to python sys.path directory of packages bundled within Kurator jar
         prependSysPath("src/main/python");
         prependSysPath("packages");
