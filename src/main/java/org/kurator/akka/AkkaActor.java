@@ -228,6 +228,7 @@ public abstract class AkkaActor extends UntypedActor {
                     try {
                         onInitialize();
                     } catch(Exception initializationException) {
+                        initializationException.printStackTrace();
                         List<Failure> failures = new LinkedList<Failure>();
                         failures.add(new Failure("Error intializing actor '" + name + "'"));
                         failures.add(new Failure(initializationException.getMessage()));
@@ -379,7 +380,9 @@ public abstract class AkkaActor extends UntypedActor {
         Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
         
         for (ActorRef listener : listeners) {
-            listener.tell(message, this.getSelf());
+            if (listener != null) {
+                listener.tell(message, this.getSelf());
+            }
         }
     }    
         
