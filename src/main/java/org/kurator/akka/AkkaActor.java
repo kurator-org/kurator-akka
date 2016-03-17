@@ -230,7 +230,7 @@ public abstract class AkkaActor extends UntypedActor {
                     } catch(Exception initializationException) {
 //                      initializationException.printStackTrace();
                         List<Failure> failures = new LinkedList<Failure>();
-                        failures.add(new Failure("Error intializing actor '" + name + "'"));
+                        failures.add(new Failure("Error initializing actor '" + name + "'"));
                         failures.add(new Failure(initializationException.getMessage()));
                         getSender().tell(new Failure(failures), getSelf());
                         getContext().stop(getSelf());
