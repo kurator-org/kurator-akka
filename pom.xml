@@ -43,16 +43,16 @@
 
 	   <dependency>
 	       <groupId>com.typesafe.akka</groupId>
-	       <artifactId>akka-actor_2.10</artifactId>
-	       <version>2.3.6</version>
+	       <artifactId>akka-actor_2.11</artifactId>
+	       <version>2.4.2</version>
 	   </dependency>
 
-	   <dependency>
+<!-- 	   <dependency>
 	       <groupId>com.typesafe.akka</groupId>
 	       <artifactId>akka-slf4j_2.10</artifactId>
 	       <version>2.3.6</version>
 	   </dependency>
-
+ -->
 	   <dependency>
 	       <groupId>junit</groupId>
 	       <artifactId>junit</artifactId>
