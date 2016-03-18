@@ -139,9 +139,14 @@ public class PythonActor extends AkkaActor {
         
         initializeJythonInterpreter();
         loadCommonHelperFunctions();
-        loadCustomCode();
-        configureCustomCode();
         
+        try {
+            loadCustomCode();
+            configureCustomCode();
+        } catch(Exception e) {
+            System.out.println(interpreter.eval(String.format("sys.path")));
+            throw e;
+        }
         onInit = loadEventHandler("onInit", DEFAULT_ON_INIT, 0, statelessOnInitWrapperTemplate, statefulOnInitWrapperTemplate);
         onStart = loadEventHandler("onStart", DEFAULT_ON_START, 0, statelessOnStartWrapperTemplate, statefulOnStartWrapperTemplate);
         onData = loadEventHandler("onData", DEFAULT_ON_DATA, 1, statelessOnDataWrapperTemplate, statefulOnDataWrapperTemplate);
