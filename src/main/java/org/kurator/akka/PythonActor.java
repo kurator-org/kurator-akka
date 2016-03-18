@@ -214,11 +214,8 @@ public class PythonActor extends AkkaActor {
             prependSysPath(jythonHome + "/Lib/site-packages");
         }
         
-        // add the entire Jython path if defined
-        String jythonPath = System.getenv("JYTHONPATH");
-        if (jythonPath != null) {
-            prependSysPath(jythonPath);
-        }
+        // add the entire Jython path
+        prependSysPath(System.getenv("JYTHONPATH"));
 
         // add to python sys.path directory of packages bundled within Kurator jar
         prependSysPath("src/main/python");
@@ -350,9 +347,14 @@ public class PythonActor extends AkkaActor {
     }
 
     private void prependSysPath(String path) {
-        int i = 1;
-        for (String pathElement : path.split(System.getProperty("path.separator"))) {
-            interpreter.eval(String.format("sys.path.insert(%d, '%s')%s", i, pathElement, EOL));
+        if (path != null) {
+            // insert each element of path to intepreter's sys.path maintaining
+            // the order of elements in path and after the first element in sys.path
+            // (the first element of sys.path must remain first)
+            int i = 1;
+            for (String pathElement : path.split(System.getProperty("path.separator"))) {
+                interpreter.eval(String.format("sys.path.insert(%d, '%s')%s", i, pathElement, EOL));
+            }
         }
     }
 }
