@@ -281,12 +281,12 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         } catch (Exception e) {
             caught = e;
         }
-        
+       System.out.println(caught.getMessage()); 
         assertNotNull(caught);
         assertEquals(
-                "Error initializing workflow 'Workflow'"        + EOL +
-                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'"        + EOL +
-                "Error instantiating class 'my_actor': name 'my_actor' is not defined", 
+                "Error initializing workflow 'Workflow'"                               + EOL +
+                "Error initializing actor 'org.kurator.akka.PythonClassActor_1'"       + EOL +
+                "Error instantiating class 'my_actor': name 'my_actor' is not defined",
                 caught.getMessage());
     }
 
@@ -360,11 +360,13 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         }
         
         assertNotNull(caught);
+
         assertEquals(
-                "Error initializing workflow 'Workflow'"                                            + EOL +
-                "Error intializing actor 'org.kurator.akka.PythonClassActor_1'"                     + EOL +
-                "Error binding to onStart method 'send': 'my_actor' object has no attribute 'send'", 
-                caught.getMessage());   
+                "Error initializing workflow 'Workflow'" + EOL +
+                "Error initializing actor 'org.kurator.akka.PythonClassActor_1'" + EOL +
+                "Error binding to onStart method 'send': 'my_actor' object has no attribute 'send'",
+                caught.getMessage());
+
     }
     
     public void testPythonClassActor_MissingCustomOnData() throws Exception {
