@@ -16,8 +16,9 @@ types:
   type: PythonActor
   properties:
     script: src/test/resources/org/kurator/akka/python/printer.py
-    onData: printMessage
+    onData: print_message
     onStart: start
+    onEnd: flush
 
 - id: PythonMultiplier
   type: PythonActor

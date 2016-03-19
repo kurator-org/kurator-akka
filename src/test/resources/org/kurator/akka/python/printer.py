@@ -8,12 +8,12 @@ def start():
     global first
     first = True
 
-def printMessage(message):
+def print_message(message):
     
     # print delimiter if not first call to this function
     global first
     global delimiter
-    if (first):
+    if first:
         first = False
     else:
         sys.stdout.write(delimiter)
@@ -23,3 +23,6 @@ def printMessage(message):
 
     # all done
     return 0
+
+def flush():
+  sys.stdout.flush()
