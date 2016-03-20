@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.kurator.akka.metadata.MetadataReader;
+import org.kurator.akka.metadata.MetadataWriter;
 import org.springframework.beans.factory.BeanNameAware;
 
 public class ActorConfig implements BeanNameAware {
@@ -14,6 +16,8 @@ public class ActorConfig implements BeanNameAware {
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     protected Map<String,Object> config = new HashMap<String,Object>();
+    private List<MetadataReader> metadataReaders;
+    private List<MetadataWriter> metadataWriters;
 
     public ActorConfig() {
     }
@@ -91,6 +95,23 @@ public class ActorConfig implements BeanNameAware {
     public List<ActorConfig> getListeners() {        
         return listeners;
     }
+
+    public void setMetadataReaders(List<MetadataReader> metadataReaders) {
+        this.metadataReaders = metadataReaders;
+    }
+    
+    public List<MetadataReader> getMetadataReaders() {
+        return metadataReaders;
+    }
+
+    public void setMetadataWriters(List<MetadataWriter> metadataWriters) {
+        this.metadataWriters = metadataWriters;
+    }
+    
+    public List<MetadataWriter> getMetadataWriters() {
+        return metadataWriters;
+    }
+
     
     public void setListensTo(List<ActorConfig> senders) {
         for (ActorConfig sender : senders) {

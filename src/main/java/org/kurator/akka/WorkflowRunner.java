@@ -202,6 +202,8 @@ public class WorkflowRunner {
                                     actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(),
+                                    actorConfig.getMetadataReaders(),
+                                    actorConfig.getMetadataWriters(),
                                     inStream,
                                     outStream,
                                     errStream,

@@ -3,10 +3,24 @@ imports:
 - classpath:/org/kurator/akka/actors.yaml
 - classpath:/org/kurator/akka/python/actors.yaml
 
+
 components:
 
+- id: BroadcastEventCounter
+  className: org.kurator.akka.metadata.BroadcastEventCounter
+  singleton: false
+
+- id: BroadcastEventCountChecker
+  className: org.kurator.akka.metadata.BroadcastEventCountChecker
+  singleton: false
+  
 - id: Repeater
   type: PythonRepeater
+  properties:
+    metadataReaders:
+      - !ref BroadcastEventCountChecker
+    metadataWriters:
+      - !ref BroadcastEventCounter
 
 - id: MultiplyByTwo
   type: PythonMultiplier
@@ -15,6 +29,10 @@ components:
       - !ref Repeater
     parameters:
       factor: 2
+    metadataReaders:
+      - !ref BroadcastEventCountChecker
+    metadataWriters:
+      - !ref BroadcastEventCounter
 
 - id: Printer
   type: PythonPrinter
@@ -23,6 +41,10 @@ components:
       - !ref MultiplyByTwo
     parameters:
       delimiter: ","
+    metadataReaders:
+      - !ref BroadcastEventCountChecker
+    metadataWriters:
+      - !ref BroadcastEventCounter
        
 - id: ThreeActorWorkflow
   type: Workflow

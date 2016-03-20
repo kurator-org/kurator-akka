@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.kurator.akka.metadata.MetadataReader;
+import org.kurator.akka.metadata.MetadataWriter;
+
 import akka.actor.IndirectActorProducer;
 
 public class ActorProducer implements IndirectActorProducer {
@@ -20,6 +23,8 @@ public class ActorProducer implements IndirectActorProducer {
     private Map<String, Object> parameters;
     private Map<String, Object> configuration;
     private List<ActorConfig> listeners;
+    private List<MetadataReader> metadataReaders;
+    private List<MetadataWriter> metadataWriters;
     private WorkflowRunner workflowRunner;
     private AkkaActor actor;
     private InputStream inStream;
@@ -32,6 +37,8 @@ public class ActorProducer implements IndirectActorProducer {
             Map<String, Object> defaults, 
             Map<String, Object> parameters, 
             List<ActorConfig> listeners,
+            List<MetadataReader> metadataReaders,
+            List<MetadataWriter> metadataWriters,
             InputStream inStream, 
             PrintStream outStream, 
             PrintStream errStream,
@@ -42,6 +49,8 @@ public class ActorProducer implements IndirectActorProducer {
         this.defaults = defaults;
         this.parameters = parameters;
         this.listeners = listeners;
+        this.metadataReaders = metadataReaders;
+        this.metadataWriters = metadataWriters;
         this.workflowRunner = workflowRunner;
         this.inStream = inStream;
         this.outStream = outStream;
@@ -70,8 +79,10 @@ public class ActorProducer implements IndirectActorProducer {
              .inputStream(inStream)
              .outputStream(outStream)
              .errorStream(errStream)
-             .configuration(configuration);
-
+             .configuration(configuration)
+             .metadataWriters(metadataWriters)
+             .metadataReaders(metadataReaders);
+        
         // assign values to the actor parameters 
         Map<String,Object> parameterSettings = new HashMap<String,Object>();
         Map<String,Object> unappliedSettings = new HashMap<String,Object>();

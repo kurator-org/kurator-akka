@@ -15,6 +15,9 @@ import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Success;
 import org.kurator.akka.messages.Start;
+import org.kurator.akka.messages.WrappedMessage;
+import org.kurator.akka.metadata.MetadataWriter;
+import org.kurator.akka.metadata.MetadataReader;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
@@ -74,6 +77,10 @@ public abstract class AkkaActor extends UntypedActor {
     protected Map<String,Object> settings;
     protected Map<String, Object> configuration;
     protected ActorFSM state = ActorFSM.CONSTRUCTED;
+    private List<MetadataWriter> metadataWriters = null;
+    private List<MetadataReader> metadataReaders = null;
+
+    private WrappedMessage receivedWrappedMessage;
     
     private enum ActorFSM {
         CONSTRUCTED,
@@ -175,6 +182,16 @@ public abstract class AkkaActor extends UntypedActor {
         this.needsTrigger = needsTrigger;
         return this;
     }
+    
+    public AkkaActor metadataWriters(List<MetadataWriter> metadataWriters) {
+        this.metadataWriters = metadataWriters;
+        return this;
+    }
+
+    public AkkaActor metadataReaders(List<MetadataReader> metadataReaders) {
+        this.metadataReaders = metadataReaders;
+        return this;
+    }
 
     public AkkaActor configuration(Map<String, Object> configuration) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
@@ -208,6 +225,13 @@ public abstract class AkkaActor extends UntypedActor {
         Contract.disallows(state, ActorFSM.ENDED);
 
         try {
+
+            if (message instanceof WrappedMessage) {
+                receivedWrappedMessage = (WrappedMessage)message;
+                message = unwrapMessage(receivedWrappedMessage);
+            } else {
+                receivedWrappedMessage = null;
+            }
             
             // handle control messages (subclasses of ControlMessage)
             if (message instanceof ControlMessage) {
@@ -370,6 +394,31 @@ public abstract class AkkaActor extends UntypedActor {
     protected void onData(Object value) throws Exception {}
     
     
+    public Object wrapMessage(Object message) {
+        if (metadataWriters == null) {
+            return message;
+        } else {
+            WrappedMessage wrappedMessage = new WrappedMessage(message);
+            for (MetadataWriter mw : metadataWriters) {
+                mw.writeMetadata(this, wrappedMessage);
+            }
+            return wrappedMessage;
+        }
+    }
+        
+    public Object unwrapMessage(WrappedMessage wrappedMessage) throws Exception {
+        if (metadataReaders != null) {
+            for (MetadataReader mr : metadataReaders) {
+                mr.readMetadata(this, wrappedMessage);
+            }
+        }
+        return wrappedMessage.unwrap();
+    }
+
+    public WrappedMessage getReceivedWrappedMessage() {
+        return receivedWrappedMessage;
+    }
+    
     /** 
      * Sends a message to all of the the actor's listeners.
      * 
@@ -379,9 +428,11 @@ public abstract class AkkaActor extends UntypedActor {
         
         Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
         
+        Object wrappedMessage = wrapMessage(message);
+        
         for (ActorRef listener : listeners) {
             if (listener != null) {
-                listener.tell(message, this.getSelf());
+                listener.tell(wrappedMessage, this.getSelf());
             }
         }
     }    
@@ -446,6 +497,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param exception The reported exception.
      */
     protected final void reportException(Exception exception) {
+//        exception.printStackTrace();
         ActorRef workflowRef = runner.getWorkflowRef();
         ExceptionMessage em = new ExceptionMessage(exception);
         workflowRef.tell(em, this.getSelf());
