@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 import org.python.core.PyNone;
 
 /**
@@ -20,7 +20,7 @@ import org.python.core.PyNone;
  * @author mole
  *
  */
-public class StringFileWriter extends AkkaActor {
+public class StringFileWriter extends KuratorActor {
 
     public Writer outputWriter = null;
     public String filePath = null;

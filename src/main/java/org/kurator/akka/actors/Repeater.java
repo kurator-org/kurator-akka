@@ -1,8 +1,8 @@
 package org.kurator.akka.actors;
 
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 
-public class Repeater extends AkkaActor {
+public class Repeater extends KuratorActor {
 
     @Override
     public void onData(Object value) throws Exception {

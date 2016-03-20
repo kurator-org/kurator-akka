@@ -1,6 +1,6 @@
 package org.kurator.akka.actors;
 
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 
 /**
  * Multiply the input by a factor and broadcast the result.
@@ -9,7 +9,7 @@ import org.kurator.akka.AkkaActor;
  * @author mole
  *
  */
-public class Multiplier extends AkkaActor {
+public class Multiplier extends KuratorActor {
 
     private Integer factor = 1;
 

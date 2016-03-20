@@ -33,7 +33,7 @@ import akka.actor.UntypedActor;
  * The class thus supports clean shutdown of Akka workflows with each actor terminating itself when no 
  * further messages from upstream can be expected. </p>
  */
-public abstract class AkkaActor extends UntypedActor {
+public abstract class KuratorActor extends UntypedActor {
     
     /** Shorthand for platform-specific end-of-line character sequence. */
     public static final String EOL = System.getProperty("line.separator");
@@ -100,7 +100,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param errStream The PrintStream to use for writing to <code>stderr</code>.
      * @return this AkkaActor
      */   
-    public AkkaActor errorStream(PrintStream errStream) {
+    public KuratorActor errorStream(PrintStream errStream) {
         this.errStream = errStream;
         return this;
     }
@@ -115,7 +115,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param inStream The InputStream to use for reading from <code>stdin</code>.
      * @return this AkkaActor
      */
-    public AkkaActor inputStream(InputStream inStream) {
+    public KuratorActor inputStream(InputStream inStream) {
         this.inStream = inStream;
         return this;
     }
@@ -130,7 +130,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param outStream The PrintStream to use for writing to <code>stdout</code>.
      * @return this AkkaActor
      */
-    public AkkaActor outputStream(PrintStream outStream) {
+    public KuratorActor outputStream(PrintStream outStream) {
         this.outStream = outStream;
         return this;
     }
@@ -148,7 +148,7 @@ public abstract class AkkaActor extends UntypedActor {
      * @param listenerConfigs The list of actor configurations corresponding to this actor's listeners.
      * @return this AkkaActor
      */
-    public AkkaActor listeners(List<ActorConfig> listenerConfigs) {
+    public KuratorActor listeners(List<ActorConfig> listenerConfigs) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         if (listenerConfigs != null) {
             this.listenerConfigs = listenerConfigs;
@@ -166,7 +166,7 @@ public abstract class AkkaActor extends UntypedActor {
      *               executing the workflow containing this actor.
      * @return this AkkaActor
      */
-    public AkkaActor runner(WorkflowRunner runner) {
+    public KuratorActor runner(WorkflowRunner runner) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.runner = runner;
         return this;
@@ -177,23 +177,31 @@ public abstract class AkkaActor extends UntypedActor {
         this.settings = settings;
     }
 
-    public AkkaActor setNeedsTrigger(boolean needsTrigger) {
+    public KuratorActor setNeedsTrigger(boolean needsTrigger) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.needsTrigger = needsTrigger;
         return this;
     }
     
-    public AkkaActor metadataWriters(List<MetadataWriter> metadataWriters) {
-        this.metadataWriters = metadataWriters;
+    public KuratorActor metadataWriters(List<MetadataWriter> metadataWriters) {
+        if (this.metadataWriters == null) {
+            this.metadataWriters = metadataWriters;
+        } else {
+            this.metadataWriters.addAll(metadataWriters);
+        }
         return this;
     }
 
-    public AkkaActor metadataReaders(List<MetadataReader> metadataReaders) {
-        this.metadataReaders = metadataReaders;
+    public KuratorActor metadataReaders(List<MetadataReader> metadataReaders) {
+        if (this.metadataReaders == null) {
+            this.metadataReaders = metadataReaders;
+        } else {
+            this.metadataReaders.addAll(metadataReaders);
+        }
         return this;
     }
 
-    public AkkaActor configuration(Map<String, Object> configuration) {
+    public KuratorActor configuration(Map<String, Object> configuration) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.configuration = configuration;
         return this;

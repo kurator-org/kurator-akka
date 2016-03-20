@@ -1,8 +1,8 @@
 package org.kurator.akka.metadata;
 
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 import org.kurator.akka.messages.WrappedMessage;
 
 public interface MetadataReader {
-    void readMetadata(AkkaActor actor, WrappedMessage wrappedMessage) throws Exception;
+    void readMetadata(KuratorActor actor, WrappedMessage wrappedMessage) throws Exception;
 }

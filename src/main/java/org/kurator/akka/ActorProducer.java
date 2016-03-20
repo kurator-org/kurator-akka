@@ -18,7 +18,7 @@ import akka.actor.IndirectActorProducer;
 
 public class ActorProducer implements IndirectActorProducer {
 
-    private Class<? extends AkkaActor> actorClass;
+    private Class<? extends KuratorActor> actorClass;
     private Map<String, Object> defaults;
     private Map<String, Object> parameters;
     private Map<String, Object> configuration;
@@ -26,13 +26,13 @@ public class ActorProducer implements IndirectActorProducer {
     private List<MetadataReader> metadataReaders;
     private List<MetadataWriter> metadataWriters;
     private WorkflowRunner workflowRunner;
-    private AkkaActor actor;
+    private KuratorActor actor;
     private InputStream inStream;
     private PrintStream outStream;
     private PrintStream errStream;
 
     public ActorProducer(
-            Class<? extends AkkaActor> actorClass, 
+            Class<? extends KuratorActor> actorClass, 
             Map<String,Object> configuration,
             Map<String, Object> defaults, 
             Map<String, Object> parameters, 
@@ -58,12 +58,12 @@ public class ActorProducer implements IndirectActorProducer {
     }
 
     @Override
-    public Class<? extends AkkaActor> actorClass() {
+    public Class<? extends KuratorActor> actorClass() {
         return actorClass;
     }
 
     @Override
-    public AkkaActor produce() {
+    public KuratorActor produce() {
         
         // create the actor instance from its class
         try {

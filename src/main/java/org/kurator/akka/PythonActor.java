@@ -11,7 +11,7 @@ import org.python.core.PyDictionary;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-public class PythonActor extends AkkaActor {
+public class PythonActor extends KuratorActor {
     
     protected static String DEFAULT_ON_INIT    = "on_init";
     protected static String DEFAULT_ON_START   = "on_start";

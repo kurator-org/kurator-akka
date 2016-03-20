@@ -14,8 +14,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
-import org.kurator.akka.AkkaActor;
-public class RESTActor extends AkkaActor {
+import org.kurator.akka.KuratorActor;
+public class RESTActor extends KuratorActor {
   public String url = "";
   public String method = "GET";
   public String paramsInputMapping = "";

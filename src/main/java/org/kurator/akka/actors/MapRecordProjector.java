@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 import org.kurator.akka.data.GenericMapRecord;
 
-public class MapRecordProjector extends AkkaActor {
+public class MapRecordProjector extends KuratorActor {
 
     public List<String> fields = new ArrayList<String>();
     public String recordClass = null;

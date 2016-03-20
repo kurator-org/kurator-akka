@@ -11,7 +11,7 @@ import org.springframework.beans.factory.BeanNameAware;
 
 public class ActorConfig implements BeanNameAware {
 
-    public Class<? extends AkkaActor> actorClass;
+    public Class<? extends KuratorActor> actorClass;
     private List<ActorConfig> listeners;
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
@@ -22,7 +22,7 @@ public class ActorConfig implements BeanNameAware {
     public ActorConfig() {
     }
 
-    public ActorConfig actorClass(Class<? extends AkkaActor> actorClass) {
+    public ActorConfig actorClass(Class<? extends KuratorActor> actorClass) {
         this.actorClass = actorClass;
         return this;
     }
@@ -44,10 +44,10 @@ public class ActorConfig implements BeanNameAware {
   
     @SuppressWarnings("unchecked")
     public void setActorClass(String actorClassName) throws ClassNotFoundException {
-        this.actorClass = (Class<? extends AkkaActor>) Class.forName(actorClassName);
+        this.actorClass = (Class<? extends KuratorActor>) Class.forName(actorClassName);
     }
     
-    public Class<? extends AkkaActor> actorClass() {
+    public Class<? extends KuratorActor> actorClass() {
         return actorClass;
     }
     
