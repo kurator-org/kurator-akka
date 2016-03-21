@@ -8,9 +8,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.kurator.akka.metadata.BroadcastEventCountChecker;
+import org.kurator.akka.metadata.BroadcastEventCounter;
 import org.kurator.akka.metadata.MetadataReader;
 import org.kurator.akka.metadata.MetadataWriter;
 
@@ -55,6 +58,16 @@ public class ActorProducer implements IndirectActorProducer {
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
+        
+        if (this.metadataReaders == null) {
+            this.metadataReaders = new LinkedList<MetadataReader>();
+            this.metadataReaders.add(new BroadcastEventCountChecker());
+        }
+
+        if (this.metadataWriters == null) {
+            this.metadataWriters = new LinkedList<MetadataWriter>();
+            this.metadataWriters.add(new BroadcastEventCounter());
+        }
     }
 
     @Override
