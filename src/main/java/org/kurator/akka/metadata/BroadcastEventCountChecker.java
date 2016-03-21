@@ -18,6 +18,7 @@ public class BroadcastEventCountChecker implements MetadataReader {
         if (messageSendEvents.isEmpty()) return;
             
         for (MetadataItem metadataItem : messageSendEvents) {
+
             MessageSendEvent messageSendEvent = (MessageSendEvent)metadataItem;
             
             Integer messageCountForSender = countForActor.get(messageSendEvent.actorId);
@@ -26,9 +27,12 @@ public class BroadcastEventCountChecker implements MetadataReader {
             } else {
                 messageCountForSender++;
             }
+            
+            
             countForActor.put(messageSendEvent.actorId, messageCountForSender);
             
             if (messageCountForSender != messageSendEvent.ordinal) {
+                System.out.println("Actor " + actor.id + " got message " + messageCountForSender + "(" + messageSendEvent.ordinal + ")");
                 throw new Exception("Message between actors lost!");
             }
         }

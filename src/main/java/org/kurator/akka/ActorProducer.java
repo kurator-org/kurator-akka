@@ -61,12 +61,10 @@ public class ActorProducer implements IndirectActorProducer {
         
         if (this.metadataReaders == null) {
             this.metadataReaders = new LinkedList<MetadataReader>();
-            this.metadataReaders.add(new BroadcastEventCountChecker());
         }
 
         if (this.metadataWriters == null) {
             this.metadataWriters = new LinkedList<MetadataWriter>();
-            this.metadataWriters.add(new BroadcastEventCounter());
         }
     }
 

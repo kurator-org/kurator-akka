@@ -16,6 +16,8 @@ import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Success;
 import org.kurator.akka.messages.Start;
 import org.kurator.akka.messages.WrappedMessage;
+import org.kurator.akka.metadata.BroadcastEventCountChecker;
+import org.kurator.akka.metadata.BroadcastEventCounter;
 import org.kurator.akka.metadata.MetadataWriter;
 import org.kurator.akka.metadata.MetadataReader;
 
@@ -95,9 +97,16 @@ public abstract class KuratorActor extends UntypedActor {
     
     
     public KuratorActor() {
+        
         synchronized(nextActorId) {
             this.id = nextActorId++;
         }
+        
+        this.metadataReaders = new LinkedList<MetadataReader>();
+        this.metadataReaders.add(new BroadcastEventCountChecker());
+
+        this.metadataWriters = new LinkedList<MetadataWriter>();
+        this.metadataWriters.add(new BroadcastEventCounter());
     }
     
     /** 

@@ -17,10 +17,10 @@ components:
 - id: Repeater
   type: PythonRepeater
   properties:
-    metadataReaders:
-      - !ref BroadcastEventCountChecker
-    metadataWriters:
-      - !ref BroadcastEventCounter
+#    metadataReaders:
+#      - !ref BroadcastEventCountChecker
+#    metadataWriters:
+#      - !ref BroadcastEventCounter
 
 - id: MultiplyByTwo
   type: PythonMultiplier
@@ -29,10 +29,10 @@ components:
       - !ref Repeater
     parameters:
       factor: 2
-    metadataReaders:
-      - !ref BroadcastEventCountChecker
-    metadataWriters:
-      - !ref BroadcastEventCounter
+#    metadataReaders:
+#      - !ref BroadcastEventCountChecker
+#    metadataWriters:
+#      - !ref BroadcastEventCounter
 
 - id: Printer
   type: PythonPrinter
