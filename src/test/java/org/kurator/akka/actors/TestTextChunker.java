@@ -85,7 +85,7 @@ public class TestTextChunker extends KuratorAkkaTestCase {
 
         for (int i = 1; i <= 100; i++) {
             
-            System.out.println("Iteration " + i);
+//            System.out.println("Iteration " + i);
             
             textChunker.param("max_chunks", 3);    
             

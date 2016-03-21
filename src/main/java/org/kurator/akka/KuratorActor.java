@@ -279,7 +279,7 @@ public abstract class KuratorActor extends UntypedActor {
                     try {
                         onInitialize();
                     } catch(Exception initializationException) {
-                        initializationException.printStackTrace();
+//                      initializationException.printStackTrace();
                         List<Failure> failures = new LinkedList<Failure>();
                         failures.add(new Failure("Error initializing actor '" + name + "'"));
                         failures.add(new Failure(initializationException.getMessage()));
@@ -524,7 +524,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @param exception The reported exception.
      */
     protected final void reportException(Exception exception) {
-        exception.printStackTrace();
+//        exception.printStackTrace();
         ActorRef workflowRef = runner.getWorkflowRef();
         ExceptionMessage em = new ExceptionMessage(exception);
         workflowRef.tell(em, this.getSelf());
