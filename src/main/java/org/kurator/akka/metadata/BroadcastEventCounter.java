@@ -5,12 +5,11 @@ import org.kurator.akka.messages.WrappedMessage;
 
 public class BroadcastEventCounter implements MetadataWriter {
 
-    int count = 0;
+    int eventCount = 0;
     
     @Override
     public void writeMetadata(KuratorActor actor, WrappedMessage wrappedMessage) {
-        MetadataItem m = new MessageSendEvent(actor, ++count);
+        MetadataItem m = new MessageSendEvent(actor.id, ++eventCount);
         wrappedMessage.addMetadata(m);
-//        System.out.println(count);
     }
 }

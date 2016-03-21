@@ -1,24 +1,35 @@
 package org.kurator.akka.metadata;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.kurator.akka.KuratorActor;
 import org.kurator.akka.messages.WrappedMessage;
 
 public class BroadcastEventCountChecker implements MetadataReader {
 
-    int count = 0;
+    Map<Integer,Integer> countForActor = new HashMap<Integer,Integer>();
     
     @Override
     public void readMetadata(KuratorActor actor, WrappedMessage wrappedMessage) throws Exception {
-        List<MetadataItem> metadata = wrappedMessage.getMetadata(MessageSendEvent.class);
-        if (!metadata.isEmpty()) {
-            for (MetadataItem mi : metadata) {
-                MessageSendEvent messageSendEvent = (MessageSendEvent)mi;
-//                System.out.println(messageSendEvent.ordinal);
-                if (++count != messageSendEvent.ordinal) {
-                    throw new Exception("Wrong count");
-                }
+
+        List<MetadataItem> messageSendEvents = wrappedMessage.getMetadata(MessageSendEvent.class);        
+        if (messageSendEvents.isEmpty()) return;
+            
+        for (MetadataItem metadataItem : messageSendEvents) {
+            MessageSendEvent messageSendEvent = (MessageSendEvent)metadataItem;
+            
+            Integer messageCountForSender = countForActor.get(messageSendEvent.actorId);
+            if (messageCountForSender == null) {
+                messageCountForSender = 1;
+            } else {
+                messageCountForSender++;
+            }
+            countForActor.put(messageSendEvent.actorId, messageCountForSender);
+            
+            if (messageCountForSender != messageSendEvent.ordinal) {
+                throw new Exception("Message between actors lost!");
             }
         }
     }
