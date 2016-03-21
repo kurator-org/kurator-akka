@@ -83,7 +83,7 @@ public class TestTextChunker extends KuratorAkkaTestCase {
 
     public void testTextChunker_ThreeChunks() throws Exception {
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 10; i++) {
             
 //            System.out.println("Iteration " + i);
             
