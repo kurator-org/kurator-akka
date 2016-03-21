@@ -59,19 +59,19 @@ public abstract class KuratorActor extends UntypedActor {
      * Defaults to <code>System.in</code>. 
      * <p>Non-default value assigned can be assigned via the {@link #inputStream inputStream()} method.</p>
      */
-    protected InputStream inStream = System.in;
+    protected volatile InputStream inStream = System.in;
     
     /** Stream used by actor instead of writing to <code>System.out</code> directly. 
      * Defaults to <code>System.out</code>. 
      * <p>Non-default value assigned can be assigned via the {@link #outputStream outputStream()} method.</p>
      */
-    protected PrintStream outStream = System.out;
+    protected volatile PrintStream outStream = System.out;
 
     /** Stream used by actor instead of writing to <code>System.err</code> directly. 
      * Defaults to <code>System.err</code>. 
      * <p>Non-default value can be assigned via the {@link #errorStream errorStream()} method.</p>
      */
-    protected PrintStream errStream = System.err;
+    protected volatile PrintStream errStream = System.err;
 
     // private fields
     public final int id;
@@ -119,7 +119,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @param errStream The PrintStream to use for writing to <code>stderr</code>.
      * @return this AkkaActor
      */   
-    public KuratorActor errorStream(PrintStream errStream) {
+    public synchronized KuratorActor errorStream(PrintStream errStream) {
         this.errStream = errStream;
         return this;
     }
@@ -134,7 +134,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @param inStream The InputStream to use for reading from <code>stdin</code>.
      * @return this AkkaActor
      */
-    public KuratorActor inputStream(InputStream inStream) {
+    public synchronized KuratorActor inputStream(InputStream inStream) {
         this.inStream = inStream;
         return this;
     }
@@ -149,7 +149,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @param outStream The PrintStream to use for writing to <code>stdout</code>.
      * @return this AkkaActor
      */
-    public KuratorActor outputStream(PrintStream outStream) {
+    public synchronized KuratorActor outputStream(PrintStream outStream) {
         this.outStream = outStream;
         return this;
     }
@@ -167,7 +167,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @param listenerConfigs The list of actor configurations corresponding to this actor's listeners.
      * @return this AkkaActor
      */
-    public KuratorActor listeners(List<ActorConfig> listenerConfigs) {
+    public synchronized KuratorActor listeners(List<ActorConfig> listenerConfigs) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         if (listenerConfigs != null) {
             this.listenerConfigs = listenerConfigs;
@@ -185,24 +185,24 @@ public abstract class KuratorActor extends UntypedActor {
      *               executing the workflow containing this actor.
      * @return this AkkaActor
      */
-    public KuratorActor runner(WorkflowRunner runner) {
+    public synchronized KuratorActor runner(WorkflowRunner runner) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.runner = runner;
         return this;
     }
 
-    public void settings(Map<String, Object> settings) {
+    public synchronized void settings(Map<String, Object> settings) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.settings = settings;
     }
 
-    public KuratorActor setNeedsTrigger(boolean needsTrigger) {
+    public synchronized KuratorActor setNeedsTrigger(boolean needsTrigger) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.needsTrigger = needsTrigger;
         return this;
     }
     
-    public KuratorActor metadataWriters(List<MetadataWriter> metadataWriters) {
+    public synchronized KuratorActor metadataWriters(List<MetadataWriter> metadataWriters) {
         if (this.metadataWriters == null) {
             this.metadataWriters = metadataWriters;
         } else {
@@ -211,7 +211,7 @@ public abstract class KuratorActor extends UntypedActor {
         return this;
     }
 
-    public KuratorActor metadataReaders(List<MetadataReader> metadataReaders) {
+    public synchronized KuratorActor metadataReaders(List<MetadataReader> metadataReaders) {
         if (this.metadataReaders == null) {
             this.metadataReaders = metadataReaders;
         } else {
@@ -220,7 +220,7 @@ public abstract class KuratorActor extends UntypedActor {
         return this;
     }
 
-    public KuratorActor configuration(Map<String, Object> configuration) {
+    public synchronized KuratorActor configuration(Map<String, Object> configuration) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.configuration = configuration;
         return this;
@@ -247,7 +247,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @throws Exception if any of the other message and event handlers throw one.
      */
     @Override
-    public final void onReceive(Object message) throws Exception {
+    public synchronized final void onReceive(Object message) throws Exception {
 
         Contract.disallows(state, ActorFSM.ENDED);
 
@@ -421,7 +421,7 @@ public abstract class KuratorActor extends UntypedActor {
     protected void onData(Object value) throws Exception {}
     
     
-    public Object wrapMessage(Object message) {
+    private Object wrapMessage(Object message) {
         if (metadataWriters == null) {
             return message;
         } else {
@@ -433,7 +433,7 @@ public abstract class KuratorActor extends UntypedActor {
         }
     }
         
-    public Object unwrapMessage(WrappedMessage wrappedMessage) throws Exception {
+    private Object unwrapMessage(WrappedMessage wrappedMessage) throws Exception {
         if (metadataReaders != null) {
             for (MetadataReader mr : metadataReaders) {
                 mr.readMetadata(this, wrappedMessage);
@@ -442,7 +442,7 @@ public abstract class KuratorActor extends UntypedActor {
         return wrappedMessage.unwrap();
     }
 
-    public WrappedMessage getReceivedWrappedMessage() {
+    public synchronized WrappedMessage getReceivedWrappedMessage() {
         return receivedWrappedMessage;
     }
     
@@ -451,7 +451,7 @@ public abstract class KuratorActor extends UntypedActor {
      * 
      * @param message The message to send.
      */
-    protected final void broadcast(Object message) {
+    protected synchronized final void broadcast(Object message) {
         
         Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
         

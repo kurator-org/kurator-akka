@@ -9,11 +9,11 @@ public abstract class KuratorAkkaTestCase extends TestCase {
     
     public static final String EOL = System.getProperty("line.separator");
 
-    protected OutputStream stdoutBuffer;
-    protected OutputStream stderrBuffer;
+    protected volatile OutputStream stdoutBuffer;
+    protected volatile OutputStream stderrBuffer;
     
-    protected PrintStream stdoutStream;
-    protected PrintStream stderrStream;
+    protected volatile PrintStream stdoutStream;
+    protected volatile PrintStream stderrStream;
 
     @Override
     public void setUp() throws Exception {

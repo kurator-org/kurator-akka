@@ -2,7 +2,6 @@ package org.kurator.akka;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Properties;
 
 import org.python.core.PyBoolean;
 import org.python.core.PyInteger;
@@ -34,7 +33,7 @@ public class PythonActor extends KuratorActor {
     protected PyDictionary state;
     protected PyObject none;
     
-    private String commonScriptHeader =
+    private static final String commonScriptHeader =
             "_KURATOR_INPUT_=None"                          + EOL +
             "_KURATOR_RESULT_=None"                         + EOL +
             "_KURATOR_OUTPUT_=None"                         + EOL +
@@ -97,7 +96,7 @@ public class PythonActor extends KuratorActor {
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
             "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
     
-    private static String statelessOnDataWrapperTemplate = 
+    private static final String statelessOnDataWrapperTemplate = 
             "def _call_ondata():"                           + EOL +
             "  global _KURATOR_INPUT_"                      + EOL +
             "  global _KURATOR_OUTPUT_"                     + EOL +
@@ -110,7 +109,7 @@ public class PythonActor extends KuratorActor {
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
             "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
 
-    private static String statefulOnDataWrapperTemplate = 
+    private static final String statefulOnDataWrapperTemplate = 
             "def _call_ondata():"                           + EOL +
             "  global _KURATOR_STATE_"                      + EOL +
             "  global _KURATOR_INPUT_"                      + EOL +
@@ -135,7 +134,7 @@ public class PythonActor extends KuratorActor {
             "  %s%s(_KURATOR_STATE_)"                       + EOL;
     
     @Override
-    protected void onInitialize() throws Exception {
+    protected synchronized void onInitialize() throws Exception {
         
         initializeJythonInterpreter();
         loadCommonHelperFunctions();
@@ -161,7 +160,7 @@ public class PythonActor extends KuratorActor {
         }
     }
     
-    private void initializeState() {
+    private synchronized void initializeState() {
         state = new PyDictionary();
         for(Map.Entry<String, Object> setting : settings.entrySet()) {
             String name = setting.getKey();
@@ -177,7 +176,7 @@ public class PythonActor extends KuratorActor {
         interpreter.exec(commonScriptHeader);
     }
     
-    protected void loadCustomCode() {
+    protected synchronized void loadCustomCode() {
         
         // read the script into the interpreter
         interpreter.set("__name__",  "__kurator_actor__");
@@ -189,12 +188,10 @@ public class PythonActor extends KuratorActor {
     }
 
     
-    protected void initializeJythonInterpreter() {
-
-        Properties properties = System.getProperties();
-        properties.put("python.import.site", "false");
+    private synchronized void initializeJythonInterpreter() {
 
         interpreter = new PythonInterpreter(null, new PySystemState());
+        
         interpreter.setOut(super.outStream);
         interpreter.setErr(super.errStream);
         
@@ -211,7 +208,7 @@ public class PythonActor extends KuratorActor {
     }
     
     
-    protected void configureJythonSysPath() {
+    private synchronized void configureJythonSysPath() {
 
         // add libray of packages installed locally for Jython
         String jythonHome = System.getenv("JYTHONHOME");
@@ -237,7 +234,7 @@ public class PythonActor extends KuratorActor {
         return result.asInt();
     }
     
-    protected String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount,
+    protected synchronized String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount,
             String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
 
         String actualMethodName = null;
@@ -268,7 +265,7 @@ public class PythonActor extends KuratorActor {
     }
     
     
-    protected void applySettings() {
+    private synchronized void applySettings() {
         if (settings != null) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {
                 String name = functionQualifier + setting.getKey();
@@ -283,7 +280,7 @@ public class PythonActor extends KuratorActor {
     }   
     
     @Override
-    protected void onStart() throws Exception {
+    protected synchronized void onStart() throws Exception {
 
         if (onStart != null) {
             interpreter.set("_KURATOR_STATE_", state);
@@ -297,7 +294,7 @@ public class PythonActor extends KuratorActor {
     }
     
     @Override
-    public void onData(Object value) throws Exception {  
+    public synchronized void onData(Object value) throws Exception {  
 
         if (onData == null) {
             throw new Exception("No onData handler for actor " + this);
@@ -317,7 +314,7 @@ public class PythonActor extends KuratorActor {
     }
 
     @Override
-    protected void onEnd() {
+    protected synchronized void onEnd() {
         
         // call script end function if defined
         if (onEnd != null) {
@@ -330,7 +327,7 @@ public class PythonActor extends KuratorActor {
         interpreter = null;
     }    
 
-    protected void broadcastOutputs() {
+    private void broadcastOutputs() {
 
         if (! interpreter.get("_KURATOR_MORE_DATA_", Boolean.class)) {
             broadcastOutput(interpreter.get("_KURATOR_OUTPUT_", outputType));
@@ -345,13 +342,13 @@ public class PythonActor extends KuratorActor {
     }
 
 
-    protected void broadcastOutput(Object output) {
+    private void broadcastOutput(Object output) {
         if (output != null || broadcastNulls) {
             broadcast(output);
         }
     }
 
-    private void prependSysPath(String path) {
+    private synchronized void prependSysPath(String path) {
         if (path != null) {
             // insert each element of path to intepreter's sys.path maintaining
             // the order of elements in path and after the first element in sys.path

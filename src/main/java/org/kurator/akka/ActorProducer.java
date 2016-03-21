@@ -12,8 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.kurator.akka.metadata.BroadcastEventCountChecker;
-import org.kurator.akka.metadata.BroadcastEventCounter;
 import org.kurator.akka.metadata.MetadataReader;
 import org.kurator.akka.metadata.MetadataWriter;
 

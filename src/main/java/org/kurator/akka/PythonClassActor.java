@@ -5,18 +5,19 @@ import org.python.core.PyException;
 
 public class PythonClassActor extends PythonActor {
 
-    String pythonClassConfig;
-    String pythonClassModule;
-    String pythonClassName;
+    private volatile String pythonClassName;
     
     public PythonClassActor() {
-        functionQualifier = "_PYTHON_CLASS_INSTANCE_.";
+        synchronized(this) {
+            functionQualifier = "_PYTHON_CLASS_INSTANCE_.";
+        }
     }
 
     @Override
-    protected void configureCustomCode() throws Exception {
+    protected synchronized void configureCustomCode() throws Exception {
 
-        pythonClassConfig = (String)configuration.get("pythonClass");
+        String pythonClassConfig = (String)configuration.get("pythonClass");
+        String pythonClassModule = null;
         
         int lastDotIndex = pythonClassConfig.lastIndexOf(".");
         if (lastDotIndex == -1) {
@@ -43,7 +44,8 @@ public class PythonClassActor extends PythonActor {
      }
     
     @Override
-    protected String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount, String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
+    protected synchronized String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount, 
+                                                   String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
 
         String actualMethodName = null;
         
