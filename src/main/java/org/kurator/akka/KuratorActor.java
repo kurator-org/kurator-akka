@@ -37,6 +37,8 @@ public abstract class KuratorActor extends UntypedActor {
     
     /** Shorthand for platform-specific end-of-line character sequence. */
     public static final String EOL = System.getProperty("line.separator");
+    
+    private static Integer nextActorId = 1;
 
     /** Determines if this actor automatically terminates when it receives an 
      * {@link org.kurator.akka.messages.EndOfStream EndOfStream} message.
@@ -70,6 +72,7 @@ public abstract class KuratorActor extends UntypedActor {
     protected PrintStream errStream = System.err;
 
     // private fields
+    public final int id;
     private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
@@ -88,6 +91,13 @@ public abstract class KuratorActor extends UntypedActor {
         INITIALIZED,
         STARTED,
         ENDED
+    }
+    
+    
+    public KuratorActor() {
+        synchronized(nextActorId) {
+            this.id = nextActorId++;
+        }
     }
     
     /** 
