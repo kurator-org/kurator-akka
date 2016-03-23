@@ -266,7 +266,7 @@ public class WorkflowRunner {
         return this;
     }
     
-    public WorkflowRunner start() throws Exception {        
+    public WorkflowRunner start() throws Exception {
         workflow.tell(new Start(), system.lookupRoot());
         return this;
     }
@@ -277,7 +277,7 @@ public class WorkflowRunner {
             .start();
         return this;
     }
-    
+
     public WorkflowRunner end() throws Exception {
         system.awaitTermination();
         if (lastException != null) {
@@ -289,6 +289,12 @@ public class WorkflowRunner {
     public WorkflowRunner run() throws Exception {
         this.begin()
             .end();
+        return this;
+    }
+
+    public WorkflowRunner runAsync(Runnable callback) throws Exception {
+        system.registerOnTermination(callback);
+        this.begin();
         return this;
     }
 
