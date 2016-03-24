@@ -1,7 +1,7 @@
 package org.kurator.akka;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Properties;
 
 import org.python.core.PyBoolean;
 import org.python.core.PyInteger;
@@ -10,7 +10,7 @@ import org.python.core.PyDictionary;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-public class PythonActor extends AkkaActor {
+public class PythonActor extends KuratorActor {
     
     protected static String DEFAULT_ON_INIT    = "on_init";
     protected static String DEFAULT_ON_START   = "on_start";
@@ -33,9 +33,7 @@ public class PythonActor extends AkkaActor {
     protected PyDictionary state;
     protected PyObject none;
     
-    private static Boolean jythonInitialized = false;
-    
-    private String commonScriptHeader =
+    private static final String commonScriptHeader =
             "_KURATOR_INPUT_=None"                          + EOL +
             "_KURATOR_RESULT_=None"                         + EOL +
             "_KURATOR_OUTPUT_=None"                         + EOL +
@@ -98,7 +96,7 @@ public class PythonActor extends AkkaActor {
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
             "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
     
-    private static String statelessOnDataWrapperTemplate = 
+    private static final String statelessOnDataWrapperTemplate = 
             "def _call_ondata():"                           + EOL +
             "  global _KURATOR_INPUT_"                      + EOL +
             "  global _KURATOR_OUTPUT_"                     + EOL +
@@ -111,7 +109,7 @@ public class PythonActor extends AkkaActor {
             "    _KURATOR_MORE_DATA_=False"                 + EOL +
             "    _KURATOR_OUTPUT_=_KURATOR_RESULT_"         + EOL;
 
-    private static String statefulOnDataWrapperTemplate = 
+    private static final String statefulOnDataWrapperTemplate = 
             "def _call_ondata():"                           + EOL +
             "  global _KURATOR_STATE_"                      + EOL +
             "  global _KURATOR_INPUT_"                      + EOL +
@@ -136,13 +134,14 @@ public class PythonActor extends AkkaActor {
             "  %s%s(_KURATOR_STATE_)"                       + EOL;
     
     @Override
-    protected void onInitialize() throws Exception {
+    protected synchronized void onInitialize() throws Exception {
         
         initializeJythonInterpreter();
         loadCommonHelperFunctions();
+        
         loadCustomCode();
         configureCustomCode();
-        
+
         onInit = loadEventHandler("onInit", DEFAULT_ON_INIT, 0, statelessOnInitWrapperTemplate, statefulOnInitWrapperTemplate);
         onStart = loadEventHandler("onStart", DEFAULT_ON_START, 0, statelessOnStartWrapperTemplate, statefulOnStartWrapperTemplate);
         onData = loadEventHandler("onData", DEFAULT_ON_DATA, 1, statelessOnDataWrapperTemplate, statefulOnDataWrapperTemplate);
@@ -157,7 +156,7 @@ public class PythonActor extends AkkaActor {
         }
     }
     
-    private void initializeState() {
+    private synchronized void initializeState() {
         state = new PyDictionary();
         for(Map.Entry<String, Object> setting : settings.entrySet()) {
             String name = setting.getKey();
@@ -173,7 +172,7 @@ public class PythonActor extends AkkaActor {
         interpreter.exec(commonScriptHeader);
     }
     
-    protected void loadCustomCode() {
+    protected synchronized void loadCustomCode() {
         
         // read the script into the interpreter
         interpreter.set("__name__",  "__kurator_actor__");
@@ -181,71 +180,44 @@ public class PythonActor extends AkkaActor {
         if (script != null) interpreter.execfile(script);
         
         String code = (String)configuration.get("code");
-        if (code != null) interpreter.exec(code);        
+        if (code != null) interpreter.exec(code);    
     }
 
     
-    protected void initializeJythonInterpreter() {
+    private synchronized void initializeJythonInterpreter() {
 
-        synchronized(jythonInitialized) {
-
-            Properties properties = System.getProperties();
-            properties.put("python.import.site", "false");
-    
-            // create a python interpreter
-            if (jythonInitialized == false) {
-                PySystemState.initialize(properties, null, new String[] {""});
-            }
-    
-            interpreter = new PythonInterpreter();
-            interpreter.setOut(super.outStream);
-            interpreter.setErr(super.errStream);
-            
-            interpreter.exec("from org import python");
-            interpreter.exec("import sys"); 
-            interpreter.exec("import types"); 
-            interpreter.exec("import inspect"); 
-            
-            // configure Jython sys.path variable.
-            if (jythonInitialized == false) {
-                configureJythonSysPath();
-                jythonInitialized = true;
-            }
-        }
+        interpreter = new PythonInterpreter(null, new PySystemState());
         
+        interpreter.setOut(super.outStream);
+        interpreter.setErr(super.errStream);
+        
+        interpreter.exec("from org import python");
+        interpreter.exec("import sys"); 
+        interpreter.exec("import types"); 
+        interpreter.exec("import inspect"); 
+            
+        // configure Jython sys.path variable.
+        configureJythonSysPath();
+
         // cache a python None object
         none = interpreter.eval("None");
     }
     
     
-    protected void configureJythonSysPath() {
-        
-        // add to python sys.path library directories from local Jython installation
-        String jythonHome = System.getenv("JYTHON_HOME");
+    private synchronized void configureJythonSysPath() {
+
+        // add libray of packages installed locally for Jython
+        String jythonHome = System.getenv("JYTHONHOME");
         if (jythonHome != null) {
             prependSysPath(jythonHome + "/Lib/site-packages");
-            prependSysPath(jythonHome + "/Lib");
-        }
-
-        // add to python sys.path custom Python libraries
-        String kuratorLocalPythonLib = System.getenv("KURATOR_LOCAL_PYTHON_LIB");
-        if (kuratorLocalPythonLib != null) {
-            prependSysPath(kuratorLocalPythonLib + "/site-packages");
-            prependSysPath(kuratorLocalPythonLib);
         }
         
-        // add to python sys.path optional local packages directory
-        String kuratorLocalPackages = System.getenv("KURATOR_LOCAL_PACKAGES");
-        if (kuratorLocalPackages != null) {
-            prependSysPath(kuratorLocalPackages); 
-        }
+        // add the entire Jython path
+        prependSysPath(System.getenv("JYTHONPATH"));
 
-        // add to python sys.path jython libraries distributed via kurator-jython Git repo
-        prependSysPath("kurator-jython");
-        prependSysPath("../kurator-jython");
-        
         // add to python sys.path directory of packages bundled within Kurator jar
         prependSysPath("src/main/python");
+        prependSysPath("packages");
     }
     
     private Boolean isFunction(String f) {
@@ -258,7 +230,7 @@ public class PythonActor extends AkkaActor {
         return result.asInt();
     }
     
-    protected String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount,
+    protected synchronized String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount,
             String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
 
         String actualMethodName = null;
@@ -289,19 +261,22 @@ public class PythonActor extends AkkaActor {
     }
     
     
-    protected void applySettings() {
-    
+    private synchronized void applySettings() {
         if (settings != null) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {
-                String name = setting.getKey();
+                String name = functionQualifier + setting.getKey();
                 Object value = setting.getValue();
-                interpreter.set(name, value);
+                if (value instanceof String) {
+                    interpreter.exec(name + "='" + value + "'");
+                } else if (!(value instanceof Collection)) {
+                    interpreter.exec(name + "=" + value);
+                }
             }
         }
-    }    
+    }   
     
     @Override
-    protected void onStart() throws Exception {
+    protected synchronized void onStart() throws Exception {
 
         if (onStart != null) {
             interpreter.set("_KURATOR_STATE_", state);
@@ -315,7 +290,7 @@ public class PythonActor extends AkkaActor {
     }
     
     @Override
-    public void onData(Object value) throws Exception {  
+    public synchronized void onData(Object value) throws Exception {  
 
         if (onData == null) {
             throw new Exception("No onData handler for actor " + this);
@@ -335,7 +310,7 @@ public class PythonActor extends AkkaActor {
     }
 
     @Override
-    protected void onEnd() {
+    protected synchronized void onEnd() {
         
         // call script end function if defined
         if (onEnd != null) {
@@ -343,11 +318,12 @@ public class PythonActor extends AkkaActor {
             interpreter.eval("_call_onend()");
         }
         
-        // shut down the interpreter
-        interpreter.cleanup();
+        // shut down and deallocate the interpreter
+        interpreter.close();
+        interpreter = null;
     }    
 
-    protected void broadcastOutputs() {
+    private void broadcastOutputs() {
 
         if (! interpreter.get("_KURATOR_MORE_DATA_", Boolean.class)) {
             broadcastOutput(interpreter.get("_KURATOR_OUTPUT_", outputType));
@@ -362,13 +338,21 @@ public class PythonActor extends AkkaActor {
     }
 
 
-    protected void broadcastOutput(Object output) {
+    private void broadcastOutput(Object output) {
         if (output != null || broadcastNulls) {
             broadcast(output);
         }
     }
 
-    private void prependSysPath(String path) {
-        interpreter.eval(String.format("sys.path.insert(0, '%s')%s", path, EOL));
+    private synchronized void prependSysPath(String path) {
+        if (path != null) {
+            // insert each element of path to intepreter's sys.path maintaining
+            // the order of elements in path and after the first element in sys.path
+            // (the first element of sys.path must remain first)
+            int i = 1;
+            for (String pathElement : path.split(System.getProperty("path.separator"))) {
+                interpreter.eval(String.format("sys.path.insert(%d, '%s')%s", i, pathElement, EOL));
+            }
+        }
     }
 }

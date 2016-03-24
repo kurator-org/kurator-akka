@@ -5,20 +5,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.kurator.akka.metadata.MetadataReader;
+import org.kurator.akka.metadata.MetadataWriter;
 import org.springframework.beans.factory.BeanNameAware;
 
 public class ActorConfig implements BeanNameAware {
 
-    public Class<? extends AkkaActor> actorClass;
+    public Class<? extends KuratorActor> actorClass;
     private List<ActorConfig> listeners;
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     protected Map<String,Object> config = new HashMap<String,Object>();
+    private List<MetadataReader> metadataReaders;
+    private List<MetadataWriter> metadataWriters;
 
     public ActorConfig() {
     }
 
-    public ActorConfig actorClass(Class<? extends AkkaActor> actorClass) {
+    public ActorConfig actorClass(Class<? extends KuratorActor> actorClass) {
         this.actorClass = actorClass;
         return this;
     }
@@ -40,10 +44,10 @@ public class ActorConfig implements BeanNameAware {
   
     @SuppressWarnings("unchecked")
     public void setActorClass(String actorClassName) throws ClassNotFoundException {
-        this.actorClass = (Class<? extends AkkaActor>) Class.forName(actorClassName);
+        this.actorClass = (Class<? extends KuratorActor>) Class.forName(actorClassName);
     }
     
-    public Class<? extends AkkaActor> actorClass() {
+    public Class<? extends KuratorActor> actorClass() {
         return actorClass;
     }
     
@@ -91,6 +95,23 @@ public class ActorConfig implements BeanNameAware {
     public List<ActorConfig> getListeners() {        
         return listeners;
     }
+
+    public void setMetadataReaders(List<MetadataReader> metadataReaders) {
+        this.metadataReaders = metadataReaders;
+    }
+    
+    public List<MetadataReader> getMetadataReaders() {
+        return metadataReaders;
+    }
+
+    public void setMetadataWriters(List<MetadataWriter> metadataWriters) {
+        this.metadataWriters = metadataWriters;
+    }
+    
+    public List<MetadataWriter> getMetadataWriters() {
+        return metadataWriters;
+    }
+
     
     public void setListensTo(List<ActorConfig> senders) {
         for (ActorConfig sender : senders) {

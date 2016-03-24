@@ -1,0 +1,44 @@
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+
+components:
+
+- id: ReadOneNumber
+  type: PythonActor
+  properties:
+    onStart: readnum
+    code: |
+      def readnum():
+          print "Enter a number:"
+          line = sys.stdin.readline()
+          n = float(line.strip())
+          return n
+
+- id: MultiplyByTwo
+  type: PythonActor
+  properties:
+    module: kurator_akka.math.multiplier
+    onData: multiply
+    listensTo:
+      - !ref ReadOneNumber
+    parameters:
+      factor: 2
+
+- id: Printer
+  type: PythonActor
+  properties:
+    onData: printnum
+    code: |
+      def printnum(n):
+        print n
+    listensTo:
+      - !ref MultiplyByTwo
+
+- id: ThreeActorWorkflow
+  type: Workflow
+  properties:
+    actors:
+      - !ref ReadOneNumber
+      - !ref MultiplyByTwo
+      - !ref Printer

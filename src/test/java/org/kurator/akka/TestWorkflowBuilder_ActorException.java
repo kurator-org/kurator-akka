@@ -60,7 +60,7 @@ public class TestWorkflowBuilder_ActorException extends KuratorAkkaTestCase {
          assertEquals("1, 2, 3", stdoutBuffer.toString());
      }
      
-     public static class TestActor extends AkkaActor {
+     public static class TestActor extends KuratorActor {
 
          static public final Integer exceptionTriggerValue = Integer.MIN_VALUE;
          

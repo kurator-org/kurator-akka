@@ -1,5 +1,8 @@
 package org.kurator.akka.actors;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
 import org.kurator.akka.ActorConfig;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.PythonActor;
@@ -17,28 +20,38 @@ public class TestTextChunker extends KuratorAkkaTestCase {
     public void setUp() throws Exception {
 
          super.setUp();
-
-         wr = new WorkflowRunner()
-             .outputStream(stdoutStream)
-             .errorStream(stderrStream);
-
-         textSource =  
-         wr.actor(PythonActor.class)
-           .config("code", "def on_data(text): "    + EOL +
-                           "  return text"          + EOL);
-
-         textChunker = 
-         wr.actor(PythonClassActor.class)
-           .config("pythonClass", "kurator_akka.word_count.WordCount.TextChunker")
-           .config("onData", "split_text_with_counts")
-           .listensTo(textSource);
-
-         wr.actor(PythonActor.class)
-           .listensTo(textChunker)
-           .config("code", "def on_data(text): print text");
-         
-         wr.inputActor(textSource);
+         buildWorkflow();
     }
+    
+    private void buildWorkflow() throws Exception {
+
+        stdoutBuffer = new ByteArrayOutputStream();
+        stdoutStream = new PrintStream(stdoutBuffer);
+    
+        stderrBuffer = new ByteArrayOutputStream();
+        stderrStream = new PrintStream(stderrBuffer);
+
+        wr = new WorkflowRunner()
+            .outputStream(stdoutStream)
+            .errorStream(stderrStream);
+
+        textSource =  
+        wr.actor(PythonActor.class)
+          .config("code", "def on_data(text): "    + EOL +
+                          "  return text"          + EOL);
+
+        textChunker = 
+        wr.actor(PythonClassActor.class)
+          .config("pythonClass", "kurator_akka.word_count.WordCount.TextChunker")
+          .config("onData", "split_text_with_counts")
+          .listensTo(textSource);
+
+        wr.actor(PythonActor.class)
+          .listensTo(textChunker)
+          .config("code", "def on_data(text): print text");
+        
+        wr.inputActor(textSource);
+   }
    
 
     public void testTextChunker_DefaultMaxChunks() throws Exception {
@@ -70,18 +83,25 @@ public class TestTextChunker extends KuratorAkkaTestCase {
 
     public void testTextChunker_ThreeChunks() throws Exception {
 
-        textChunker.param("max_chunks", 3);    
-        
-        wr.begin();
-        wr.tellWorkflow("The quick brown fox jumps over the lazy dog.");
-        wr.tellWorkflow(new EndOfStream());
-        wr.end();
-      
-        assertEquals(
-                "(1, 1, 3, u'The quick brown')"        + EOL +
-                "(1, 2, 3, u' fox jumps over')"        + EOL +
-                "(1, 3, 3, u' the lazy dog.')"         + EOL,
-                stdoutBuffer.toString());
+        for (int i = 1; i <= 10; i++) {
+            
+//            System.out.println("Iteration " + i);
+            
+            textChunker.param("max_chunks", 3);    
+            
+            wr.begin();
+            wr.tellWorkflow("The quick brown fox jumps over the lazy dog.");
+            wr.tellWorkflow(new EndOfStream());
+            wr.end();
+          
+            assertEquals(
+                    "(1, 1, 3, u'The quick brown')"        + EOL +
+                    "(1, 2, 3, u' fox jumps over')"        + EOL +
+                    "(1, 3, 3, u' the lazy dog.')"         + EOL,
+                    stdoutBuffer.toString());
+            
+            buildWorkflow();
+        }
     }
 
     public void testTextChunker_NineChunks() throws Exception {

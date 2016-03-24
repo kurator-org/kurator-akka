@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
-public class PojoActor extends AkkaActor {
+public class PojoActor extends KuratorActor {
 
 	public String wrappedClassName;
 	private Class<? extends Object> wrappedClass;

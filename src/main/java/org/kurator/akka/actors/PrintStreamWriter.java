@@ -1,8 +1,8 @@
 package org.kurator.akka.actors;
 
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 
-public class PrintStreamWriter extends AkkaActor {
+public class PrintStreamWriter extends KuratorActor {
 
     public String separator = System.lineSeparator();
     public boolean endWithSeparator = false;

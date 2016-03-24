@@ -7,9 +7,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 import org.kurator.akka.data.DQReport.*;
-public class GeoValidatorToDQReport extends AkkaActor {
+public class GeoValidatorToDQReport extends KuratorActor {
   @Override
   @SuppressWarnings("unchecked")
   public void onData(Object value) {

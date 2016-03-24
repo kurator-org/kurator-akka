@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.kurator.akka.AkkaActor;
+import org.kurator.akka.KuratorActor;
 import org.kurator.akka.data.DQReport.*;
-public class DQReportWriter extends AkkaActor {
+public class DQReportWriter extends KuratorActor {
   public boolean jsonOutput = true;
   public boolean consoleOutput = true;
   public String filePath = "output.json";

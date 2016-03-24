@@ -73,7 +73,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         assertNotNull(caught);
         assertEquals(
                 "Error initializing workflow 'Workflow'" + EOL +
-                "Error intializing actor 'Repeater'" + EOL +
+                "Error initializing actor 'Repeater'" + EOL +
                 "Custom onData handler 'echo' not defined for actor 'Repeater'", 
                 caught.getMessage());
     }

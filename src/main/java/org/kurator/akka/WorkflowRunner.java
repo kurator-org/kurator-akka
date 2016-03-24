@@ -79,14 +79,14 @@ public class WorkflowRunner {
         this.system = ActorSystem.create("Workflow",  config);
     }
 
-    public ActorConfig actor(ActorConfig actorConfig, Class<? extends AkkaActor> actorClass) {
+    public ActorConfig actor(ActorConfig actorConfig, Class<? extends KuratorActor> actorClass) {
         actorConfig.actorClass(actorClass);
         addActorConfig(actorConfig);
         return actorConfig;
     }
 
     
-    public ActorConfig actor(Class<? extends AkkaActor> actorClass) {
+    public ActorConfig actor(Class<? extends KuratorActor> actorClass) {
         return actor(new ActorConfig(), actorClass);
     }
     
@@ -202,6 +202,8 @@ public class WorkflowRunner {
                                     actorConfig.getDefaults(), 
                                     actorConfig.getParameters(), 
                                     actorConfig.getListeners(),
+                                    actorConfig.getMetadataReaders(),
+                                    actorConfig.getMetadataWriters(),
                                     inStream,
                                     outStream,
                                     errStream,
