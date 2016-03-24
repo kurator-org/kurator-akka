@@ -25,7 +25,7 @@ public class TestTolstoyWordCountWorkflow extends KuratorAkkaTestCase {
 
          textSource =  
          wr.actor(TextFileReader.class)
-           .param("filePath", "./src/main/python/kurator_akka/word_count/war-and-peace.txt");
+           .param("filePath", "./packages/kurator_akka/word_count/war-and-peace.txt");
 
          textChunker = 
          wr.actor(PythonClassActor.class)
