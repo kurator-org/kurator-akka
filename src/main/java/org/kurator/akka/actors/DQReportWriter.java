@@ -1,10 +1,12 @@
 package org.kurator.akka.actors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONArray;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
@@ -19,103 +21,28 @@ public class DQReportWriter extends KuratorActor {
   public String filePath = "output.json";
   private FileWriter file;
   private DQReport report;
-  @Override
-  public void onStart() throws Exception {
-    if(this.jsonOutput){
-          if (filePath != null) {
-              file = new FileWriter(filePath, false);
-              file.write("[");
-          }
-    }
-  }
+
   @Override
   @SuppressWarnings("unchecked")
   public void onData(Object value) {
-    this.report = (DQReport)value;
+    this.report = (DQReport) value;
 
-    if(this.consoleOutput)
-        consoleDQReport();
-    if(this.jsonOutput)
-        jsonDQReport();
+    if (this.consoleOutput)
+      consoleDQReport();
+    if (this.jsonOutput)
+      jsonDQReport();
 
     broadcast(value);
   }
-  @Override
-  public void onEnd() throws Exception {
-      if (file != null) {
-          file.write("]");
-          file.flush();
-          file.close();
-          System.out.print("\n DQ Report wrote in: "+filePath+" \n ");
-      }
-  }
+
   public void jsonDQReport(){
-    Map<String,String> dr = new HashMap();
-    if(report.getMeasures().size()>0)
-      dr = report.getMeasures().get(0).getDataResource();
-    else if(report.getValidations().size()>0)
-      dr = report.getMeasures().get(0).getDataResource();
-    else if(report.getImprovements().size()>0)
-      dr = report.getImprovements().get(0).getDataResource();
-    else dr = null;
-
-    JSONObject dataResource = new JSONObject();
-    if(dr!=null){
-      Iterator it = dr.entrySet().iterator();
-      while (it.hasNext()) {
-          Map.Entry pair = (Map.Entry)it.next();
-          dataResource.put(pair.getKey(),pair.getValue());
-          it.remove(); // avoids a ConcurrentModificationException
-      }
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      mapper.writeValue(new File(filePath), report);
+      System.out.print("\n DQ Report wrote in: "+filePath+" \n ");
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-    JSONArray measures = new JSONArray();
-    if(report.getMeasures().size()>0){
-      for(Measure item : report.getMeasures()){
-        JSONObject obj = new JSONObject();
-      	obj.put("dimension", item.getDimension());
-      	obj.put("specification", item.getSpecification());
-        obj.put("mechanism", item.getMechanism());
-        obj.put("result", item.getResult());
-        measures.add(obj);
-      }
-    }
-    JSONArray validations = new JSONArray();
-    if(report.getValidations().size()>0){
-      for(Validation item : report.getValidations()){
-        JSONObject obj = new JSONObject();
-      	obj.put("criterion", item.getCriterion());
-      	obj.put("specification", item.getSpecification());
-        obj.put("mechanism", item.getMechanism());
-        obj.put("result", item.getResult());
-        validations.add(obj);
-      }
-    }
-    JSONArray improvements = new JSONArray();
-    if(report.getImprovements().size()>0){
-      for(Improvement item : report.getImprovements()){
-        JSONObject obj = new JSONObject();
-      	obj.put("enhancement", item.getEnhancement());
-      	obj.put("specification", item.getSpecification());
-        obj.put("mechanism", item.getMechanism());
-        obj.put("result", item.getResult());
-        improvements.add(obj);
-      }
-    }
-    JSONObject dqReport = new JSONObject();
-    dqReport.put("dataResource", dataResource);
-    dqReport.put("measures", measures);
-    dqReport.put("validations", validations);
-    dqReport.put("improvements", improvements);
-
-    JSONObject root = new JSONObject();
-    root.put("DQReport", dqReport);
-  	try {
-  		//file = new FileWriter(filePath);
-  		file.write(root.toJSONString()+",");
-
-  	} catch (IOException e) {
-  		e.printStackTrace();
-  	}
   }
   public void consoleDQReport(){
     if(report.getMeasures().size()>0){
