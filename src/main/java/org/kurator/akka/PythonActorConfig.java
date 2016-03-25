@@ -7,4 +7,5 @@ public class PythonActorConfig extends ActorConfig {
     public void setOnEnd(String value)          { config.put("onEnd", value); }
     public void setPythonClass(String value)    { config.put("pythonClass", value); }
     public void setScript(String value)         { config.put("script", value); }
+    public void setModule(String value)         { config.put("module", value); }
 }

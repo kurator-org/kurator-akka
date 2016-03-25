@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.python.core.PyBoolean;
+import org.python.core.PyException;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PyDictionary;
@@ -21,6 +22,7 @@ public class PythonActor extends KuratorActor {
     public Class<? extends Object> outputType = Object.class;
     public boolean broadcastNulls = false;
     public boolean outputTypeIsInputType = false;
+    protected boolean usingPythonModule = false;
     
     protected String functionQualifier = "";
     
@@ -45,7 +47,7 @@ public class PythonActor extends KuratorActor {
             "def _is_generator(g):"                         + EOL +
             "  return isinstance(g, types.GeneratorType)"   + EOL +
             ""                                              + EOL +
-            "def _is_function(f):"                          + EOL +
+            "def _is_global_function(f):"                   + EOL +
             "  return f in globals() and inspect.isfunction(globals()[f])"   + EOL +
             ""                                              + EOL +
             "def _function_arg_count(f):"                   + EOL +
@@ -172,7 +174,7 @@ public class PythonActor extends KuratorActor {
         interpreter.exec(commonScriptHeader);
     }
     
-    protected synchronized void loadCustomCode() {
+    protected synchronized void loadCustomCode() throws Exception {
         
         // read the script into the interpreter
         interpreter.set("__name__",  "__kurator_actor__");
@@ -180,10 +182,22 @@ public class PythonActor extends KuratorActor {
         if (script != null) interpreter.execfile(script);
         
         String code = (String)configuration.get("code");
-        if (code != null) interpreter.exec(code);    
+        if (code != null) interpreter.exec(code);
+
+        String moduleConfig = (String)configuration.get("module");
+        if (moduleConfig != null) {
+            usingPythonModule = true;
+            try {
+                interpreter.exec("import " + moduleConfig);
+            } catch (PyException e) {
+                System.out.println("Error: "+  e);
+                throw new Exception("Error importing Python module '" + 
+                                    moduleConfig + "': " + e.value);
+            }
+            functionQualifier = moduleConfig + ".";
+        }        
     }
 
-    
     private synchronized void initializeJythonInterpreter() {
 
         interpreter = new PythonInterpreter(null, new PySystemState());
@@ -216,12 +230,11 @@ public class PythonActor extends KuratorActor {
         prependSysPath(System.getenv("JYTHONPATH"));
 
         // add to python sys.path directory of packages bundled within Kurator jar
-        prependSysPath("src/main/python");
         prependSysPath("packages");
     }
     
-    private Boolean isFunction(String f) {
-        PyBoolean result = (PyBoolean)interpreter.eval("_is_function('" + f + "')");
+    private Boolean isGlobalFunction(String f) {
+        PyBoolean result = (PyBoolean)interpreter.eval("_is_global_function('" + f + "')");
         return result.getBooleanValue();
     }
     
@@ -233,16 +246,28 @@ public class PythonActor extends KuratorActor {
     protected synchronized String loadEventHandler(String handlerName, String defaultMethodName, int minArgumentCount,
             String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
 
+        if (usingPythonModule) {
+            return loadEventHandlerModuleFunction(handlerName, defaultMethodName, minArgumentCount, 
+                    statelessWrapperTemplate, statefulWrapperTemplate); 
+        } else {
+            return loadEventHandlerLocalFunction(handlerName, defaultMethodName, minArgumentCount, 
+                    statelessWrapperTemplate, statefulWrapperTemplate); 
+        }
+    }
+    
+    private synchronized String loadEventHandlerLocalFunction(String handlerName, String defaultMethodName, int minArgumentCount,
+            String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
+
         String actualMethodName = null;
         
         String customMethodName = (String)configuration.get(handlerName);
         if (customMethodName != null) {
-            if (!isFunction(customMethodName)) {
+            if (!isGlobalFunction(customMethodName)) {
                 throw new Exception("Custom " + handlerName + " handler '" + customMethodName + 
                                     "' not defined for actor '" + name + "'");
             }
             actualMethodName = customMethodName;
-        } else if (isFunction(defaultMethodName)) {
+        } else if (isGlobalFunction(defaultMethodName)) {
             actualMethodName = defaultMethodName;
         } 
         
@@ -260,7 +285,37 @@ public class PythonActor extends KuratorActor {
         return actualMethodName;
     }
     
-    
+    private synchronized String loadEventHandlerModuleFunction(String handlerName, String defaultMethodName, int minArgumentCount,
+            String statelessWrapperTemplate, String statefulWrapperTemplate) throws Exception {
+
+        String actualMethodName = null;
+        
+        String customMethodName = (String)configuration.get(handlerName);
+        if (customMethodName != null) {
+            actualMethodName = customMethodName;
+        } else if (isGlobalFunction(defaultMethodName)) {
+            actualMethodName = defaultMethodName;
+        } 
+        
+        int argCount = 0;
+        try {
+            argCount = getArgCount(functionQualifier + actualMethodName);
+        } catch(Exception e) {
+            if (customMethodName != null) {
+                throw new Exception("Custom " + handlerName + " handler '" + customMethodName + 
+                        "' not defined for actor '" + name + "'");
+            }
+            return null;
+        }
+        
+        if (argCount == minArgumentCount) {
+            interpreter.exec(String.format(statelessWrapperTemplate, functionQualifier, actualMethodName));
+        } else if (argCount == minArgumentCount + 1) {
+            interpreter.exec(String.format(statefulWrapperTemplate, functionQualifier, actualMethodName));
+        }
+
+        return actualMethodName;
+    }    
     private synchronized void applySettings() {
         if (settings != null) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {

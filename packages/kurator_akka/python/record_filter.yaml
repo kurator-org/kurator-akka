@@ -1,0 +1,40 @@
+imports:
+
+- classpath:/org/kurator/akka/actors.yaml
+- classpath:/org/kurator/akka/python/actors.yaml
+
+components:
+
+- id: CsvReader
+  type: CsvFileReader
+
+- id: PythonRecordFilter
+  type: PythonActor
+  properties:
+    script: src/test/resources/org/kurator/akka/python/record_filter.py
+    onData: filter
+    parameters:
+      outputTypeIsInputType: true
+    listensTo:
+      - !ref CsvReader
+
+- id: CsvWriter
+  type: CsvFileWriter
+  properties:
+    listensTo:
+      - !ref PythonRecordFilter
+
+- id: CsvRecordFilter
+  type: Workflow
+  properties:
+    actors:
+      - !ref CsvReader
+      - !ref PythonRecordFilter
+      - !ref CsvWriter
+    parameters:
+      in:
+        actor: !ref CsvReader
+        parameter: filePath
+      out:
+        actor: !ref CsvWriter
+        parameter: filePath
