@@ -4,15 +4,10 @@ imports:
 
 types:
 
-- id: RESTActor
+- id: RestActor
   type: Actor
   properties:
-    actorClass: org.kurator.akka.actors.RESTActor
-
-- id: GeoValidatorToDQReport
-  type: Actor
-  properties:
-    actorClass: org.kurator.akka.actors.GeoValidatorToDQReport
+    actorClass: org.kurator.akka.actors.RestActor
 
 - id: PrintDQReport
   type: Actor

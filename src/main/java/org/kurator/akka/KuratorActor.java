@@ -12,6 +12,7 @@ import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Failure;
+import org.kurator.akka.messages.FutureComplete;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Success;
 import org.kurator.akka.messages.Start;
@@ -308,7 +309,12 @@ public abstract class KuratorActor extends UntypedActor {
 
                     // invoke the EndOfStream message handler
                     onEndOfStream((EndOfStream)message);
-                }            
+                } else if (message instanceof FutureComplete) {
+
+                    Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
+
+                    onFutureComplete((FutureComplete)message);
+                }
                 
             // all other messages are assumed to be data
             } else {
@@ -329,7 +335,7 @@ public abstract class KuratorActor extends UntypedActor {
             endStreamAndStop();
         }
     }
-    
+
     private void handleOnStart() throws Exception {
         onStart();
         if (this.needsTrigger) {
@@ -407,7 +413,8 @@ public abstract class KuratorActor extends UntypedActor {
      * @throws Exception If the actor implementation of onEnd() method throws an exception.
      */
     protected void onEnd() throws Exception {}
-    
+
+    protected void onFutureComplete(FutureComplete message) throws Exception { }
     
     /** 
      * Empty default handler for incoming data messages.  Called when the actor receives a message
