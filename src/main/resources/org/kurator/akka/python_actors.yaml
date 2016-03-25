@@ -7,7 +7,7 @@ types:
 - id: PythonRepeater
   type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/python/repeater.py
+    module: kurator_akka.python.repeater
     onData: repeat
     defaults:
       outputTypeIsInputType: true
@@ -15,7 +15,7 @@ types:
 - id: PythonPrinter
   type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/python/printer.py
+    module: kurator_akka.python.printer
     onData: print_message
     onStart: start
     onEnd: flush
@@ -23,7 +23,7 @@ types:
 - id: PythonMultiplier
   type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/python/multiplier.py
+    module: kurator_akka.python.multiplier
     onData: multiply
     defaults:
       outputTypeIsInputType: true
@@ -31,19 +31,19 @@ types:
 - id: RampActor
   type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/python/ramp.py
+    module: kurator_akka.python.ramp
     onStart: ramp
 
 - id: TriggeredRampActor
   type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/python/triggered_ramp.py
+    module: kurator_akka.python.triggered_ramp
     onData: ramp
 
 - id: CsvReader
   type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/python/csv_reader.py
+    module: kurator_akka.python.csv_reader.py
     onStart: read_file
     defaults:
       outputTypeIsInputType: true

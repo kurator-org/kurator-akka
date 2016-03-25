@@ -1,7 +1,6 @@
 imports:
 
 - classpath:/org/kurator/akka/actors.yaml
-- classpath:/org/kurator/akka/python/actors.yaml
 
 components:
 
@@ -11,7 +10,7 @@ components:
 - id: PythonRecordFilter
   type: PythonActor
   properties:
-    script: src/test/resources/org/kurator/akka/python/record_filter.py
+    module: kurator_akka.records.record_filter
     onData: filter
     parameters:
       outputTypeIsInputType: true

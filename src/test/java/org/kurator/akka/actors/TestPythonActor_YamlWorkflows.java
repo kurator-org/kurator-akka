@@ -8,7 +8,7 @@ import org.kurator.akka.messages.EndOfStream;
 
 public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
     
-    static final String RESOURCE_PATH = "classpath:/org/kurator/akka/python/";
+    static final String RESOURCE_PATH = "file:packages/kurator_akka/python/";
     
     @Test
     public void testPythonActor_MultiplierWorkflow() throws Exception {

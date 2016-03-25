@@ -29,7 +29,7 @@ public class TestPythonActor_ExternalScripts extends KuratorAkkaTestCase {
          ActorConfig repeater = wr.actor(Repeater.class);
          
          jythonActor = wr.actor(PythonActor.class)
-                         .config("script", "src/test/resources/org/kurator/akka/python/multiplier.py")
+                         .config("module", "kurator_akka.python.multiplier")
                          .config("onData", "multiply")
                          .param("factor", 2)
                          .listensTo(repeater);

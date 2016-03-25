@@ -1,7 +1,7 @@
 imports:
 
 - classpath:/org/kurator/akka/actors.yaml
-- classpath:/org/kurator/akka/python/actors.yaml
+- classpath:/org/kurator/akka/python_actors.yaml
 
 
 components:
