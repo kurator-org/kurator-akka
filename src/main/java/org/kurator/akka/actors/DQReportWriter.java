@@ -1,5 +1,6 @@
 package org.kurator.akka.actors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
@@ -49,6 +50,25 @@ public class DQReportWriter extends KuratorActor {
           System.out.print("\n DQ Report written to: "+filePath+" \n ");
       }
   }
+
+  // TODO: Serialize to json with a framework instead of this custom serialization.
+  /*
+  Backed out 684209476dae00f4a119222641369efc7163d990 
+  as this use of ObjectWrapper results in only the report on the last record in 
+  a data set being preserved, as mapper.writeValue() is overwriting instead of appending.
+  Moving to class property File file = new File(filePath) doesn't solve this. 
+
+  public void jsonDQReport(){
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      mapper.writeValue(new File(filePath), report);
+      System.out.print("\n DQ Report wrote in: "+filePath+" \n ");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  */
+
   public void jsonDQReport(){
     if (report!=null) { 
         Map<String,String> dr = new HashMap();
