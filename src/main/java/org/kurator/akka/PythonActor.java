@@ -3,6 +3,7 @@ package org.kurator.akka;
 import java.util.Collection;
 import java.util.Map;
 
+import org.kurator.util.SystemClasspathManager;
 import org.python.core.PyBoolean;
 import org.python.core.PyException;
 import org.python.core.PyInteger;
@@ -198,7 +199,7 @@ public class PythonActor extends KuratorActor {
         }        
     }
 
-    private synchronized void initializeJythonInterpreter() {
+    private synchronized void initializeJythonInterpreter() throws Exception {
 
         interpreter = new PythonInterpreter(null, new PySystemState());
         
@@ -209,28 +210,9 @@ public class PythonActor extends KuratorActor {
         interpreter.exec("import sys"); 
         interpreter.exec("import types"); 
         interpreter.exec("import inspect"); 
-            
-        // configure Jython sys.path variable.
-        configureJythonSysPath();
 
         // cache a python None object
         none = interpreter.eval("None");
-    }
-    
-    
-    private synchronized void configureJythonSysPath() {
-
-        // add libray of packages installed locally for Jython
-        String jythonHome = System.getenv("JYTHONHOME");
-        if (jythonHome != null) {
-            prependSysPath(jythonHome + "/Lib/site-packages");
-        }
-        
-        // add the entire Jython path
-        prependSysPath(System.getenv("JYTHONPATH"));
-
-        // add to python sys.path directory of packages bundled within Kurator jar
-        prependSysPath("packages");
     }
     
     private Boolean isGlobalFunction(String f) {
@@ -399,14 +381,24 @@ public class PythonActor extends KuratorActor {
         }
     }
 
-    private synchronized void prependSysPath(String path) {
+    public static void updateClasspath() {
+        addToClasspath(System.getenv("JYTHONPATH"));
+        String jythonHome = System.getenv("JYTHONHOME");
+        if (jythonHome != null) {
+            addToClasspath(jythonHome + "/Lib/site-packages");
+        }
+        addToClasspath("packages");
+    }
+    
+    private static void addToClasspath(String path) {
         if (path != null) {
-            // insert each element of path to intepreter's sys.path maintaining
-            // the order of elements in path and after the first element in sys.path
-            // (the first element of sys.path must remain first)
-            int i = 1;
             for (String pathElement : path.split(System.getProperty("path.separator"))) {
-                interpreter.eval(String.format("sys.path.insert(%d, '%s')%s", i, pathElement, EOL));
+                try {
+                    SystemClasspathManager.addPath(pathElement);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(-1);
+                }
             }
         }
     }

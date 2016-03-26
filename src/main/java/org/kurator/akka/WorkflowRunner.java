@@ -4,9 +4,6 @@ import static akka.pattern.Patterns.ask;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,23 +45,9 @@ public class WorkflowRunner {
     protected String workflowName = "Workflow";
     
     static {
-        String localPythonPackages = System.getenv("KURATOR_LOCAL_PACKAGES");
-        if (localPythonPackages != null) {
-            try {
-            addToClasspath(localPythonPackages);
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }            
-        }
+        PythonActor.updateClasspath();
     }
-    
-    static void addToClasspath(String path) throws Exception {
-        URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
-        method.setAccessible(true);
-        method.invoke(classLoader, new Object[] { new URL("file:" + path + "/") });
-    }
-    
+        
     public WorkflowRunner() {
         
         // create a configuration for the actor system that disables all logging from Akka
@@ -280,6 +263,7 @@ public class WorkflowRunner {
         return this;
     }
 
+    @SuppressWarnings("deprecation")
     public WorkflowRunner end() throws Exception {
         system.awaitTermination();
         if (lastException != null) {
