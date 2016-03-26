@@ -1,0 +1,51 @@
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+
+components:
+
+- id: SendUrl
+  type: PythonActor
+  properties:
+    code: |
+      import time
+      def on_start():
+        yield 'http://ipt.vertnet.org:8080/ipt/archive.do?r=ccber_mammals'
+
+- id: GetUrl
+  type: PythonActor
+  properties:
+    code: |
+      def on_start():
+        print "Enter the URL for the file to download:"
+        url = sys.stdin.readline()
+        return url
+
+- id: DownloadFile
+  type: PythonActor
+  properties:
+    script: FileDownloader.py
+    onData: download
+    listensTo:
+      - !ref SendUrl
+    parameters:
+      tempdir: .
+
+
+- id: PrintPath
+  type: PythonActor
+  properties:
+    code: |
+      def on_data(path):
+        print path
+    listensTo:
+      - !ref DownloadFile
+  
+- id: FileDownloaderWorkflow
+  type: Workflow
+  properties:
+    actors:
+#      - !ref GetUrl
+      - !ref SendUrl
+      - !ref DownloadFile
+      - !ref PrintPath
