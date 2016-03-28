@@ -20,11 +20,20 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "  className: org.kurator.akka.WorkflowConfig"          + EOL +
                 "  singleton: true"                                     + EOL; 
         
-        new YamlStringWorkflowRunner(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
             .outputStream(stderrStream)
-            .errorStream(stdoutStream)
-            .build();
-}
+            .errorStream(stdoutStream);
+
+        Exception caught = null;
+        try {
+            wr.build();
+        } catch(Exception e) {
+            caught = e;
+        }
+        
+        assertNotNull(caught);
+        assertEquals("Workflow definition contains no actors.", caught.getMessage());
+    }
 
     public void testOneActorWorkflow() throws Exception {
         
