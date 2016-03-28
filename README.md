@@ -23,7 +23,8 @@ Actors in **Kurator-Akka** may be implemented either in Java or in Python.
 
 The Java class below defines a simple actor for multiplying an integer by a configurable constant:
 
-    import org.kurator.akka.AkkaActor;
+    import org.kurator.akka.KuratorActor;
+
     public class Multiplier extends KuratorActor {
         public double factor = 1;
         @Override public void onData(Object i) {
@@ -31,7 +32,7 @@ The Java class below defines a simple actor for multiplying an integer by a conf
         }
     }
 
-As shown above, a new Java actor can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.AkkaActor` base class.  This method will be called by the **Kurator-Akka** framework each time the actor receives any data.  The call to `broadcast()` within the `onData()` method sends data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
+As shown above, a new Java actor can be implemented by declaring a new Java class that overrides the `onData()` method of the `org.kurator.akka.KuratorActor` base class.  This method will be called by the **Kurator-Akka** framework each time the actor receives any data.  The call to `broadcast()` within the `onData()` method sends data (usually the results of performing some computation on the data received by the actor) to any other actors in the workflow configured to listen to this one.
 
 An alternative approach to defining a **Kurator-Akka** Java actor is to implement the actor as a Plain Old Java Object (POJO) and declare to the Kurator-Akka framework which public method is to be called for each received data object. By default the method named `onData()` will be used. This method must be a function that returns the value to be broadcast to other actors.  A POJO implementation of the above Multiplier actor is as follows:
 
@@ -42,7 +43,7 @@ An alternative approach to defining a **Kurator-Akka** Java actor is to implemen
         }
     }
 
-No class inheritance is required when using using the POJO approach.  However, POJO actors have the limitation that only one output data item may be returned and communicated to other actors for each input data item the actor receives.  In contrast, Java actors derived from `org.kurator.akka.AkkaActor` may call the `broadcast()` method multiple times within the `onData()` method and so produce multiple outputs per input.
+No class inheritance is required when using using the POJO approach.  However, POJO actors have the limitation that only one output data item may be returned and communicated to other actors for each input data item the actor receives.  In contrast, Java actors derived from `org.kurator.akka.KuratorActor` may call the `broadcast()` method multiple times within the `onData()` method and so produce multiple outputs per input.
 
 Both approaches for Java actors support event handlers in addition to `onData()`. These include `onInitialize()`, called before any actor produces output; `onStart()`, which allows actors to produce output data before any input data is received; and `onEnd()`, which is called after an actor has handled the last data item it will receive during a workflow run.
 
@@ -80,7 +81,7 @@ In addition to the Java or Python definition of an actor, an *actor type declara
         script: multiplier.py
         onData: multiply
 
-The argument to the `script:` property is an absolute path to the Python file defining the function, or a path relative to the directory in which the workflow is invoked.  A  less fragile way of defining a Python actor is to make the Python script part of a Python package, and use the `module:` property to refer to the script.  For example, if `multiplier.py` is in the `math.operators` package, then the following declaration will work:
+The argument to the `script:` property is an absolute path to the Python file defining the function, or a path relative to the directory in which the workflow is invoked.  A  less fragile way of defining a Python actor is to make the Python script part of a Python package, and use the `module` property to refer to the script.  For example, if `multiplier.py` is in the `math.operators` package, then the following declaration will work:
 
     types:
     - id: Multiplier
@@ -174,7 +175,7 @@ Preparing to run Kurator-Akka
 This section describes how to set up an environment for writing your own actors and workflows, and executing them using **Kurator-Akka**. Instructions for building and extending the **Kurator-Akka** framework itself are provided following this section.
 
 #### Check installed version of Java
-Kurator-Akka requires Java version 1.8.0 or higher. To determine the version of java installed on your computer use the `-version` option to the `java` command. For example,
+**Kurator-Akka** requires Java version 1.8.0 or higher. To determine the version of java installed on your computer use the `-version` option to the `java` command. For example,
 
     $ java -version
     java version "1.8.0_65"
@@ -182,13 +183,11 @@ Kurator-Akka requires Java version 1.8.0 or higher. To determine the version of 
     Java HotSpot(TM) 64-Bit Server VM (build 25.65-b01, mixed mode)
 
 
-Instructions for installing Java may be found at [http://docs.oracle.com/javase/7/docs/webnotes/install/](http://docs.oracle.com/javase/7/docs/webnotes/install/).  If you plan to develop new actors in Java (not just in Python) be sure to install the JDK.  Otherwise a JRE is sufficient.
+Instructions for installing Java may be found at [http://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html](http://docs.oracle.com/javase/8/docs/technotes/guides/install/install_overview.html).  If you plan to develop new actors in Java (not just in Python) be sure to install the JDK.  Otherwise a JRE is sufficient.
 
 #### Download the Kurator-Akka jar
 
 **Kurator-Akka** is distributed as an executable jar (Java archive) file that can be invoked using the `java -jar` command. To download the most recent build of the latest **Kurator-Akka** code, navigate to the [Latest Successful Build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latestSuccessful), click on the *Artifacts* tab, and download the *executable jar* artifact for the *kurator-akka* job.  The downloaded file will be named `kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar`.
-
-Note that while released distributions of **Kurator-Akka** are available for download from the [Kurator Software Releases](https://opensource.ncsa.illinois.edu/confluence/display/KURATOR/Software+Releases) page, the remainder of this README pertains to the latest development version available in the GitHub repository.
 
 #### Install Kurator-Akka on your system
 
@@ -268,11 +267,11 @@ However, if you develop new Python actors that depend on 3rd-party packages not 
 
 #### Install the Jython 2.7.1b3 distribution to support 3rd party Python packages
 
-* Download the [Jython 2.7.1.b3 installer jar](http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.7.1b3/jython-installer-2.7.1b3.jar) from the Jython.org [downloads page](http://www.jython.org/downloads.html). The downloaded jar file will be named `jython_installer-2.7.1b3.jar`.
+* Download the [Jython 2.7.1.b3 installer jar](http://search.maven.org/remotecontent?filepath=org/python/jython-installer/2.7.1b3/jython-installer-2.7.1b3.jar). The downloaded jar file will be named `jython_installer-2.7.1b3.jar`.
 
 * The Jython installer can be started either by double-clicking the downloaded jar file (on Windows or OS X) or executing the downloaded jar at the command prompt using the `java -jar` command:
 
-        java -jar jython_installer-2.7.0.jar
+        java -jar jython_installer-2.7.1b3.jar
 
 * Note the location of the Jython installation directory created by the installer.
 
@@ -288,7 +287,7 @@ On Windows it is easiest to define the variable using the Advanced system settin
 
     Control Panel -> System -> Advanced system settings -> Advanced -> Environment Variables
 
-**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 2.7.0 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.  For example, this following command installs the `suds-jurko` package which subsequently can be imported by Python actors:
+**Kurator-Akka** now will have access to all Python packages installed to your Jython installation.  Jython 2.7 includes the `pip` tool (in the `bin` subdirectory of the Jython installation) which makes it easy to install 3rd-party Python packages and to install their dependencies automatically.  For example, this following command installs the `suds-jurko` package which subsequently can be imported by Python actors:
 
     $JYTHON_HOME/bin/pip install suds-jurko
 
@@ -311,7 +310,7 @@ If you would like to build, modify, or extend the **Kurator-Akka** workflow engi
 
 #### JDK and Maven configuration
 
-The **Kurator-Akka** framework is built using Maven 3. Before building **Kurator-Akka** confirm that the `mvn` command is in your path, that your version of Maven is at least 3.0.5, and that a JDK version 1.7 (or higher) is found by Maven:
+The **Kurator-Akka** framework is built using Maven 3. Before building **Kurator-Akka** confirm that the `mvn` command is in your path, that your version of Maven is at least 3.0.5, and that a JDK version 1.8.0 (or higher) is found by Maven:
 
     $ mvn --version
     Apache Maven 3.3.3 (7994120775791599e205a5524ec3e0dfe41d4a06; 2015-04-22T04:57:37-07:00)
@@ -385,7 +384,7 @@ To make a Java class file available as a core Kurator-Akka actor that can be inv
 from Kurator-Akka using a yaml workflow declaration, you will need to:  
 
 (1) Create a java class (which either contains the desired functionality or wraps it),
-which extends AkkaActor.
+which extends KuratorActor.
 
 (2) Add a type definition block to src/main/resources/org/kurator/akka/types.yaml
 giving an ID for the actor, and the classpath for the actor.
