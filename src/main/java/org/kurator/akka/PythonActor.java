@@ -382,11 +382,18 @@ public class PythonActor extends KuratorActor {
     }
 
     public static void updateClasspath() {
-        addToClasspath(System.getenv("JYTHONPATH"));
-        String jythonHome = System.getenv("JYTHONHOME");
-        if (jythonHome != null) {
-            addToClasspath(jythonHome + "/Lib/site-packages");
+        
+        for (String jythonPathVar : new String[] {"JYTHONPATH", "JYTHON_PATH"}) {
+            addToClasspath(System.getenv(jythonPathVar));
         }
+        
+        for (String jythonHomeVar : new String[] {"JYTHONHOME", "JYTHON_HOME"}) {
+            String jythonHome = System.getenv(jythonHomeVar);
+            if (jythonHome != null) {
+                addToClasspath(jythonHome + "/Lib/site-packages");
+            }
+        }
+        
         addToClasspath("packages");
     }
     
