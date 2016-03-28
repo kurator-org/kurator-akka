@@ -3,8 +3,6 @@ package org.kurator.akka;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-import akka.actor.ActorRef;
-
 public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
     
     static final String RESOURCE_PATH = "classpath:/org/kurator/akka/test/TestYamlFileWorkflowBuilder/";
@@ -16,9 +14,15 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
     
     public void testEmptyWorkflow() throws Exception {
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "empty_workflow.yaml");
-        wr.build();
-        ActorRef workflowRef = wr.getWorkflowRef();
-        assertNotNull(workflowRef);
+        Exception caught = null;
+        try {
+            wr.build();
+        } catch(Exception e) {
+            caught = e;
+        }
+        
+        assertNotNull(caught);
+        assertEquals("Workflow definition contains no actors.", caught.getMessage());
 }
 
     public void testOneActorWorkflow() throws Exception {

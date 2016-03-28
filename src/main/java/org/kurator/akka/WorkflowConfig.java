@@ -11,7 +11,9 @@ public class WorkflowConfig {
     Map<String,Object> settings;
     
     public void setActors(List<ActorConfig> actors) {
-        this.actors = actors;
+        if (actors != null) {
+            this.actors = actors;
+        }
     }
     
     public List<ActorConfig> getActors() {

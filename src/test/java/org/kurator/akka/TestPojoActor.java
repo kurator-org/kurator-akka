@@ -3,8 +3,6 @@ package org.kurator.akka;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 
-import akka.actor.ActorRef;
-
 public class TestPojoActor extends KuratorAkkaTestCase {
     
     static final String RESOURCE_PATH = "classpath:/org/kurator/akka/TestPojoActor/";
@@ -13,14 +11,7 @@ public class TestPojoActor extends KuratorAkkaTestCase {
     public void setUp() throws Exception {
         super.setUp();
     }
-    
-    public void testEmptyWorkflow() throws Exception {
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "empty_workflow.yaml");
-        wr.build();
-        ActorRef workflowRef = wr.getWorkflowRef();
-        assertNotNull(workflowRef);
-}
-
+        
     public void testOneActorWorkflow() throws Exception {
 
         WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "one_actor_workflow.yaml");

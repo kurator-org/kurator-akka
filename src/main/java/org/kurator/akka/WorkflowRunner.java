@@ -171,9 +171,14 @@ public class WorkflowRunner {
         throw new Exception("Workflow does not take parameter named " + settingName);
     }
     
-    public WorkflowRunner build() {
+    public WorkflowRunner build() throws KuratorException {
         
         Collection<ActorConfig> actorConfigs = actorConfigForActorName.values();
+        
+        if (actorConfigs.isEmpty()) {
+            throw new KuratorException("Workflow definition contains no actors.");
+        }
+        
         Set<ActorRef> actors = new HashSet<ActorRef>();
         if (actorConfigs.size() > 0) {
             for (ActorConfig actorConfig : actorConfigs) {
