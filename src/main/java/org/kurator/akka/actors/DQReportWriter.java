@@ -22,11 +22,13 @@ public class DQReportWriter extends KuratorActor {
   public String filePath = "output.json";
   private FileWriter file;
   private DQReport report;
+  private StringWriter reportWriter;
 
   private boolean firstReport = false; // true if first report has been written
   @Override
   public void onStart() throws Exception {
     if(this.jsonOutput){
+        reportWriter = new StringWriter();
           if (filePath != null) {
               file = new FileWriter(filePath, false);
               file.write("[");
@@ -38,6 +40,7 @@ public class DQReportWriter extends KuratorActor {
   public void onData(Object value) {
     this.report = (DQReport)value;
 
+      System.out.println(((DQReport)value).getImprovements().get(0).getDataResource().get("catalogNumber"));
     if(this.consoleOutput)
         consoleDQReport();
     if(this.jsonOutput)
@@ -48,6 +51,7 @@ public class DQReportWriter extends KuratorActor {
   @Override
   public void onEnd() throws Exception {
       if (file != null) {
+          file.write(reportWriter.toString());
           file.write("]");
           file.flush();
           file.close();
@@ -77,17 +81,12 @@ public class DQReportWriter extends KuratorActor {
         ObjectMapper mapper = new ObjectMapper();
         try {
             if (firstReport) {
-                file.write(","); // prepend a comma in the list for all reports except the first one
+                reportWriter.write(","); // prepend a comma in the list for all reports except the first one
             } else {
                 firstReport = true;
             }
 
-            Writer writer = new StringWriter();
-            mapper.writeValue(writer, report);
-            System.out.print("\n DQ Report wrote in: "+filePath+" \n ");
-
-            file.write(writer.toString());
-            //file = new FileWriter(filePath);
+            mapper.writeValue(reportWriter, report);
         } catch (IOException e) {
             e.printStackTrace();
         }
