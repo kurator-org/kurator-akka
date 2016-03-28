@@ -8,6 +8,8 @@ import org.json.simple.JSONArray;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +22,8 @@ public class DQReportWriter extends KuratorActor {
   public String filePath = "output.json";
   private FileWriter file;
   private DQReport report;
+
+  private boolean firstReport = false; // true if first report has been written
   @Override
   public void onStart() throws Exception {
     if(this.jsonOutput){
@@ -69,76 +73,26 @@ public class DQReportWriter extends KuratorActor {
   }
   */
 
-  public void jsonDQReport(){
-    if (report!=null) { 
-        Map<String,String> dr = new HashMap();
-        if(report.getMeasures().size()>0)
-          dr = report.getMeasures().get(0).getDataResource();
-        else if(report.getValidations().size()>0)
-          dr = report.getMeasures().get(0).getDataResource();
-        else if(report.getImprovements().size()>0)
-          dr = report.getImprovements().get(0).getDataResource();
-        else dr = null;
-    
-        JSONObject dataResource = new JSONObject();
-        if(dr!=null){
-          Iterator it = dr.entrySet().iterator();
-          while (it.hasNext()) {
-              Map.Entry pair = (Map.Entry)it.next();
-              dataResource.put(pair.getKey(),pair.getValue());
-              it.remove(); // avoids a ConcurrentModificationException
-          }
+    public void jsonDQReport(){
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            if (firstReport) {
+                file.write(","); // prepend a comma in the list for all reports except the first one
+            } else {
+                firstReport = true;
+            }
+
+            Writer writer = new StringWriter();
+            mapper.writeValue(writer, report);
+            System.out.print("\n DQ Report wrote in: "+filePath+" \n ");
+
+            file.write(writer.toString());
+            //file = new FileWriter(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        JSONArray measures = new JSONArray();
-        if(report.getMeasures().size()>0){
-          for(Measure item : report.getMeasures()){
-            JSONObject obj = new JSONObject();
-          	obj.put("dimension", item.getDimension());
-          	obj.put("specification", item.getSpecification());
-            obj.put("mechanism", item.getMechanism());
-            obj.put("result", item.getResult());
-            measures.add(obj);
-          }
-        }
-        JSONArray validations = new JSONArray();
-        if(report.getValidations().size()>0){
-          for(Validation item : report.getValidations()){
-            JSONObject obj = new JSONObject();
-          	obj.put("criterion", item.getCriterion());
-          	obj.put("specification", item.getSpecification());
-            obj.put("mechanism", item.getMechanism());
-            obj.put("result", item.getResult());
-            validations.add(obj);
-          }
-        }
-        JSONArray improvements = new JSONArray();
-        if(report.getImprovements().size()>0){
-          for(Improvement item : report.getImprovements()){
-            JSONObject obj = new JSONObject();
-          	obj.put("enhancement", item.getEnhancement());
-          	obj.put("specification", item.getSpecification());
-            obj.put("mechanism", item.getMechanism());
-            obj.put("result", item.getResult());
-            improvements.add(obj);
-          }
-        }
-        JSONObject dqReport = new JSONObject();
-        dqReport.put("dataResource", dataResource);
-        dqReport.put("measures", measures);
-        dqReport.put("validations", validations);
-        dqReport.put("improvements", improvements);
-    
-        JSONObject root = new JSONObject();
-        root.put("DQReport", dqReport);
-      	try {
-      		//file = new FileWriter(filePath);
-      		file.write(root.toJSONString()+",");
-    
-      	} catch (IOException e) {
-      		e.printStackTrace();
-      	}
     }
-  }
+
   public void consoleDQReport(){
     System.out.println("\033[0;1m ================= DQ REPORT ================= \033[0;0m \n ");
     if(report!=null) {  
