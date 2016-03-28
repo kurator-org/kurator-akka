@@ -24,13 +24,12 @@ components:
 - id: DownloadFile
   type: PythonActor
   properties:
-    script: FileDownloader.py
+    module: kurator_akka.net.file_downloader
     onData: download
     listensTo:
       - !ref SendUrl
     parameters:
       tempdir: .
-
 
 - id: PrintPath
   type: PythonActor
@@ -40,7 +39,7 @@ components:
         print path
     listensTo:
       - !ref DownloadFile
-  
+
 - id: FileDownloaderWorkflow
   type: Workflow
   properties:

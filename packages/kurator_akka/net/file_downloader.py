@@ -1,3 +1,4 @@
+
 import os
 import optparse
 import requests
@@ -5,16 +6,16 @@ import tempfile
 
 def download_default(options):
     return download('http://ipt.vertnet.org:8080/ipt/archive.do?r=ccber_mammals', options)
-    
+
 def download(url, options):
     """Download a file from a URL.
     url - full path to the file to download (e.g., 'http://ipt.vertnet.org:8080/ipt/archive.do?r=ccber_mammals')
     options - dictionary with configuration settings
         outputfile - optional path to the output file
         tempdir - optional path to directory to store automatically named file in
-    returns name of downloaded file 
+    returns name of downloaded file
     """
-    
+
     outputfile = options.get('outputfile')
     tempdir = options.get('tempdir')
 
@@ -24,7 +25,6 @@ def download(url, options):
             f.write(block)
 
     return f.name
-
 
 def _create_output_file(filepath, tempdir):
     if filepath is None:
