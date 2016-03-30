@@ -1,5 +1,6 @@
 package org.kurator.akka.data.DQReport;
 
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 // TODO: Move to DQReport inside "data" directory
@@ -7,6 +8,7 @@ public abstract class Assertion {
   private Map<String,String> dataResource;
   private String specification;
   private String mechanism;
+  private List<String> sources;
   // supporting a key-value pair list of results
   //private Map<String,String> result;
   private String result;

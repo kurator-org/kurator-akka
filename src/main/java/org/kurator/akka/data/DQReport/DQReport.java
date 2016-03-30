@@ -9,11 +9,12 @@ public class DQReport {
   private List<Validation> validations;
   private List<Improvement> improvements;
 
-  public DQReport(){
+  public DQReport() {
     this.measures = new ArrayList<Measure>();
     this.validations = new ArrayList<Validation>();
     this.improvements = new ArrayList<Improvement>();
   }
+
   public void pushMeasure(Measure measure){
     this.measures.add(measure);
   }
