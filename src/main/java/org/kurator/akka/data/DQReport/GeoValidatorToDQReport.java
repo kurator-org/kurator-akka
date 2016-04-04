@@ -35,8 +35,8 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       // MEASURE format:  (DataResource, Dimension, Specification, Mechanism, Result)
       Measure coordinatesConsistencyCountry = new Measure(
               dataResource,
-              "Coordinates distance from the country",
-              "Calculate the distance to the closest point of the country boundaries, in Km, using a function in CartoDB [ref]",
+              "Coordinates distance outside the country",
+              "Calculate the distance to the closest point of the country boundaries, in Km, using a function in CartoDB  to the supplied coordinate, zero if inside country. [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
       result = rawResults.get("distanceToRangeMapInKm")!=null
@@ -49,7 +49,7 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       Measure coordinatesConsistencyIUCN = new Measure(
               dataResource,
               "Coordinates distance from the IUCN range map for the species",
-              "Calculate the distance to the closest point of the species range map, in Km, using a function in CartoDB [ref]",
+              "Calculate the distance to the closest point of the species range map, in Km, using a function in CartoDB to the supplied coordinate, zero if inside range. [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
       result = (boolean)rawResults.get("hasCoordinates")
@@ -57,8 +57,8 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               : "Not Complete";
       Measure coordinatesCompleteness = new Measure(
               dataResource,
-              "Coordinates completeness",
-              "Check if both latitude and longitude was supplied [ref]",
+              "Latitude/Longitude completeness",
+              "Check if both latitude and longitude were supplied [ref]",
               "Kurator: VertNet - Geospatial Quality API", result);
 
 
@@ -67,7 +67,7 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               : "Not Complete";
       Measure countryCompleteness = new Measure(
               dataResource,
-              "Country completeness",
+              "Country code completeness",
               "Check if country code was supplied [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
@@ -84,7 +84,7 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       result = (boolean)rawResults.get("hasCoordinates")
               ? "Compliant"
               : "Not Compliant";
-      Validation coordinatesBeComplete = new Validation(
+      Validation coordinatesAreComplete = new Validation(
               dataResource,
               "Coordinates must be complete",
               "Check if both latitude and longitude was supplied [ref]",
@@ -93,7 +93,7 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       result = (boolean)rawResults.get("hasCountry")
               ? "Compliant"
               : "Not Compliant";
-      Validation countryBeComplete = new Validation(
+      Validation countryAreComplete = new Validation(
               dataResource,
               "Country must be complete",
               "Check if country code was supplied [ref]",
@@ -102,7 +102,7 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       result = (boolean)rawResults.get("hasScientificName")
               ? "Compliant"
               : "Not Compliant";
-      Validation scientificNameBeComplete = new Validation(
+      Validation scientificNameAreComplete = new Validation(
               dataResource,
               "Scientifc Name must be complete",
               "Check if scientific name was supplied [ref]",
@@ -113,10 +113,10 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               ? "Compliant"
               : "Not Compliant"
               : null;
-      Validation coordinatesBeInRange = new Validation(
+      Validation coordinatesAreInRange = new Validation(
               dataResource,
-              "Coordinates must be in the range",
-              "Check if the supplied values conform to the natural limits of coordinates [ref]",
+              "Latitude and Longitude must be in valid range",
+              "Check if the supplied values conform to the natural limits of coordinates (Lat +/-90, Long +/-180) [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
       result = rawResults.get("validCountry")!=null
@@ -124,9 +124,9 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               ? "Compliant"
               : "Not Compliant"
               : null;
-      Validation countryBeValid = new Validation(
+      Validation countryAreValid = new Validation(
               dataResource,
-              "Country must be valid",
+              "Country code must be valid",
               "Check if the supplied value corresponds to an existing 2-character code for a country [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
@@ -135,10 +135,10 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               ? "Compliant"
               : "Not Compliant"
               : null;
-      Validation coordinatesBePrecise = new Validation(
+      Validation coordinatesArePrecise = new Validation(
               dataResource,
               "Coordinates numerical precision must be higher then 3",
-              "Check if coordinates have at least 3 decimal figures [ref]",
+              "Check if coordinates have at least 3 decimal places [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
       result = rawResults.get("nonZeroCoordinates")!=null
@@ -146,9 +146,9 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               ? "Compliant"
               : "Not Compliant"
               : null;
-      Validation coordinatesBeNonZero = new Validation(
+      Validation coordinatesAreNonZero = new Validation(
               dataResource,
-              "Coordinates must be different of 0",
+              "Coordinates must be different from 0",
               "Check if both latitude and longitude are equal 0 [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
@@ -157,7 +157,7 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               ? "Compliant"
               : "Not Compliant"
               : null;
-      Validation coordinatesBeInsideCountry = new Validation(
+      Validation coordinatesAreInsideCountry = new Validation(
               dataResource,
               "Coordinates must fall inside the country",
               "Check if coordinates fall inside the country [ref]",
@@ -168,13 +168,15 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               ? "Compliant"
               : "Not Compliant"
               : null;
-      Validation coordinatesBeInsideRangeIUCN = new Validation(
+      Validation coordinatesAreInsideRangeIUCN = new Validation(
               dataResource,
               "Coordinates must fall inside the IUCN range map for the species",
               "Check if coordinates fall inside the IUCN range map for the scientific name [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
       // IMPROVEMENT format:  (DataResource, Enhancement, Specification, Mechanism, Result)
+      
+      // TODO:  Report only a single transformation.
       result = rawResults.get("transposedCoordinates")!=null
               ? (boolean)rawResults.get("transposedCoordinates")
               ? "decimalLatitude: "+dataResource.get("decimalLongitude")+", decimalLongitude: "+dataResource.get("decimalLatitude")
@@ -195,8 +197,8 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               : null;
       Improvement latitudeInversion = new Improvement(
               dataResource,
-              "Recommendation of invertion the sign of latitude",
-              "Recommend an inverted sign for the latitude when this invertion results in a coordinates that fall inside the associated country [ref]",
+              "Recommendation to invert the sign of latitude",
+              "Recommend an inverted sign for the latitude when this inversion results in a coordinates that fall inside the associated country [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
       result = rawResults.get("negatedLongitude")!=null
@@ -208,8 +210,8 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               : null;
       Improvement longitudeLongitude = new Improvement(
               dataResource,
-              "Recommendation of invertion the sign of longitude",
-              "Recommend an inverted sign for the longitude when this invertion results in a coordinates that fall inside the associated country [ref]",
+              "Recommendation invert the the sign of longitude",
+              "Recommend an inverted sign for the longitude when this inversion results in a coordinates that fall inside the associated country [ref]",
               "Kurator: VertNet - Geospatial Quality API",result);
 
       DQReport report = new DQReport();
@@ -220,15 +222,15 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       report.pushMeasure(countryCompleteness);
       report.pushMeasure(scientificNameCompleteness);
       // Add Validations to DQReport
-      report.pushValidation(coordinatesBeComplete);
-      report.pushValidation(countryBeComplete);
-      report.pushValidation(scientificNameBeComplete);
-      report.pushValidation(coordinatesBeInRange);
-      report.pushValidation(countryBeValid);
-      report.pushValidation(coordinatesBePrecise);
-      report.pushValidation(coordinatesBeNonZero);
-      report.pushValidation(coordinatesBeInsideCountry);
-      report.pushValidation(coordinatesBeInsideRangeIUCN);
+      report.pushValidation(coordinatesAreComplete);
+      report.pushValidation(countryAreComplete);
+      report.pushValidation(scientificNameAreComplete);
+      report.pushValidation(coordinatesAreInRange);
+      report.pushValidation(countryAreValid);
+      report.pushValidation(coordinatesArePrecise);
+      report.pushValidation(coordinatesAreNonZero);
+      report.pushValidation(coordinatesAreInsideCountry);
+      report.pushValidation(coordinatesAreInsideRangeIUCN);
       // Add Improvements to DQReport
       report.pushImprovement(coordinatesTransposition);
       report.pushImprovement(latitudeInversion);
