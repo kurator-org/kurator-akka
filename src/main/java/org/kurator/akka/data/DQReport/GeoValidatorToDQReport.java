@@ -181,9 +181,11 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       boolean transpose = false;
       boolean latInvertSign = false;
       boolean longInvertSign = false;
-      result = null;
+
+      Map<String, String> resultMap = new HashMap<String, String>();
+
       String transformation = null;
-      Improvement coordinatesTransposition = null;
+
       if (rawResults.get("transposedCoordinates")!=null && (boolean)rawResults.get("transposedCoordinates")) { 
           transpose = true;
       }
@@ -193,35 +195,40 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       if (rawResults.get("negatedLongitude")!=null && (boolean)rawResults.get("negatedLongitude")) { 
           longInvertSign = true;
       }
-      if (transpose && !latInvertSign && !longInvertSign) { 
-          result = "decimalLatitude: " + dataResource.get("decimalLongitude") + "|decimalLongitude: " + dataResource.get("decimalLatitude");
+      if (transpose && !latInvertSign && !longInvertSign) {
+        resultMap.put("decimalLatitude", dataResource.get("decimalLatitude"));
+        resultMap.put("decimalLongitude", dataResource.get("decimalLongitude"));
           transformation = "Propose swapping latitude and longitude, as this swap results in a coordinate that falls inside the associated country [ref]";
-      } else if(transpose && latInvertSign && !longInvertSign) { 
-          result = "decimalLatitude: -" + dataResource.get("decimalLongitude").trim() + "|decimalLongitude: " + dataResource.get("decimalLatitude");
+      } else if(transpose && latInvertSign && !longInvertSign) {
+        resultMap.put("decimalLatitude", dataResource.get("decimalLatitude"));
+        resultMap.put("decimalLongitude", dataResource.get("decimalLongitude"));
           transformation = "Propose swapping latitude and longitude, and changing the sign of latitude, as this transformation results in a coordinate that falls inside the associated country [ref]";
       } else if(transpose && !latInvertSign && longInvertSign) {
-          result = "decimalLatitude: " + dataResource.get("decimalLongitude").trim() + "|decimalLongitude: -" + dataResource.get("decimalLatitude").trim();
+        resultMap.put("decimalLatitude", dataResource.get("decimalLatitude"));
+        resultMap.put("decimalLongitude", dataResource.get("decimalLongitude"));
           transformation = "Propose swapping latitude and longitude, and changing the sign of longitude, as this transformation results in a coordinate that falls inside the associated country [ref]";
       } else if(transpose && latInvertSign && longInvertSign) {
-          result = "decimalLatitude: -" + dataResource.get("decimalLongitude").trim() + "|decimalLongitude: -" + dataResource.get("decimalLatitude").trim();
+        resultMap.put("decimalLatitude", dataResource.get("decimalLatitude"));
+        resultMap.put("decimalLongitude", dataResource.get("decimalLongitude"));
           transformation = "Propose swapping and changing the sign of latitude and longitude, as this transformation results in a coordinate that falls inside the associated country [ref]";
-      } else if(!transpose && latInvertSign && !longInvertSign) { 
-          result = "decimalLatitude: -" + dataResource.get("decimalLatitude").trim() + "|decimalLongitude: " + dataResource.get("decimalLongitude").trim();
+      } else if(!transpose && latInvertSign && !longInvertSign) {
+        resultMap.put("decimalLatitude", dataResource.get("decimalLatitude"));
+        resultMap.put("decimalLongitude", dataResource.get("decimalLongitude"));
           transformation = "Propose changing the sign of latitude, as this transformation results in a coordinate that falls inside the associated country [ref]";
       } else if(!transpose && !latInvertSign && longInvertSign) {
-          result = "decimalLatitude: " + dataResource.get("decimalLatitude").trim() + "|decimalLongitude: -" + dataResource.get("decimalLongitude").trim();
+        resultMap.put("decimalLatitude", dataResource.get("decimalLatitude"));
+        resultMap.put("decimalLongitude", dataResource.get("decimalLongitude"));
           transformation = "Propose changing the sign of longitude, as this transformation results in a coordinate that falls inside the associated country [ref]";
       } else if(!transpose && latInvertSign && longInvertSign) {
-          result = "decimalLatitude: -" + dataResource.get("decimalLatitude").trim() + "|decimalLongitude: -" + dataResource.get("decimalLongitude").trim();
+        resultMap.put("decimalLatitude", dataResource.get("decimalLatitude"));
+        resultMap.put("decimalLongitude", dataResource.get("decimalLongitude"));
           transformation = "Propose changing the sign of latitude and longitude, as this transformation results in a coordinate that falls inside the associated country [ref]";
-      } 
-      if (result!=null) { 
-         coordinatesTransposition = new Improvement(
+      }
+        Improvement coordinatesTransposition = new Improvement(
               dataResource,
               "Recommendation to transform decimal latitude and or decimal longitude",
               transformation,
-              "Kurator: VertNet - Geospatial Quality API",result);
-      }
+              "Kurator: VertNet - Geospatial Quality API",resultMap);
 
       DQReport report = new DQReport();
       // Add Measures to DQReport
@@ -241,9 +248,7 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       report.pushValidation(coordinatesAreInsideCountry);
       report.pushValidation(coordinatesAreInsideRangeIUCN);
       // Add Improvements to DQReport, if any
-      if (coordinatesTransposition!=null) { 
           report.pushImprovement(coordinatesTransposition);
-      }
 
       return report;
     }catch(ParseException pe){

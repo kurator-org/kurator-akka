@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.kurator.akka.data.DQReport.*;
 public class Measure extends Assertion{
   private String dimension;
+  private String result;
 
   public Measure() {} // default constructor for Jackson
 
@@ -14,9 +15,13 @@ public class Measure extends Assertion{
     this.dimension = dimension;
     super.setSpecification(specification);
     super.setMechanism(mechanism);
-    super.setResult(result);
+    this.result = result;
   }
   public String getDimension(){
     return this.dimension;
+  }
+
+  public String getResult() {
+    return result;
   }
 }

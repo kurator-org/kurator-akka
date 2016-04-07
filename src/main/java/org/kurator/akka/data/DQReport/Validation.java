@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.kurator.akka.data.DQReport.*;
 public class Validation extends Assertion{
   private String criterion;
+  private String result;
 
   public Validation() {} // default constructor for Jackson
 
@@ -14,9 +15,13 @@ public class Validation extends Assertion{
     this.criterion = criterion;
     super.setSpecification(specification);
     super.setMechanism(mechanism);
-    super.setResult(result);
+    this.result = result;
   }
   public String getCriterion(){
     return this.criterion;
+  }
+
+  public String getResult() {
+    return result;
   }
 }
