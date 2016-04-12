@@ -4,7 +4,7 @@
 
 	<groupId>org.kurator</groupId>
 	<artifactId>kurator-akka</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.3</version>
 	<packaging>jar</packaging>
 	<name>kurator-akka</name>
 	<url>http://opensource.ncsa.illinois.edu/projects/KURATOR</url>
@@ -180,6 +180,7 @@
     	   <plugin>
     	       <groupId>org.apache.maven.plugins</groupId>
     	       <artifactId>maven-jar-plugin</artifactId>
+                <version>2.6</version>
     	       <configuration>
     	           <archive>
     	               <manifest>
