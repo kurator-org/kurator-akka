@@ -280,10 +280,16 @@ public abstract class KuratorActor extends UntypedActor {
                     try {
                         onInitialize();
                     } catch(Exception initializationException) {
-//                      initializationException.printStackTrace();
+                        
+                        Object exceptionMessage = initializationException.getMessage();
+                        if (exceptionMessage == null || ((String)exceptionMessage).isEmpty()) {
+                            exceptionMessage = initializationException.toString();
+                        }
+                                
                         List<Failure> failures = new LinkedList<Failure>();
                         failures.add(new Failure("Error initializing actor '" + name + "'"));
-                        failures.add(new Failure(initializationException.getMessage()));
+
+                        failures.add(new Failure(exceptionMessage.toString()));
                         getSender().tell(new Failure(failures), getSelf());
                         getContext().stop(getSelf());
                         return;
