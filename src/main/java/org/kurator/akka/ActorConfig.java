@@ -16,6 +16,7 @@ public class ActorConfig implements BeanNameAware {
     private Map<String,Object> defaults = new HashMap<String,Object>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     protected Map<String,Object> config = new HashMap<String,Object>();
+    private Map<String, Object> inputs = new HashMap<String,Object>();
     private List<MetadataReader> metadataReaders;
     private List<MetadataWriter> metadataWriters;
 
@@ -96,6 +97,25 @@ public class ActorConfig implements BeanNameAware {
         return listeners;
     }
 
+    
+    public void setInputs(Map<String,Object> inputs) {
+        this.inputs = inputs;
+    }
+    
+    public Map<String,Object> getInputs() {
+        return inputs;
+    }
+
+    public ActorConfig input(String inputName, String localName) {
+        inputs.put(inputName, localName);
+        return this;
+    }
+
+    public ActorConfig input(String name) {
+        inputs.put(name, name);
+        return this;
+    }
+    
     public void setMetadataReaders(List<MetadataReader> metadataReaders) {
         this.metadataReaders = metadataReaders;
     }
@@ -127,6 +147,7 @@ public class ActorConfig implements BeanNameAware {
         config.put(property, value);
         return this;
     }
+    
     
     public void setPythonClass(String value)            { config.put("pythonClass", value); }
     public void setPojoClass(String value)              { config.put("pojoClass", value); }
