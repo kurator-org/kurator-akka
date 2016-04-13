@@ -12,37 +12,17 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
     
     @Override
     public void setUp() throws Exception {
-
          super.setUp();
-
          wr = new WorkflowRunner()
              .outputStream(stdoutStream)
              .errorStream(stderrStream);
     }
-    
-    public void testPythonActor_DefaultOnData() throws Exception {
-        
-        ActorConfig actor = wr.actor(PythonActor.class)
-                              .config("code", "def on_data(n):  print 'Received data: ' + str(n)");
-               
-        wr.inputActor(actor)
-          .begin()
-          .tellWorkflow(1, 2, 3, new EndOfStream())
-          .end();
-        
-        assertEquals(
-                "Received data: 1"      + EOL +
-                "Received data: 2"      + EOL +
-                "Received data: 3"      + EOL,   
-                stdoutBuffer.toString());
-    }
-    
+
     public void testPythonActor_CustomOnData() throws Exception {
-        
+
         ActorConfig actor = wr.actor(PythonActor.class)
                               .config("onData", "echo")
                               .config("code", "def echo(n):  print 'Received data: ' + str(n)");
-               
         wr.inputActor(actor)
           .begin()
           .tellWorkflow(1, 2, 3, new EndOfStream())
@@ -54,7 +34,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                 "Received data: 3"      + EOL,   
                 stdoutBuffer.toString());
     }
-    
+
     public void testPythonActor_MissingCustomOnData() throws Exception {
         
         wr.actor(PythonActor.class)
@@ -86,7 +66,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         ActorConfig multiplier =  wr.actor(PythonActor.class)
                 .listensTo(repeater)
                 .param("factor", 2)
-                .config("code", "on_data = lambda n: factor*n");
+                .config("code", "on_data = lambda n,options: n*options['factor']");
 
         @SuppressWarnings("unused")
         ActorConfig printer = wr.actor(PythonActor.class)
@@ -536,34 +516,4 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
                 "3"                                         + EOL,
                 stdoutBuffer.toString());    
     }
-    
-    public void testPythonActor_UpdatingState() throws Exception {
-        
-        ActorConfig actor =  wr.actor(PythonActor.class)
-                               .param("factor", 2)
-                               .param("prompt", "Command")
-                               .config("code", "def on_data(value, state):"                 + EOL +
-                                               "  print 'in on_data'"                       + EOL +
-                                               "  print state"                              + EOL +
-                                               "  print value"                              + EOL +
-                                               "  state['factor'] = state['factor'] + 1"    + EOL);
-
-        wr.inputActor(actor)
-          .begin()
-          .tellWorkflow(1, 2, 3, new EndOfStream())
-          .end();
-        
-        assertEquals(
-                "in on_data"                            + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
-                "1"                                     + EOL +
-                "in on_data"                            + EOL +
-                "{u'factor': 3, u'prompt': u'Command'}" + EOL +
-                "2"                                     + EOL +
-                "in on_data"                            + EOL +
-                "{u'factor': 4, u'prompt': u'Command'}" + EOL +
-                "3"                                     + EOL,
-                stdoutBuffer.toString());    
-    }  
-
 }

@@ -33,7 +33,6 @@ public class PythonActor extends KuratorActor {
     protected String onEnd = null;
     
     protected PythonInterpreter interpreter;
-    protected PyDictionary state;
     protected PyObject none;
     
     private static final String commonScriptHeader =
@@ -150,22 +149,23 @@ public class PythonActor extends KuratorActor {
         onData = loadEventHandler("onData", DEFAULT_ON_DATA, 1, statelessOnDataWrapperTemplate, statefulOnDataWrapperTemplate);
         onEnd = loadEventHandler("onEnd", DEFAULT_ON_END, 0, onEndWrapperTemplate, statefulOnEndWrapperTemplate);
         
-        initializeState();
+        PyDictionary settings = initializeState();
         applySettings();
         
         if (onInit != null) {
-            interpreter.set("_KURATOR_STATE_", state);
+            interpreter.set("_KURATOR_STATE_", settings);
             interpreter.eval("_call_oninit()");
         }
     }
     
-    private synchronized void initializeState() {
-        state = new PyDictionary();
+    private synchronized PyDictionary initializeState() {
+        PyDictionary state = new PyDictionary();
         for(Map.Entry<String, Object> setting : settings.entrySet()) {
             String name = setting.getKey();
             Object value = setting.getValue();
             state.put(name, value);
         }
+        return state;
     }
 
     protected void configureCustomCode() throws Exception {
@@ -299,7 +299,7 @@ public class PythonActor extends KuratorActor {
         return actualMethodName;
     }    
     private synchronized void applySettings() {
-        if (settings != null) {
+        if (settings != null && !functionQualifier.isEmpty()) {
             for(Map.Entry<String, Object> setting : settings.entrySet()) {
                 String name = functionQualifier + setting.getKey();
                 Object value = setting.getValue();
@@ -315,8 +315,10 @@ public class PythonActor extends KuratorActor {
     @Override
     protected synchronized void onStart() throws Exception {
 
+        PyDictionary settings = initializeState();
+
         if (onStart != null) {
-            interpreter.set("_KURATOR_STATE_", state);
+            interpreter.set("_KURATOR_STATE_", settings);
             interpreter.eval("_call_onstart()");
             broadcastOutputs();
         }
@@ -328,30 +330,55 @@ public class PythonActor extends KuratorActor {
     
     @Override
     public synchronized void onData(Object value) throws Exception {  
-
+        
         if (onData == null) {
             throw new Exception("No onData handler for actor " + this);
         }
         
-        if (onData != null) {
-        
-            if (outputTypeIsInputType) {
-                outputType = value.getClass();
-            }
-            
-            interpreter.set("_KURATOR_STATE_", state);
-            interpreter.set("_KURATOR_INPUT_", value);
-            interpreter.eval("_call_ondata()");
-            broadcastOutputs();
+        if (outputTypeIsInputType) {
+            outputType = value.getClass();
         }
+        
+        PyDictionary state = initializeState();
+        
+        Object input = null;
+        if (this.inputs.isEmpty()) {
+            input = value;
+        } else {
+            input = mapInputs(value);
+            state.putAll((Map<String,Object>) input);
+        }
+        
+        interpreter.set("_KURATOR_STATE_", state);
+        interpreter.set("_KURATOR_INPUT_", input);
+        interpreter.eval("_call_ondata()");
+        broadcastOutputs();
     }
 
+    private synchronized PyDictionary mapInputs(Object receivedValue) {
+        
+        PyDictionary mappedInputs = new PyDictionary();
+        if (receivedValue instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String,Object> receivedValues = (Map<String,Object>)receivedValue;
+            for (Map.Entry<String, String> mapEntry : this.inputs.entrySet()) {
+                String incomingName = mapEntry.getKey();
+                String localName = mapEntry.getValue();
+                mappedInputs.put(localName, receivedValues.get(incomingName));
+            }
+        }
+        
+        return mappedInputs;
+    }
+    
     @Override
     protected synchronized void onEnd() {
         
+        PyDictionary settings = initializeState();
+        
         // call script end function if defined
         if (onEnd != null) {
-            interpreter.set("_KURATOR_STATE_", state);
+            interpreter.set("_KURATOR_STATE_", settings);
             interpreter.eval("_call_onend()");
         }
         
