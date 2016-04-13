@@ -2,6 +2,7 @@ package org.kurator.akka;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,6 +80,7 @@ public abstract class KuratorActor extends UntypedActor {
     private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
+    protected Map<String, String> inputs = new HashMap<String,String>();
     protected String name;
     protected Map<String,Object> settings;
     protected Map<String, Object> configuration;
@@ -197,6 +199,11 @@ public abstract class KuratorActor extends UntypedActor {
         this.settings = settings;
     }
 
+    public synchronized KuratorActor inputs(Map<String,String> inputs) {
+        this.inputs = inputs;
+        return this;
+    }
+    
     public synchronized KuratorActor setNeedsTrigger(boolean needsTrigger) {
         Contract.requires(state, ActorFSM.CONSTRUCTED);
         this.needsTrigger = needsTrigger;
@@ -280,10 +287,16 @@ public abstract class KuratorActor extends UntypedActor {
                     try {
                         onInitialize();
                     } catch(Exception initializationException) {
-//                      initializationException.printStackTrace();
+                        
+                        Object exceptionMessage = initializationException.getMessage();
+                        if (exceptionMessage == null || ((String)exceptionMessage).isEmpty()) {
+                            exceptionMessage = initializationException.toString();
+                        }
+                                
                         List<Failure> failures = new LinkedList<Failure>();
                         failures.add(new Failure("Error initializing actor '" + name + "'"));
-                        failures.add(new Failure(initializationException.getMessage()));
+
+                        failures.add(new Failure(exceptionMessage.toString()));
                         getSender().tell(new Failure(failures), getSelf());
                         getContext().stop(getSelf());
                         return;

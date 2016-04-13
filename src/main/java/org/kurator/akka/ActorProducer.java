@@ -24,6 +24,7 @@ public class ActorProducer implements IndirectActorProducer {
     private Map<String, Object> parameters;
     private Map<String, Object> configuration;
     private List<ActorConfig> listeners;
+    private Map<String, String> inputs = new HashMap<String,String>();
     private List<MetadataReader> metadataReaders;
     private List<MetadataWriter> metadataWriters;
     private WorkflowRunner workflowRunner;
@@ -38,6 +39,7 @@ public class ActorProducer implements IndirectActorProducer {
             Map<String, Object> defaults, 
             Map<String, Object> parameters, 
             List<ActorConfig> listeners,
+            Map<String, String> inputs,
             List<MetadataReader> metadataReaders,
             List<MetadataWriter> metadataWriters,
             InputStream inStream, 
@@ -50,6 +52,7 @@ public class ActorProducer implements IndirectActorProducer {
         this.defaults = defaults;
         this.parameters = parameters;
         this.listeners = listeners;
+        this.inputs = inputs;
         this.metadataReaders = metadataReaders;
         this.metadataWriters = metadataWriters;
         this.workflowRunner = workflowRunner;
@@ -84,6 +87,7 @@ public class ActorProducer implements IndirectActorProducer {
         
         // configure the actor according to its configuration
         actor.listeners(listeners)
+             .inputs(inputs)
              .runner(workflowRunner)
              .inputStream(inStream)
              .outputStream(outStream)
