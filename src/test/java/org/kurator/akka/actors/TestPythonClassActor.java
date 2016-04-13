@@ -307,7 +307,7 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         assertNotNull(caught);
         assertEquals(
                 "Error initializing workflow 'Workflow'"                            + EOL +
-                "Error initializing actor 'org.kurator.akka.PythonClassActor_1'"     + EOL +
+                "Error initializing actor 'org.kurator.akka.PythonClassActor_1'"    + EOL +
                 "Error importing class 'my_module.my_submodule.my_actor': No module named my_module",
                 caught.getMessage());
     }
@@ -645,7 +645,7 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         assertEquals(
                 "Initializing"              + EOL +
                 "1"                         + EOL +
-                "{u'factor': 2}"            + EOL,
+                "{factor: 2}"            + EOL,
                 stdoutBuffer.toString());
     }
 
@@ -665,9 +665,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         wr.run();
         
         assertEquals(
-                "Initializing"                              + EOL +
-                "2"                                         + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                "Initializing"                      + EOL +
+                "2"                                 + EOL +
+                "{factor: 2, prompt: Command}"      + EOL,
                 stdoutBuffer.toString());
     }
 
@@ -724,7 +724,7 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         assertEquals(
                 "Ending"                    + EOL +
                 "1"                         + EOL +
-                "{u'factor': 2}"            + EOL,
+                "{factor: 2}"               + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -746,9 +746,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         wr.run();
         
         assertEquals(
-                "Ending"                                    + EOL +
-                "2"                                         + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                "Ending"                        + EOL +
+                "2"                             + EOL +
+                "{factor: 2, prompt: Command}"  + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -764,7 +764,7 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         wr.run();
         
         assertEquals(
-                "Starting"                    + EOL,   
+                "Starting"                  + EOL,   
                 stdoutBuffer.toString());
     }
     
@@ -804,7 +804,7 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         assertEquals(
                 "Starting"                  + EOL +
                 "1"                         + EOL +
-                "{u'factor': 2}"            + EOL,
+                "{factor: 2}"               + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -824,9 +824,9 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         wr.run();
         
         assertEquals(
-                "Starting"                                  + EOL +
-                "2"                                         + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                "Starting"                          + EOL +
+                "2"                                 + EOL +
+                "{factor: 2, prompt: Command}"      + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -903,13 +903,13 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
         
         assertEquals(
                 "in on_data"        + EOL +
-                "{u'factor': 2}"    + EOL +
+                "{factor: 2}"       + EOL +
                 "1"                 + EOL +
                 "in on_data"        + EOL +
-                "{u'factor': 2}"    + EOL +
+                "{factor: 2}"       + EOL +
                 "2"                 + EOL +
                 "in on_data"        + EOL +
-                "{u'factor': 2}"    + EOL +
+                "{factor: 2}"       + EOL +
                 "3"                 + EOL,
                 stdoutBuffer.toString());    
     }
@@ -934,15 +934,15 @@ public class TestPythonClassActor extends KuratorAkkaTestCase {
           .end();
         
         assertEquals(
-                "in on_data"                            + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
-                "1"                                     + EOL +
-                "in on_data"                            + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
-                "2"                                     + EOL +
-                "in on_data"                            + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
-                "3"                                     + EOL,
+                "in on_data"                        + EOL +
+                "{factor: 2, prompt: Command}"      + EOL +
+                "1"                                 + EOL +
+                "in on_data"                        + EOL +
+                "{factor: 2, prompt: Command}"      + EOL +
+                "2"                                 + EOL +
+                "in on_data"                        + EOL +
+                "{factor: 2, prompt: Command}"      + EOL +
+                "3"                                 + EOL,
                 stdoutBuffer.toString());    
     }
 }

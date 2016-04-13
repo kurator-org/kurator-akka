@@ -210,7 +210,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         assertEquals(
                 "Initializing"              + EOL +
                 "1"                         + EOL +
-                "{u'factor': 2}"            + EOL,
+                "{factor: 2}"               + EOL,
                 stdoutBuffer.toString());
     }
 
@@ -227,9 +227,9 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         wr.run();
         
         assertEquals(
-                "Initializing"                              + EOL +
-                "2"                                         + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                "Initializing"                      + EOL +
+                "2"                                 + EOL +
+                "{factor: 2, prompt: Command}"      + EOL,
                 stdoutBuffer.toString());
     }
 
@@ -277,7 +277,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         assertEquals(
                 "Ending"                    + EOL +
                 "1"                         + EOL +
-                "{u'factor': 2}"            + EOL,
+                "{factor: 2}"               + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -296,9 +296,9 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         wr.run();
         
         assertEquals(
-                "Ending"                                    + EOL +
-                "2"                                         + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                "Ending"                        + EOL +
+                "2"                             + EOL +
+                "{factor: 2, prompt: Command}"  + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -346,7 +346,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         assertEquals(
                 "Starting"                  + EOL +
                 "1"                         + EOL +
-                "{u'factor': 2}"            + EOL,
+                "{factor: 2}"               + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -367,7 +367,7 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         assertEquals(
                 "Starting"                                  + EOL +
                 "2"                                         + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL,
+                "{factor: 2, prompt: Command}"     + EOL,
                 stdoutBuffer.toString());
     }
     
@@ -437,15 +437,15 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
           .end();
         
         assertEquals(
-                "in on_data"        + EOL +
-                "{u'factor': 2}"    + EOL +
-                "1"                 + EOL +
-                "in on_data"        + EOL +
-                "{u'factor': 2}"    + EOL +
-                "2"                 + EOL +
-                "in on_data"        + EOL +
-                "{u'factor': 2}"    + EOL +
-                "3"                 + EOL,
+                "in on_data"    + EOL +
+                "{factor: 2}"   + EOL +
+                "1"             + EOL +
+                "in on_data"    + EOL +
+                "{factor: 2}"   + EOL +
+                "2"             + EOL +
+                "in on_data"    + EOL +
+                "{factor: 2}"   + EOL +
+                "3"             + EOL,
                 stdoutBuffer.toString());    
     }
     
@@ -466,15 +466,15 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
           .end();
         
         assertEquals(
-                "in on_data"                            + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
-                "1"                                     + EOL +
-                "in on_data"                            + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
-                "2"                                     + EOL +
-                "in on_data"                            + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}" + EOL +
-                "3"                                     + EOL,
+                "in on_data"                    + EOL +
+                "{factor: 2, prompt: Command}"  + EOL +
+                "1"                             + EOL +
+                "in on_data"                    + EOL +
+                "{factor: 2, prompt: Command}"  + EOL +
+                "2"                             + EOL +
+                "in on_data"                    + EOL +
+                "{factor: 2, prompt: Command}"  + EOL +
+                "3"                             + EOL,
                 stdoutBuffer.toString());    
     }
     
@@ -504,15 +504,15 @@ public class TestPythonActor_InlinedCode extends KuratorAkkaTestCase {
         
         assertEquals(
                 "Starting"                                  + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "{factor: 2, prompt: Command}"              + EOL +
                 "in on_data"                                + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "{factor: 2, prompt: Command}"              + EOL +
                 "1"                                         + EOL +
                 "in on_data"                                + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "{factor: 2, prompt: Command}"              + EOL +
                 "2"                                         + EOL +
                 "in on_data"                                + EOL +
-                "{u'factor': 2, u'prompt': u'Command'}"     + EOL +
+                "{factor: 2, prompt: Command}"              + EOL +
                 "3"                                         + EOL,
                 stdoutBuffer.toString());    
     }

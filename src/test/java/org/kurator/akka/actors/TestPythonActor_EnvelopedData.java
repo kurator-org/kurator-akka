@@ -70,6 +70,7 @@ public class TestPythonActor_EnvelopedData extends KuratorAkkaTestCase {
                 "Param    p = 42"   + EOL,
                 stdoutBuffer.toString());
     }
+    
 
     public void testPythonActor_OneArgOnData_NoEnvelopes_OptionsWithParams_NoInputMapping() throws Exception {
         
@@ -215,4 +216,33 @@ public class TestPythonActor_EnvelopedData extends KuratorAkkaTestCase {
                 stdoutBuffer.toString());
     }
 
+    public void testPythonActor_OneArgOnData_WithEnvelopes_WithInputMapping() throws Exception {
+        
+        ActorConfig actor = wr.actor(PythonActor.class)
+                              .param("p", 42)
+                              .input("a","x")
+                              .config("code",
+                                      "def on_data(inputs):             " + EOL +
+                                      "  x=inputs['x']                  " + EOL +
+                                      "  p=inputs['p']                  " + EOL +
+                                      "  print 'Received x = ' + str(x) " + EOL +
+                                      "  print 'Param    p = ' + str(p) " + EOL
+                                      );
+        wr.inputActor(actor)
+          .begin()
+          .tellWorkflow(new Envelope("a",1))
+          .tellWorkflow(new Envelope("a",2))
+          .tellWorkflow(new Envelope("a",3))
+          .tellWorkflow(new EndOfStream())
+          .end();
+        
+        assertEquals(
+                "Received x = 1"          + EOL +
+                "Param    p = 42"         + EOL +
+                "Received x = 2"          + EOL +
+                "Param    p = 42"         + EOL +
+                "Received x = 3"          + EOL +
+                "Param    p = 42"         + EOL,
+                stdoutBuffer.toString());
+    }    
 }

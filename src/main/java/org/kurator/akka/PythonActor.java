@@ -1,6 +1,7 @@
 package org.kurator.akka;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.kurator.util.SystemClasspathManager;
@@ -149,7 +150,9 @@ public class PythonActor extends KuratorActor {
         onData = loadEventHandler("onData", DEFAULT_ON_DATA, 1, statelessOnDataWrapperTemplate, statefulOnDataWrapperTemplate);
         onEnd = loadEventHandler("onEnd", DEFAULT_ON_END, 0, onEndWrapperTemplate, statefulOnEndWrapperTemplate);
         
-        PyDictionary settings = initializeState();
+        Map<String,Object> settings = initializeState();
+        
+        // TODO: Move this PythonClassActor.onInitialize()
         applySettings();
         
         if (onInit != null) {
@@ -158,8 +161,9 @@ public class PythonActor extends KuratorActor {
         }
     }
     
-    private synchronized PyDictionary initializeState() {
-        PyDictionary state = new PyDictionary();
+    // TODO: Move this PythonClassActor.onInitialize()
+    private synchronized Map<String,Object> initializeState() {
+        Map<String,Object> state = new HashMap<String,Object>();
         for(Map.Entry<String, Object> setting : settings.entrySet()) {
             String name = setting.getKey();
             Object value = setting.getValue();
@@ -315,7 +319,7 @@ public class PythonActor extends KuratorActor {
     @Override
     protected synchronized void onStart() throws Exception {
 
-        PyDictionary settings = initializeState();
+        Map<String,Object> settings = initializeState();
 
         if (onStart != null) {
             interpreter.set("_KURATOR_STATE_", settings);
@@ -339,14 +343,14 @@ public class PythonActor extends KuratorActor {
             outputType = value.getClass();
         }
         
-        PyDictionary state = initializeState();
+        Map<String,Object> state = initializeState();
         
         Object input = null;
         if (this.inputs.isEmpty()) {
             input = value;
         } else {
             input = mapInputs(value);
-            state.putAll((Map<String,Object>) input);
+            ((Map)input).putAll(state);
         }
         
         interpreter.set("_KURATOR_STATE_", state);
@@ -355,9 +359,9 @@ public class PythonActor extends KuratorActor {
         broadcastOutputs();
     }
 
-    private synchronized PyDictionary mapInputs(Object receivedValue) {
+    private synchronized Map<String,Object> mapInputs(Object receivedValue) {
         
-        PyDictionary mappedInputs = new PyDictionary();
+        Map<String,Object> mappedInputs = new HashMap<String,Object>();
         if (receivedValue instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<String,Object> receivedValues = (Map<String,Object>)receivedValue;
@@ -374,7 +378,7 @@ public class PythonActor extends KuratorActor {
     @Override
     protected synchronized void onEnd() {
         
-        PyDictionary settings = initializeState();
+        Map<String,Object> settings = initializeState();
         
         // call script end function if defined
         if (onEnd != null) {
