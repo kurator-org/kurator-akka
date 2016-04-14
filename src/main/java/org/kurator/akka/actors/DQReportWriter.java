@@ -105,7 +105,7 @@ public class DQReportWriter extends KuratorActor {
       System.out.println("\n \t ::: MEASURES ::: \n");
       for(Measure item : report.getMeasures()){
         if(item.getResult()!=null){
-          System.out.println("\033[0;1m"+item.getDimension()+": "+item.getResult().toUpperCase()+" \033[0;0m");
+          System.out.println("\033[0;1m"+item.getDimension()+": "+item.getResult().getComment().toUpperCase()+" \033[0;0m");
           System.out.println("\t \033[0;1m Specification: \033[0;0m"+item.getSpecification());
           System.out.println("\t \033[0;1m Mechanism: \033[0;0m"+item.getMechanism());
           System.out.println("\n");
@@ -116,7 +116,7 @@ public class DQReportWriter extends KuratorActor {
         System.out.println("\t ::: VALIDATIONS ::: \n");
         for(Validation item : report.getValidations()){
           if(item.getResult()!=null){
-            System.out.println("\033[0;1m"+item.getCriterion()+": "+item.getResult().toUpperCase()+" \033[0;0m");
+            System.out.println("\033[0;1m"+item.getCriterion()+": "+item.getResult().getComment().toUpperCase()+" \033[0;0m");
             System.out.println("\t \033[0;1m Specification: \033[0;0m"+item.getSpecification());
             System.out.println("\t \033[0;1m Mechanism: \033[0;0m"+item.getMechanism());
             System.out.println("\n");

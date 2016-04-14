@@ -24,155 +24,216 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
       // TODO: Improve the Specifications descriptions. Toward a more precise and accurate description.
       // TODO: Contact Otegui and Guralnick to contribuite with this task?
 
+      Result<MeasurementState> measureResult;
+
       // Formating the raw result
-      result = rawResults.get("distanceToCountryInKm")!=null
-              ? rawResults.get("distanceToCountryInKm").toString()
-              : rawResults.get("coordinatesInsideCountry")!=null
-              ? (boolean)rawResults.get("coordinatesInsideCountry")
-              ? "0"
-              : null
-              : null;
+      if (rawResults.get("distanceToCountryInKm")!=null) {
+        measureResult = new Result<>(rawResults.get("distanceToCountryInKm").toString(), MeasurementState.COMPLETE);
+      } else if (rawResults.get("coordinatesInsideCountry")!=null) {
+        if ((boolean)rawResults.get("coordinatesInsideCountry")) {
+          measureResult = new Result<>("0", MeasurementState.COMPLETE);
+        } else {
+          measureResult = new Result<>("Internal prerequisites not met.", MeasurementState.NOT_COMPLETE);
+        }
+      } else {
+        measureResult = new Result<>("Internal prerequisites not met.", MeasurementState.NOT_COMPLETE);
+      }
+
       // MEASURE format:  (DataResource, Dimension, Specification, Mechanism, Result)
       Measure coordinatesConsistencyCountry = new Measure(
               dataResource,
               "Coordinates distance outside the country",
               "Calculate the distance to the closest point of the country boundaries, in Km, using a function in CartoDB  to the supplied coordinate, zero if inside country. [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",measureResult);
 
-      result = rawResults.get("distanceToRangeMapInKm")!=null
-              ? rawResults.get("distanceToRangeMapInKm").toString()
-              : rawResults.get("coordinatesInsideRangeMap")!=null
-              ? (boolean)rawResults.get("coordinatesInsideRangeMap")
-              ? "0"
-              : null
-              : null;
+      if (rawResults.get("distanceToRangeMapInKm")!=null) {
+        measureResult = new Result<>(rawResults.get("distanceToRangeMapInKm").toString(), MeasurementState.COMPLETE);
+      } else if (rawResults.get("coordinatesInsideRangeMap")!=null) {
+        if ((boolean)rawResults.get("coordinatesInsideRangeMap")) {
+          measureResult = new Result<>("0", MeasurementState.COMPLETE);
+        } else {
+          measureResult = new Result<>("Internal prerequisites not met.", MeasurementState.NOT_COMPLETE);
+        }
+      } else {
+      measureResult = new Result<>("Internal prerequisites not met.", MeasurementState.NOT_COMPLETE);
+     }
+
       Measure coordinatesConsistencyIUCN = new Measure(
               dataResource,
               "Coordinates distance from the IUCN range map for the species",
               "Calculate the distance to the closest point of the species range map, in Km, using a function in CartoDB to the supplied coordinate, zero if inside range. [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",measureResult);
 
-      result = (boolean)rawResults.get("hasCoordinates")
-              ? "Complete"
-              : "Not Complete";
+      if ((boolean)rawResults.get("hasCoordinates")) {
+        measureResult = new Result<>("Complete", MeasurementState.COMPLETE);
+      } else {
+        measureResult = new Result<>("Not Complete", MeasurementState.NOT_COMPLETE);
+      }
+
       Measure coordinatesCompleteness = new Measure(
               dataResource,
               "Latitude/Longitude completeness",
               "Check if both latitude and longitude were supplied [ref]",
-              "Kurator: VertNet - Geospatial Quality API", result);
+              "Kurator: VertNet - Geospatial Quality API", measureResult);
 
 
-      result = (boolean)rawResults.get("hasCountry")
-              ? "Complete"
-              : "Not Complete";
+      if ((boolean)rawResults.get("hasCountry")) {
+        measureResult = new Result<>("Complete", MeasurementState.COMPLETE);
+      } else {
+        measureResult = new Result<>("Not Complete", MeasurementState.NOT_COMPLETE);
+      }
+
       Measure countryCompleteness = new Measure(
               dataResource,
               "Country code completeness",
               "Check if country code was supplied [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",measureResult);
 
-      result = (boolean)rawResults.get("hasScientificName")
-              ? "Complete"
-              : "Not Complete";
+      if ((boolean)rawResults.get("hasScientificName")) {
+        measureResult = new Result<>("Complete", MeasurementState.COMPLETE);
+      } else {
+        measureResult = new Result<>("Not Complete", MeasurementState.NOT_COMPLETE);
+      }
+
       Measure scientificNameCompleteness = new Measure(
               dataResource,
               "Scientifc Name completeness",
               "Check if scientific name was supplied [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",measureResult);
 
+      Result<ValidationState> validationResult;
       // VALIDATION format:  (DataResource, Criterion, Specification, Mechanism, Result)
-      result = (boolean)rawResults.get("hasCoordinates")
-              ? "Compliant"
-              : "Not Compliant";
+      if ((boolean)rawResults.get("hasCoordinates")) {
+        validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+      } else {
+        validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+      }
+
       Validation coordinatesAreComplete = new Validation(
               dataResource,
               "Coordinates must be complete",
               "Check if both latitude and longitude was supplied [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = (boolean)rawResults.get("hasCountry")
-              ? "Compliant"
-              : "Not Compliant";
+      if ((boolean)rawResults.get("hasCountry")) {
+        validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+      } else {
+        validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+      }
+
       Validation countryAreComplete = new Validation(
               dataResource,
               "Country must be complete",
               "Check if country code was supplied [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = (boolean)rawResults.get("hasScientificName")
-              ? "Compliant"
-              : "Not Compliant";
+      if ((boolean)rawResults.get("hasScientificName")) {
+        validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+      } else {
+        validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+      }
+
       Validation scientificNameAreComplete = new Validation(
               dataResource,
               "Scientifc Name must be complete",
               "Check if scientific name was supplied [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = rawResults.get("validCoordinates")!=null
-              ? (boolean)rawResults.get("validCoordinates")
-              ? "Compliant"
-              : "Not Compliant"
-              : null;
+      if (rawResults.get("validCoordinates")!=null) {
+        if ((boolean)rawResults.get("validCoordinates")) {
+          validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+        } else {
+          validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+        }
+      } else {
+        validationResult = new Result<>("Internal prerequisites not met.", ValidationState.UNABLE_TO_VALIDATE);
+      }
+
       Validation coordinatesAreInRange = new Validation(
               dataResource,
               "Latitude and Longitude must be in valid range",
               "Check if the supplied values conform to the natural limits of coordinates (Lat +/-90, Long +/-180) [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = rawResults.get("validCountry")!=null
-              ? (boolean)rawResults.get("validCountry")
-              ? "Compliant"
-              : "Not Compliant"
-              : null;
+      if (rawResults.get("validCountry")!=null) {
+        if ((boolean)rawResults.get("validCountry")) {
+          validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+        } else {
+          validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+        }
+      } else {
+        validationResult = new Result<>("Internal prerequisites not met.", ValidationState.UNABLE_TO_VALIDATE);
+      }
+
       Validation countryAreValid = new Validation(
               dataResource,
               "Country code must be valid",
               "Check if the supplied value corresponds to an existing 2-character code for a country [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = rawResults.get("highPrecisionCoordinates")!=null
-              ? (boolean)rawResults.get("highPrecisionCoordinates")
-              ? "Compliant"
-              : "Not Compliant"
-              : null;
+      if (rawResults.get("highPrecisionCoordinates")!=null) {
+        if ((boolean)rawResults.get("highPrecisionCoordinates")) {
+          validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+        } else {
+          validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+        }
+      } else {
+        validationResult = new Result<>("Internal prerequisites not met.", ValidationState.UNABLE_TO_VALIDATE);
+      }
+
       Validation coordinatesArePrecise = new Validation(
               dataResource,
               "Coordinates numerical precision must be higher then 3",
               "Check if coordinates have at least 3 decimal places [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = rawResults.get("nonZeroCoordinates")!=null
-              ? (boolean)rawResults.get("nonZeroCoordinates")
-              ? "Compliant"
-              : "Not Compliant"
-              : null;
+      if (rawResults.get("nonZeroCoordinates")!=null) {
+        if ((boolean)rawResults.get("nonZeroCoordinates")) {
+          validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+        } else {
+          validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+        }
+      } else {
+        validationResult = new Result<>("Internal prerequisites not met.", ValidationState.UNABLE_TO_VALIDATE);
+      }
+
       Validation coordinatesAreNonZero = new Validation(
               dataResource,
               "Coordinates must be different from 0",
               "Check if both latitude and longitude are equal 0 [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = rawResults.get("coordinatesInsideCountry")!=null
-              ? (boolean)rawResults.get("coordinatesInsideCountry")
-              ? "Compliant"
-              : "Not Compliant"
-              : null;
+      if (rawResults.get("coordinatesInsideCountry")!=null) {
+        if ((boolean)rawResults.get("coordinatesInsideCountry")) {
+          validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+        } else {
+          validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+        }
+      } else {
+        validationResult = new Result<>("Internal prerequisites not met.", ValidationState.UNABLE_TO_VALIDATE);
+      }
+
       Validation coordinatesAreInsideCountry = new Validation(
               dataResource,
               "Coordinates must fall inside the country",
               "Check if coordinates fall inside the country [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
-      result = rawResults.get("coordinatesInsideRangeMap")!=null
-              ? (boolean)rawResults.get("coordinatesInsideRangeMap")
-              ? "Compliant"
-              : "Not Compliant"
-              : null;
+      if (rawResults.get("coordinatesInsideRangeMap")!=null) {
+        if ((boolean)rawResults.get("coordinatesInsideRangeMap")) {
+          validationResult = new Result<>("Compliant", ValidationState.COMPLIANT);
+        } else {
+          validationResult = new Result<>("Not Compliant", ValidationState.NOT_COMPLIANT);
+        }
+      } else {
+        validationResult = new Result<>("Internal prerequisites not met.", ValidationState.UNABLE_TO_VALIDATE);
+      }
+
       Validation coordinatesAreInsideRangeIUCN = new Validation(
               dataResource,
               "Coordinates must fall inside the IUCN range map for the species",
               "Check if coordinates fall inside the IUCN range map for the scientific name [ref]",
-              "Kurator: VertNet - Geospatial Quality API",result);
+              "Kurator: VertNet - Geospatial Quality API",validationResult);
 
       // IMPROVEMENT format:  (DataResource, Enhancement, Specification, Mechanism, Result)
       
@@ -229,6 +290,11 @@ public class GeoValidatorToDQReport extends Mapper<Map<String, Object>, DQReport
               "Recommendation to transform decimal latitude and or decimal longitude",
               transformation,
               "Kurator: VertNet - Geospatial Quality API",resultMap);
+
+        // Associate the improvement with the validation
+        if (transformation != null) {
+            coordinatesAreInsideCountry.setImprovement(coordinatesTransposition);
+        }
 
       DQReport report = new DQReport();
       // Add Measures to DQReport
