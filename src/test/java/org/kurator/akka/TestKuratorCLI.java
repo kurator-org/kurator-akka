@@ -10,6 +10,9 @@ public class TestKuratorCLI extends KuratorAkkaTestCase {
         "------                                  -----------                            "   + EOL +
         "-f, --file <definition>                 workflow definition file               "   + EOL +
         "-h, --help                              display help                           "   + EOL +
+        "-l, --loglevel <severity>               minimum severity of log entries shown: "   + EOL + 
+        "                                          ALL, OBJECT, DEBUG, INFO, WARNING,   "   + EOL +
+        "                                          ERROR, CRITICAL, NONE                "   + EOL +
         "-p, --parameter <key=value>             key-valued parameter assignment        "   + EOL;            
     
     @Override
@@ -80,7 +83,7 @@ public class TestKuratorCLI extends KuratorAkkaTestCase {
 
     
     public void testKuratorAkka_FileOption_ClasspathScheme_HammingWorkflow() throws Exception {
-        String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml"};
+        String[] args = {"-l", "ALL", "-f", "classpath:/org/kurator/akka/samples/hamming.yaml"};
         KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals(
             "1"         + EOL +

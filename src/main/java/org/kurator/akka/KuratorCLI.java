@@ -73,13 +73,28 @@ public class KuratorCLI {
             return 0;            
         }
         
+        Logger cliLogger;
+        if (options.has("l")) {
+            cliLogger = new Logger();
+            String logLevelOption = (String) options.valueOf("l");
+            LogLevel logLevel = LogLevel.toLogLevel(logLevelOption);
+            cliLogger.setLevel(logLevel); 
+            cliLogger.setSource("CLI");
+        } else {
+            cliLogger = new SilentLogger();
+        }
+        
+        Logger runnerLogger = cliLogger.createChild("RUNNER");
+        
         WorkflowRunner runner = null;
         String yamlFilePath = extractYamlFilePathFromOptions(options);
         
         if (yamlStream != null) {
             
             try {
-                runner = new YamlStreamWorkflowRunner(yamlStream);
+                runner = new YamlStreamWorkflowRunner()
+                         .logger(runnerLogger)
+                         .yamlStream(yamlStream);
             } catch(KuratorException ke) {
                 errStream.println("Error loading workflow definition from input stream");
                 errStream.println(ke.getMessage());
@@ -88,38 +103,45 @@ public class KuratorCLI {
 
         } else if (yamlFilePath != null){
         
+            cliLogger.debug("Workflow definition will be read from " + yamlFilePath);
+            cliLogger.debug("Instantiating a WorkflowRunner to execute the workflow");
             try {
-                runner = new YamlFileWorkflowRunner(yamlFilePath);
+                runner = new YamlFileWorkflowRunner()
+                            .logger(runnerLogger)
+                            .yamlFile(yamlFilePath);
             } catch(KuratorException ke) {
-                errStream.println("Error loading workflow definition from file " + yamlFilePath);
+                String errorMessage = "Error loading workflow definition from file " + yamlFilePath;
+                cliLogger.critical(errorMessage);
+                errStream.println(errorMessage);
                 errStream.println(ke.getMessage());
                 return -1;
             }
 
         } else {
-
-            errStream.println("Error: No workflow definition was provided.");
+            String errorMessage = "Error: No workflow definition was provided.";
+            cliLogger.critical(errorMessage);
+            errStream.println(errorMessage);
             errStream.println();
             parser.printHelpOn(errStream);
             return -1;
         }
 
         Map<String,Object> settings = parseParameterSettingsFromOptions(options);
+        cliLogger.debug("Configuring and executing workflow using the workflow runner");
         try {
             runner.apply(settings)
                   .outputStream(outStream)
                   .errorStream(errStream)
                   .run();
-
+            cliLogger.debug("Workflow execution completed.");
         } catch(KuratorException ke) {
             errStream.println(ke.getMessage());
             return -1;
         }
         
+        
         return 0;
     }
-
-    
     
     
     private static String extractYamlFilePathFromOptions(OptionSet options) {
@@ -180,7 +202,6 @@ public class KuratorCLI {
             acceptsAll(asList("f", "file"), "workflow definition file")
                 .withRequiredArg()
                 .ofType(String.class)
-//              .defaultsTo("-")
                 .describedAs("definition");
 
             acceptsAll(asList("p", "parameter"), "key-valued parameter assignment")
@@ -188,11 +209,16 @@ public class KuratorCLI {
                 .ofType(String.class)
                 .describedAs("input parameter")
                 .describedAs("key=value");
-            
+
+            acceptsAll(asList("l", "loglevel"), "minimum severity of log entries shown: ALL, OBJECT, DEBUG, INFO, WARNING, ERROR, CRITICAL, NONE")
+                .withRequiredArg()
+                .ofType(String.class)
+                .describedAs("severity");
+                    
             acceptsAll(asList("h", "help"), "display help");
 
         }};
-            
+
         return parser;
     }
     
