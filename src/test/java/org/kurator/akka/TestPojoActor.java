@@ -14,7 +14,8 @@ public class TestPojoActor extends KuratorAkkaTestCase {
         
     public void testOneActorWorkflow() throws Exception {
 
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "one_actor_workflow.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "one_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
                .errorStream(stderrStream);
@@ -29,7 +30,8 @@ public class TestPojoActor extends KuratorAkkaTestCase {
     
     public void testTwoActorWorkflow() throws Exception {
         
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "two_actor_workflow.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "two_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
                .errorStream(stderrStream);
@@ -44,7 +46,8 @@ public class TestPojoActor extends KuratorAkkaTestCase {
 
     public void testThreeActorWorkflow() throws Exception { 
         
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "three_actor_workflow.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "three_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
           .errorStream(stderrStream);

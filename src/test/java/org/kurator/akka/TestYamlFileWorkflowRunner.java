@@ -13,7 +13,8 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
     }
     
     public void testEmptyWorkflow() throws Exception {
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "empty_workflow.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+                .yamlFile(RESOURCE_PATH + "empty_workflow.yaml");
         Exception caught = null;
         try {
             wr.build();
@@ -27,7 +28,8 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
 
     public void testOneActorWorkflow() throws Exception {
 
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "one_actor_workflow.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "one_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
           .errorStream(stderrStream)
@@ -41,7 +43,8 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
     
     public void testTwoActorWorkflow() throws Exception {
         
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "two_actor_workflow.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "two_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
          .errorStream(stderrStream)
@@ -55,7 +58,8 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
 
     public void testThreeActorWorkflow() throws Exception { 
         
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "three_actor_workflow.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "three_actor_workflow.yaml");
         
         wr.outputStream(stdoutStream)
           .errorStream(stderrStream)
@@ -69,7 +73,8 @@ public class TestYamlFileWorkflowRunner extends KuratorAkkaTestCase {
     
     public void testThreeActorWorkflowSimplified() throws Exception {        
 
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "three_actor_workflow_simplified.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "three_actor_workflow_simplified.yaml");
         
         wr.outputStream(stdoutStream)
           .errorStream(stderrStream)

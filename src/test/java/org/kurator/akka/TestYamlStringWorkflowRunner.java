@@ -20,7 +20,8 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "  className: org.kurator.akka.WorkflowConfig"          + EOL +
                 "  singleton: true"                                     + EOL; 
         
-        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner()
+            .yamlString(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
 
@@ -54,7 +55,8 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    - !ref Repeater"                                   + EOL +
                 "    inputActor: !ref Repeater"                         + EOL;
         
-        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner()
+            .yamlString(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
             
@@ -93,7 +95,8 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner()
+            .yamlString(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
                 
@@ -142,7 +145,8 @@ public class TestYamlStringWorkflowRunner extends KuratorAkkaTestCase {
                 "    - !ref Printer"                                            + EOL +
                 "    inputActor: !ref Repeater"                                 + EOL;
         
-        WorkflowRunner wr = new YamlStringWorkflowRunner(definition)
+        WorkflowRunner wr = new YamlStringWorkflowRunner()
+            .yamlString(definition)
             .outputStream(stderrStream)
             .errorStream(stdoutStream);
         

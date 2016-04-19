@@ -16,7 +16,8 @@ public class TestHamming_Yaml extends KuratorAkkaTestCase {
     }
     
     public void testHammingYaml() throws Exception {        
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "hamming.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "hamming.yaml");
         wr.apply("max", 100)
           .apply("separator", ", ")
           .outputStream(stdoutStream)

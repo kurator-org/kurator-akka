@@ -13,7 +13,8 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
     @Test
     public void testPythonActor_MultiplierWorkflow() throws Exception {
 
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "multiplier_wf.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "multiplier_wf.yaml");
         wr.outputStream(stdoutStream);
         
         wr.begin();
@@ -26,7 +27,8 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
     @Test
     public void testPythonActor_TriggeredRampWorkflow() throws Exception {
 
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "triggered_ramp_wf.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+            .yamlFile(RESOURCE_PATH + "triggered_ramp_wf.yaml");
         wr.outputStream(stdoutStream);
         
         wr.begin();
@@ -39,7 +41,8 @@ public class TestPythonActor_YamlWorkflows extends KuratorAkkaTestCase {
     @Test
     public void testPythonActor_RampWorkflow() throws Exception {
 
-        WorkflowRunner wr = new YamlFileWorkflowRunner(RESOURCE_PATH + "ramp_wf.yaml");
+        WorkflowRunner wr = new YamlFileWorkflowRunner()
+        .yamlFile(RESOURCE_PATH + "ramp_wf.yaml");
         wr.outputStream(stdoutStream);
         wr.apply("Ramp.start", 3);
         wr.apply("Ramp.end", 30);

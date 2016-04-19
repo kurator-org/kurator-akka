@@ -30,7 +30,8 @@ public class TestCsvRecordFilterWorkflow extends KuratorAkkaTestCase {
         writeBuffer = new ByteArrayOutputStream();
         bufferWriter = new OutputStreamWriter(writeBuffer);
        
-        wr = new YamlFileWorkflowRunner("file:" + SAMPLES_DIR + "/record_filter.yaml");        
+        wr = new YamlFileWorkflowRunner()
+            .yamlFile("file:" + SAMPLES_DIR + "/record_filter.yaml");        
         wr.apply("CsvWriter.outputWriter", bufferWriter);
         wr.apply("required", Arrays.asList(new String[] {"county"}));
     }
