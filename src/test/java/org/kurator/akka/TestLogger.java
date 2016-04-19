@@ -16,73 +16,75 @@ public class TestLogger extends KuratorAkkaTestCase {
         logBuffer = new ByteArrayOutputStream();
         logStream = new PrintStream(logBuffer);
         logger = new Logger();
-        logger.setLog(logStream);
-        logger.setTimestamp(false);
+        logger.setPrintStream(logStream);
+        logger.setShowTimestamps(false);
+        logger.setShowLevel(false);
     }
     
-    public void testLogger_LevelNone() {
-        logger.setLevel(Logger.LogLevel.NONE);
-        logger.log("log");
+    public void testLogger_LevelCritical() {
+        logger.setLevel(LogLevel.CRITICAL);
+        logger.debug("debug");
         logger.info("info");
         logger.warning("warning");
         logger.error("error");
         logger.critical("critical");
         assertEquals(
-                "log"       + EOL, 
+                "critical"  + EOL,
                 logBuffer.toString());
     }
     
-    public void testLogger_LevelInfo() {
-        logger.setLevel(Logger.LogLevel.INFO);
-        logger.log("log");
+    public void testLogger_LevelError() {
+        logger.setLevel(LogLevel.ERROR);
+        logger.debug("debug");
         logger.info("info");
         logger.warning("warning");
         logger.error("error");
         logger.critical("critical");
         assertEquals(
-                "log"       + EOL +
-                "info"      + EOL,
+                "error"     + EOL +
+                "critical"  + EOL,
                 logBuffer.toString());
     }
     
     public void testLogger_LevelWarning() {
-        logger.setLevel(Logger.LogLevel.WARNING);
-        logger.log("log");
+        logger.setLevel(LogLevel.WARNING);
+        logger.debug("debug");
         logger.info("info");
         logger.warning("warning");
         logger.error("error");
         logger.critical("critical");
         assertEquals(
-                "log"       + EOL +
-                "info"      + EOL + 
-                "warning"   + EOL,
+                "warning"   + EOL +
+                "error"     + EOL +
+                "critical"  + EOL,
                 logBuffer.toString());
     }
 
-    public void testLogger_LevelError() {
-        logger.setLevel(Logger.LogLevel.ERROR);
-        logger.log("log");
+    public void testLogger_LevelDebug() {
+        logger.setLevel(LogLevel.DEBUG);
+        logger.debug("debug");
         logger.info("info");
         logger.warning("warning");
         logger.error("error");
         logger.critical("critical");
         assertEquals(
-                "log"       + EOL +
+                "debug"     + EOL +
                 "info"      + EOL + 
                 "warning"   + EOL +
-                "error"     + EOL,
+                "error"     + EOL +
+                "critical"  + EOL,
                 logBuffer.toString());
     }
     
-    public void testLogger_LevelCritical() {
-        logger.setLevel(Logger.LogLevel.CRITICAL);
-        logger.log("log");
+    public void testLogger_LevelAll() {
+        logger.setLevel(LogLevel.ALL);
+        logger.debug("debug");
         logger.info("info");
         logger.warning("warning");
         logger.error("error");
         logger.critical("critical");
         assertEquals(
-                "log"       + EOL +
+                "debug"     + EOL +
                 "info"      + EOL + 
                 "warning"   + EOL +
                 "error"     + EOL +
