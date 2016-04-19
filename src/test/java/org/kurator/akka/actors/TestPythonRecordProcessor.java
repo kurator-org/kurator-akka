@@ -1,7 +1,7 @@
 package org.kurator.akka.actors;
 
 import org.junit.Test;
-import org.kurator.akka.KuratorAkkaCLI;
+import org.kurator.akka.KuratorCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
 
 public class TestPythonRecordProcessor extends KuratorAkkaTestCase {
@@ -16,7 +16,7 @@ public class TestPythonRecordProcessor extends KuratorAkkaTestCase {
                 "-p", "in=src/test/resources/org/kurator/akka/samples/data/eight_specimen_records.csv"
         };
         
-        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("", stderrBuffer.toString());
         assertEquals(
                 "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id" + EOL + 

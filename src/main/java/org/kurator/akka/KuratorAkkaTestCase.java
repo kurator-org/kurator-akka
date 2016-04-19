@@ -20,7 +20,7 @@ public abstract class KuratorAkkaTestCase extends TestCase {
         
         super.setUp();
         
-        KuratorAkkaCLI.enableLog4J();
+        KuratorCLI.enableLog4J();
         
         stdoutBuffer = new ByteArrayOutputStream();
         stdoutStream = new PrintStream(stdoutBuffer);

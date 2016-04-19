@@ -6,7 +6,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.kurator.akka.ActorConfig;
-import org.kurator.akka.KuratorAkkaCLI;
+import org.kurator.akka.KuratorCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.actors.CsvFileReader;
@@ -54,7 +54,7 @@ public class TestCsvSelector extends KuratorAkkaTestCase {
                  "-p", "where={year: '1990'}"
          };
          
-         KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+         KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
          assertEquals(
                  "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id" + EOL + 
                  "100003,Mark Elvin,2938,1990,5,11,34.0,-117.0,WGS84,United States,California,San Bernardino,400 m north of Cushenbury Springs,Asteraceae,Cirsium mohavense,(Greene) Petr.,Flower:June;July;August;September;October;November,DAV,FilteredPush,SPNHCDEMO,1024940716" + EOL + 
@@ -74,7 +74,7 @@ public class TestCsvSelector extends KuratorAkkaTestCase {
                  "-p", "where={year: '1990', day: '11'}"
          };
          
-         KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+         KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
          assertEquals(
                  "catalogNumber,recordedBy,fieldNumber,year,month,day,decimalLatitude,decimalLongitude,geodeticDatum,country,stateProvince,county,locality,family,scientificName,scientificNameAuthorship,reproductiveCondition,InstitutionCode,CollectionCode,DatasetName,Id" + EOL + 
                  "100003,Mark Elvin,2938,1990,5,11,34.0,-117.0,WGS84,United States,California,San Bernardino,400 m north of Cushenbury Springs,Asteraceae,Cirsium mohavense,(Greene) Petr.,Flower:June;July;August;September;October;November,DAV,FilteredPush,SPNHCDEMO,1024940716" + EOL,

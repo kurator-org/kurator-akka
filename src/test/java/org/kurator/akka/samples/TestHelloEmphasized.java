@@ -1,6 +1,6 @@
 package org.kurator.akka.samples;
 
-import org.kurator.akka.KuratorAkkaCLI;
+import org.kurator.akka.KuratorCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
 
 public class TestHelloEmphasized extends KuratorAkkaTestCase {
@@ -12,7 +12,7 @@ public class TestHelloEmphasized extends KuratorAkkaTestCase {
     
     public void testHello_Defaults() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/hello_emphasized.yaml" };
-        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("Hello World!", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
     }
@@ -20,7 +20,7 @@ public class TestHelloEmphasized extends KuratorAkkaTestCase {
     public void testHello_CustomGreeting() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/hello_emphasized.yaml",
                 "-p", "greeting='Goodnight and good luck'"};
-        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("Goodnight and good luck!", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
     }
@@ -28,7 +28,7 @@ public class TestHelloEmphasized extends KuratorAkkaTestCase {
     public void testHello_CustomEmphasis() throws Exception {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/hello_emphasized.yaml",
                 "-p", "emphasis='?'"};
-        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("Hello World?", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
     }
@@ -37,7 +37,7 @@ public class TestHelloEmphasized extends KuratorAkkaTestCase {
         String[] args = { "-f", "classpath:/org/kurator/akka/samples/hello_emphasized.yaml",
                 "-p", "greeting='Goodnight and good luck'",
                 "-p", "emphasis='?'"};
-        KuratorAkkaCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
+        KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals("Goodnight and good luck?", stdoutBuffer.toString());
         assertEquals("", stderrBuffer.toString());
     }

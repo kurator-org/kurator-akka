@@ -1,6 +1,6 @@
 package org.kurator.akka.samples;
 
-import org.kurator.akka.KuratorAkkaCLI;
+import org.kurator.akka.KuratorCLI;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.YamlFileWorkflowRunner;
@@ -12,7 +12,7 @@ public class TestHamming_Yaml extends KuratorAkkaTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        KuratorAkkaCLI.enableLog4J();
+        KuratorCLI.enableLog4J();
     }
     
     public void testHammingYaml() throws Exception {        
