@@ -4,7 +4,7 @@ import org.kurator.exceptions.KuratorException;
 import org.restflow.yaml.spring.YamlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
 
-public class YamlWorkflowRunner extends WorkflowRunner {
+public abstract class YamlWorkflowRunner extends WorkflowRunner {
     
     protected final GenericApplicationContext springContext;
     protected final YamlBeanDefinitionReader yamlBeanReader;
@@ -16,23 +16,29 @@ public class YamlWorkflowRunner extends WorkflowRunner {
     }
     
     protected void loadWorkflowFromSpringContext() throws Exception {
-
+        
         try {
             springContext.refresh();
         } catch (Exception e) {
 //            String message = e.getMessage().replace("; ", ": " + EOL);
+            logger.critical(e.getMessage());
             throw new KuratorException(e.getMessage());
         }        
         
         // get the workflow configuration bean
         String workflowNames[] = springContext.getBeanNamesForType(Class.forName("org.kurator.akka.WorkflowConfig"));
         if (workflowNames.length == 0) {
-            throw new KuratorException("Workflow definition does not include a Workflow configuration object.");
+            String message = "Workflow definition does not include a Workflow configuration object.";
+            logger.critical(message);
+            throw new KuratorException(message);
         } else  if (workflowNames.length > 1) {
-            throw new KuratorException("Workflow definition contains multiple Workflow configuration objects.");
+            String message = "Workflow definition contains multiple Workflow configuration objects.";
+            logger.critical(message);
+            throw new KuratorException(message);
         }
         
         workflowName = workflowNames[0];
+        logger.debug("Name of Workflow bean is: " + workflowName);
         
         WorkflowConfig workflowConfig = (WorkflowConfig) springContext.getBean(workflowName);
         

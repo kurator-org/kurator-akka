@@ -30,7 +30,7 @@ public class WorkflowRunner {
 
     public static final String EOL = System.getProperty("line.separator");
 
-    private final ActorSystem system;
+    private ActorSystem system;
     private ActorRef inputActor = null;
     private Map<ActorConfig,ActorRef> actorRefForActorConfig = new HashMap<ActorConfig, ActorRef>();
     private Map<String,ActorConfig> actorConfigForActorName = new HashMap<String, ActorConfig>();
@@ -43,6 +43,8 @@ public class WorkflowRunner {
     private Exception lastException = null;
     private int actorIndex = 0;
     protected String workflowName = "Workflow";
+    protected Logger logger = new Logger();
+    private Config actorSystemConfig;
     
     static {
         PythonActor.updateClasspath();
@@ -50,24 +52,33 @@ public class WorkflowRunner {
         
     public WorkflowRunner() {
         
+        logger = new SilentLogger();
+        
         // create a configuration for the actor system that disables all logging from Akka
-        Config config = ConfigFactory.load()
+        actorSystemConfig = ConfigFactory.load()
                 .withValue("akka.loglevel", ConfigValueFactory.fromAnyRef("OFF"))
                 .withValue("akka.stdout-loglevel", ConfigValueFactory.fromAnyRef("OFF"))
                 .withValue("akka.actor.guardian-supervisor-strategy", 
-                        ConfigValueFactory.fromAnyRef("akka.actor.DefaultSupervisorStrategy"))
-                        ;
-        
-        // create the actor system itself
-        this.system = ActorSystem.create("Workflow",  config);
+                        ConfigValueFactory.fromAnyRef("akka.actor.DefaultSupervisorStrategy"));
+    }
+    
+    protected WorkflowRunner createActorSystem() throws Exception {
+        logger.debug("Creating ActorSystem named 'Workflow'");
+        logger.data("actorSystemConfig", actorSystemConfig.toString());
+        this.system = ActorSystem.create("Workflow",  this.actorSystemConfig);
+        return this;
     }
 
+    public WorkflowRunner logger(Logger customLogger) {
+        logger = customLogger;
+        return this;
+    }
+    
     public ActorConfig actor(ActorConfig actorConfig, Class<? extends KuratorActor> actorClass) {
         actorConfig.actorClass(actorClass);
         addActorConfig(actorConfig);
         return actorConfig;
     }
-
     
     public ActorConfig actor(Class<? extends KuratorActor> actorClass) {
         return actor(new ActorConfig(), actorClass);
@@ -76,15 +87,17 @@ public class WorkflowRunner {
     protected ActorConfig addActorConfig(ActorConfig actorConfig) {
         String actorName = actorConfig.getName();
         if (actorName == null) {
-            actorName = actorConfig.actorClass().getName().toString() + "_" + ++actorIndex;
+            actorName = actorConfig.actorClass().getSimpleName().toString() + "_" + ++actorIndex;
             actorConfig.name(actorName);
         }
+        logger.debug("Added actor configuration for " + actorName);
         actorConfigForActorName.put(actorName, actorConfig);
         return actorConfig;
     }
 
     public WorkflowRunner name(String name) {
         this.workflowName = name;
+        logger.debug("Setting workflow name to " + name);
         return this;
     }
     
@@ -109,6 +122,7 @@ public class WorkflowRunner {
 
     public WorkflowRunner inputActor(ActorConfig inputActorConfig) {
         this.inputActorConfig = inputActorConfig;
+        logger.debug("Setting workflow input actor to " + inputActorConfig.getName());
         return this;
     }
     
@@ -141,6 +155,8 @@ public class WorkflowRunner {
 
     @SuppressWarnings("unchecked")
     public WorkflowRunner apply(String settingName, Object settingValue) throws Exception {
+
+        logger.info("Applying workflow setting: " + settingName + " = " + settingValue);
         
         Map<String,Object> workflowParameter = null;
         if (workflowParameters != null) {
@@ -150,6 +166,7 @@ public class WorkflowRunner {
         if (workflowParameter != null) {
             ActorConfig actor = (ActorConfig) workflowParameter.get("actor");
             String actorParameterName = (String) workflowParameter.get("parameter");
+            logger.info("Applying setting to actor " + actor + ": " + settingName + " = " + settingValue);
             actor.param(actorParameterName, settingValue);
             return this;
         }
@@ -158,9 +175,11 @@ public class WorkflowRunner {
         if (nameComponents.countTokens() > 1) {
             String actorName = nameComponents.nextToken();
             String parameterName = nameComponents.nextToken();
+            logger.info("Applying setting to actor " + actorName + ": " + parameterName + " = " + settingValue);
             ActorConfig actor = actorConfigForActorName.get(actorName);
             
             if (actor == null) {
+                logger.error("Workflow contains no actor with name " + actorName);
                 throw new Exception("Workflow contains no actor with name " + actorName);
             }
             
@@ -168,22 +187,28 @@ public class WorkflowRunner {
             return this;
         }
         
-        throw new Exception("Workflow does not take parameter named " + settingName);
+        logger.error("Workflow does not have a parameter named " + settingName);
+        throw new Exception("Workflow does not have a parameter named " + settingName);
     }
     
-    public WorkflowRunner build() throws KuratorException {
+    public WorkflowRunner build() throws Exception {
+
+        if (this.system == null) this.createActorSystem();
+        
+        logger.info("Starting to build workflow");
         
         Collection<ActorConfig> actorConfigs = actorConfigForActorName.values();
-        
         if (actorConfigs.isEmpty()) {
+            logger.error("Workflow definition contains no actors");
             throw new KuratorException("Workflow definition contains no actors.");
         }
         
         Set<ActorRef> actors = new HashSet<ActorRef>();
         if (actorConfigs.size() > 0) {
             for (ActorConfig actorConfig : actorConfigs) {
-                String actorName = actorConfig.getName();                
-                ActorRef actor =  system.actorOf(Props.create(
+                String actorName = actorConfig.getName();
+                logger.info("Instantiating actor " + actorName);
+                ActorRef actor =  this.system.actorOf(Props.create(
                                     ActorProducer.class, 
                                     actorConfig.actorClass(), 
                                     actorConfig.getConfig(),
@@ -201,11 +226,15 @@ public class WorkflowRunner {
             
                 actors.add(actor);
                 actorRefForActorConfig.put(actorConfig, actor);
-                if (inputActorConfig == actorConfig) inputActor = actor;
+                if (inputActorConfig == actorConfig) {
+                    logger.info("Setting input actor for workflow to :" + actorConfig.getName());
+                    inputActor = actor;
+                }
             }
         }
     
         // create a workflow using the workflow configuration and comprising the actors
+        logger.info("Instantiating Workflow object to manage the actors");
         workflow = system.actorOf(Props.create(
                             WorkflowProducer.class, 
                             system, 
@@ -218,11 +247,14 @@ public class WorkflowRunner {
                             this
                        ));
 
+        logger.info("Finished building workflow");
+
         return this;
     }
     
     
     public WorkflowRunner tellWorkflow(Object message) {
+        logger.debug("Sending message to workflow: " + message);
         workflow.tell(message, system.lookupRoot());
         return this;
     }
@@ -236,6 +268,7 @@ public class WorkflowRunner {
 
     public WorkflowRunner tellActor(ActorConfig actor, Object message) {
         ActorRef actorRef = this.actorRefForActorConfig.get(actor);
+        logger.debug("Sending message to actor " + actorRef + ": " + message);
         actorRef.tell(message, system.lookupRoot());
         return this;
     }
@@ -248,16 +281,20 @@ public class WorkflowRunner {
     }
     
     public WorkflowRunner init() throws Exception {
+        logger.debug("Sending INITIALIZE message to workflow");
         Future<Object> future = ask(workflow, new Initialize(), Constants.TIMEOUT);
+        logger.debug("Waiting for INITIALIZE response from workflow");
         future.ready(Constants.TIMEOUT_DURATION, null);
         ControlMessage result = (ControlMessage)future.value().get().get();
         if (result instanceof Failure) {
             throw new KuratorException(result.toString());
         }
+        logger.debug("Received INITIALIZE response from workflow");
         return this;
     }
     
     public WorkflowRunner start() throws Exception {
+        logger.debug("Sending START message to workflow");
         workflow.tell(new Start(), system.lookupRoot());
         return this;
     }
@@ -271,8 +308,11 @@ public class WorkflowRunner {
 
     @SuppressWarnings("deprecation")
     public WorkflowRunner end() throws Exception {
+        logger.debug("Waiting for workflow to terminate");
         system.awaitTermination();
+        logger.info("Workflow terminated");        
         if (lastException != null) {
+            logger.error("Exception thrown by workflow: " + lastException);
             throw(lastException);
         }
         return this;
