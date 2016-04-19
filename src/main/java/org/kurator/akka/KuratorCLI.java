@@ -23,7 +23,7 @@ import joptsimple.OptionSet;
  * package as of 28Oct2014.  See <i>licenses/restflow_license.txt</i> for 
  * the copyright notice, license, and git repository URL for RestFlow.</p>
  */
-public class KuratorAkkaCLI {
+public class KuratorCLI {
 
     public static void main(String[] args) throws Exception {
         

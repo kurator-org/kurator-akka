@@ -185,7 +185,7 @@
     	           <archive>
     	               <manifest>
     	                   <addClasspath>true</addClasspath>
-    	                   <mainClass>org.kurator.akka.KuratorAkkaCLI</mainClass>
+    	                   <mainClass>org.kurator.akka.KuratorCLI</mainClass>
     	                   <!--  <classpathPrefix>dependency/</classpathPrefix>-->
     	               </manifest>
     	           </archive>
@@ -215,7 +215,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.kurator.akka.KuratorAkkaCLI</mainClass>
+                            <mainClass>org.kurator.akka.KuratorCLI</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
