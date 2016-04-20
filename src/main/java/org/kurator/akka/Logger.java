@@ -44,22 +44,30 @@ public class Logger {
         return child;
     }
 
-    public synchronized void value(String name, String value) {
-        if (level.value <= LogLevel.TRACE.value) log(LogLevel.TRACE, name + " = " + value, source);
-    }
-
     public synchronized void trace(String message) {
         if (level.value <= LogLevel.TRACE.value) log(LogLevel.TRACE, message, source);
+    }
+
+    public synchronized void trace(String message, String name, Object value) {
+        trace(message + " [" + name + "=" + value + "]");
     }
 
     public synchronized void debug(String message) {
         if (level.value <= LogLevel.DEBUG.value) log(LogLevel.DEBUG, message, source);
     }
     
+    public synchronized void debug(String message, String name, Object value) {
+        debug(message + " [" + name + "=" + value + "]");
+    }
+    
     public synchronized void info(String message) {
         if (level.value <= LogLevel.INFO.value) log(LogLevel.INFO, message, source);
     }
 
+    public synchronized void info(String message, String name, Object value) {
+        info(message + " [" + name + "=" + value + "]");
+    }
+    
     public synchronized void warn(String message) {
         if (level.value <= LogLevel.WARN.value) log(LogLevel.WARN, message, source);
     }

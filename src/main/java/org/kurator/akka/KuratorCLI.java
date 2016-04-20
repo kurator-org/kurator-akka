@@ -104,7 +104,6 @@ public class KuratorCLI {
         } else if (yamlFilePath != null){
         
             cliLogger.debug("Workflow definition will be read from " + yamlFilePath);
-            cliLogger.debug("Instantiating a WorkflowRunner to execute the workflow");
             try {
                 runner = new YamlFileWorkflowRunner()
                             .logger(runnerLogger)
@@ -127,13 +126,15 @@ public class KuratorCLI {
         }
 
         Map<String,Object> settings = parseParameterSettingsFromOptions(options);
-        cliLogger.debug("Configuring and executing workflow using the workflow runner");
         try {
+            cliLogger.debug("Configuring the workflow runner");
             runner.apply(settings)
                   .outputStream(outStream)
-                  .errorStream(errStream)
-                  .run();
-            cliLogger.debug("Workflow execution completed.");
+                  .errorStream(errStream);
+                  
+            cliLogger.debug("Running the workflow");
+            runner.run();
+            cliLogger.debug("Workflow run ended");
         } catch(KuratorException ke) {
             errStream.println(ke.getMessage());
             return -1;
@@ -142,7 +143,6 @@ public class KuratorCLI {
         
         return 0;
     }
-    
     
     private static String extractYamlFilePathFromOptions(OptionSet options) {
         

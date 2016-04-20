@@ -18,6 +18,7 @@ public enum LogLevel {
             if (levelString.equalsIgnoreCase("TRACE"))      return TRACE;
             if (levelString.equalsIgnoreCase("T"))          return TRACE;
             if (levelString.equalsIgnoreCase("DEBUG"))      return DEBUG;
+            if (levelString.equalsIgnoreCase("D"))          return DEBUG;
             if (levelString.equalsIgnoreCase("INFO"))       return INFO;
             if (levelString.equalsIgnoreCase("I"))          return INFO;
             if (levelString.equalsIgnoreCase("WARNING"))    return WARN;
