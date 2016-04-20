@@ -160,7 +160,7 @@ public class WorkflowRunner {
     @SuppressWarnings("unchecked")
     public WorkflowRunner apply(String settingName, Object settingValue) throws Exception {
 
-        logger.info("Setting parameter for workflow " + workflowName, settingName, settingValue);
+        logger.info("Setting workflow parameter", workflowName + "." + settingName, settingValue);
         
         Map<String,Object> workflowParameter = null;
         if (workflowParameters != null) {
@@ -170,7 +170,7 @@ public class WorkflowRunner {
         if (workflowParameter != null) {
             ActorConfig actor = (ActorConfig) workflowParameter.get("actor");
             String actorParameterName = (String) workflowParameter.get("parameter");
-            logger.info("Setting parameter for actor " + actor.getName(), settingName, settingValue);
+            logger.info("Setting actor parameter", actor.getName() + "." + actorParameterName,  settingValue);
             actor.param(actorParameterName, settingValue);
             return this;
         }
@@ -179,7 +179,7 @@ public class WorkflowRunner {
         if (nameComponents.countTokens() > 1) {
             String actorName = nameComponents.nextToken();
             String parameterName = nameComponents.nextToken();
-            logger.info("Setting parameter for actor " + actorName, parameterName,  settingValue);
+            logger.info("Setting actor parameter ", actorName + "." + parameterName,  settingValue);
             ActorConfig actor = actorConfigForActorName.get(actorName);
             
             if (actor == null) {
@@ -200,7 +200,7 @@ public class WorkflowRunner {
 
         if (this.system == null) this.createActorSystem();
         
-        logger.info("Starting to assemble workflow " + workflowName);
+        logger.info("Starting to assemble workflow");
         
         Collection<ActorConfig> actorConfigs = actorConfigForActorName.values();
         if (actorConfigs.isEmpty()) {
@@ -212,7 +212,7 @@ public class WorkflowRunner {
         if (actorConfigs.size() > 0) {
             for (ActorConfig actorConfig : actorConfigs) {
                 String actorName = actorConfig.getName();
-                logger.info("Instantiating actor " + actorName);
+                logger.info("Instantiating ACTOR[" + actorName + "]");
                 ActorRef actor =  this.system.actorOf(Props.create(
                                     ActorProducer.class, 
                                     actorConfig.actorClass(), 
@@ -239,7 +239,7 @@ public class WorkflowRunner {
         }
     
         // create a workflow using the workflow configuration and comprising the actors
-        logger.info("Instantiating Workflow " + workflowName);
+        logger.info("Instantiating WORKFLOW[" + workflowName + "]");
         workflow = system.actorOf(Props.create(
                             WorkflowProducer.class, 
                             system, 
@@ -253,7 +253,7 @@ public class WorkflowRunner {
                             this
                        ));
 
-        logger.info("Finished assembling workflow " + workflowName);
+        logger.info("Finished assembling workflow");
 
         return this;
     }
@@ -287,7 +287,7 @@ public class WorkflowRunner {
     }
     
     public WorkflowRunner init() throws Exception {
-        logger.debug("Initializing workflow " + workflowName);
+        logger.debug("Initializing WORKFLOW");
         logger.trace("Sending INITIALIZE message to WORKFLOW");
         Future<Object> future = ask(workflow, new Initialize(), Constants.TIMEOUT);
         logger.trace("Waiting for INITIALIZE response from WORKFLOW");
@@ -301,9 +301,9 @@ public class WorkflowRunner {
     }
     
     public WorkflowRunner start() throws Exception {
+        logger.info("Workflow run starting");        
         logger.trace("Sending START message to WORKFLOW");
         workflow.tell(new Start(), system.lookupRoot());
-        logger.info("Workflow run starting");        
         return this;
     }
     
@@ -316,8 +316,10 @@ public class WorkflowRunner {
 
     @SuppressWarnings("deprecation")
     public WorkflowRunner end() throws Exception {
-        logger.debug("Waiting for workflow run to complete");
+        logger.debug("Waiting for WORKFLOW to run to completion");
+        logger.trace("Waiting for ActorSystem to terminate");
         system.awaitTermination();
+        logger.trace("ActorSystem terminated");
         logger.info("Workflow run completed");        
         if (lastException != null) {
             logger.error("Exception thrown during workflow run: " + lastException);

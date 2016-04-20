@@ -85,7 +85,7 @@ public class Workflow extends UntypedActor {
 
     private void initialize() throws Exception {
 
-        logger.debug("Initializing workflow");
+        logger.debug("Initializing actors");
         
         // send an initialize message to each actor
         final ArrayList<Future<Object>> responseFutures = new ArrayList<Future<Object>>();
@@ -100,6 +100,7 @@ public class Workflow extends UntypedActor {
         // wait for success or failure response from each actor
         for (Future<Object> responseFuture : responseFutures) {
             responseFuture.ready(Constants.TIMEOUT_DURATION, null);
+            logger.trace("Waiting for INITIALIZE response from ACTOR");
             ControlMessage message = (ControlMessage)responseFuture.value().get().get();
             logger.trace("Received INITIALIZE response from ACTOR");
             if (message instanceof Failure) {
@@ -132,7 +133,7 @@ public class Workflow extends UntypedActor {
                 logger.trace("Sending START message to ACTOR ");
                 a.tell(message, getSelf());
             }
-            logger.debug("Workflow starting with " + actors.size() + " active actors");
+            logger.debug("Run starting with " + actors.size() + " active actors");
             logger.trace("Done handling START message");
             return;
         }

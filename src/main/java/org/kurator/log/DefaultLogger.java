@@ -48,7 +48,7 @@ public class DefaultLogger implements Logger {
     }
 
     public synchronized void trace(String message, String name, Object value) {
-        trace(message + " [" + name + "=" + value + "]");
+        trace(message + " {" + name + " = " + value + "}");
     }
 
     public synchronized void debug(String message) {
@@ -56,7 +56,7 @@ public class DefaultLogger implements Logger {
     }
     
     public synchronized void debug(String message, String name, Object value) {
-        debug(message + " [" + name + "=" + value + "]");
+        debug(message + " {" + name + " = " + value + "}");
     }
     
     public synchronized void info(String message) {
@@ -64,7 +64,7 @@ public class DefaultLogger implements Logger {
     }
 
     public synchronized void info(String message, String name, Object value) {
-        info(message + " [" + name + "=" + value + "]");
+        info(message + " {" + name + " = " + value + "}");
     }
     
     public synchronized void warn(String message) {

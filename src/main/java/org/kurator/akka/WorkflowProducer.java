@@ -27,7 +27,7 @@ public class WorkflowProducer implements IndirectActorProducer {
             InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
 
        this.logger = logger;
-       logger.setSource("WFPRODUCER");
+       logger.setSource("WORKFLOWPRODUCER");
 
        this.system = system;
        this.actors = actors;
