@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.kurator.exceptions.KuratorException;
+import org.kurator.log.LogLevel;
+import org.kurator.log.Logger;
+import org.kurator.log.SilentLogger;
 import org.yaml.snakeyaml.Yaml;
 
 import joptsimple.OptionException;

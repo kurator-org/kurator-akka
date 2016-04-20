@@ -4,6 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import org.kurator.log.LogLevel;
+import org.kurator.log.Logger;
+
 public class TestLogger extends KuratorAkkaTestCase {
 
     private OutputStream logBuffer;

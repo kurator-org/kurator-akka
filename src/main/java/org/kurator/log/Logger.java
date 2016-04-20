@@ -1,4 +1,4 @@
-package org.kurator.akka;
+package org.kurator.log;
 
 import java.io.PrintStream;
 import java.sql.Timestamp;

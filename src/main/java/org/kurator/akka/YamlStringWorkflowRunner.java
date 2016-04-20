@@ -3,6 +3,8 @@ package org.kurator.akka;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
 
+import org.kurator.log.Logger;
+
 @SuppressWarnings("deprecation")
 public class YamlStringWorkflowRunner extends YamlWorkflowRunner {
     

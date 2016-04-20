@@ -16,6 +16,8 @@ import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Start;
 import org.kurator.exceptions.KuratorException;
+import org.kurator.log.Logger;
+import org.kurator.log.SilentLogger;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;

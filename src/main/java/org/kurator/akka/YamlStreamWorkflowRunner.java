@@ -2,6 +2,8 @@ package org.kurator.akka;
 
 import java.io.InputStream;
 
+import org.kurator.log.Logger;
+
 public class YamlStreamWorkflowRunner extends YamlWorkflowRunner {
     
     public YamlStreamWorkflowRunner() throws Exception {

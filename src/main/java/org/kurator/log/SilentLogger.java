@@ -1,4 +1,5 @@
-package org.kurator.akka;
+package org.kurator.log;
+
 
 public class SilentLogger extends Logger {
     @Override public SilentLogger createChild() { return new SilentLogger(); }

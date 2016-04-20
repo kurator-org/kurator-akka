@@ -1,4 +1,4 @@
-package org.kurator.akka;
+package org.kurator.log;
 
 public enum LogLevel {
     

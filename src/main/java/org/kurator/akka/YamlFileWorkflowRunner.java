@@ -1,6 +1,7 @@
 package org.kurator.akka;
 
 import org.kurator.exceptions.KuratorException;
+import org.kurator.log.Logger;
 
 public class YamlFileWorkflowRunner extends YamlWorkflowRunner {
 

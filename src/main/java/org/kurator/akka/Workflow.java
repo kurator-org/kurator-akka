@@ -18,6 +18,8 @@ import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Start;
 import org.kurator.akka.messages.Success;
+import org.kurator.log.Logger;
+import org.kurator.log.SilentLogger;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
