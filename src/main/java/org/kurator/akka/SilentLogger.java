@@ -1,7 +1,7 @@
 package org.kurator.akka;
 
 public class SilentLogger extends Logger {
-    @Override public SilentLogger createChild(String s) { return new SilentLogger(); }
+    @Override public SilentLogger createChild() { return new SilentLogger(); }
     @Override public void debug(String m) {}
     @Override public void info(String m) {}
     @Override public void warn(String m) {}

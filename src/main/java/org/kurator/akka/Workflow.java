@@ -31,6 +31,7 @@ public class Workflow extends UntypedActor {
     private final Set<ActorRef> actors = new HashSet<ActorRef>();
     private final String name;
     private ActorRef inputActor;
+    private Logger logger = new SilentLogger();
 
     @SuppressWarnings("unused")
     private final InputStream inStream;
@@ -49,6 +50,11 @@ public class Workflow extends UntypedActor {
         this.errStream = errStream;
         this.workflowRunner = workflowRunner;
     }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+        this.logger.setSource("WORKFLOW");
+    }
     
     public void setInput(ActorRef inputActor) {
         this.inputActor = inputActor;
@@ -56,6 +62,7 @@ public class Workflow extends UntypedActor {
 
     private void actor(ActorRef actor) {
         actors.add(actor);
+        logger.trace("Now watching ACTOR");
         getContext().watch(actor);
     }
 
@@ -76,11 +83,14 @@ public class Workflow extends UntypedActor {
 
     private void initialize() throws Exception {
 
+        logger.debug("Initializing workflow");
+        
         // send an initialize message to each actor
         final ArrayList<Future<Object>> responseFutures = new ArrayList<Future<Object>>();
         Initialize initialize = new Initialize();
-        for (ActorRef a : actors) {
-            responseFutures.add(ask(a, initialize, Constants.TIMEOUT));
+        for (ActorRef actor : actors) {
+            logger.trace("Sending INITIALIZE message to ACTOR");
+            responseFutures.add(ask(actor, initialize, Constants.TIMEOUT));
         }
 
         List<Failure> failures = new LinkedList<Failure>();
@@ -89,7 +99,9 @@ public class Workflow extends UntypedActor {
         for (Future<Object> responseFuture : responseFutures) {
             responseFuture.ready(Constants.TIMEOUT_DURATION, null);
             ControlMessage message = (ControlMessage)responseFuture.value().get().get();
+            logger.trace("Received INITIALIZE response from ACTOR");
             if (message instanceof Failure) {
+                logger.error("Actor reports error during initialization: " + message);
                 failures.add((Failure)message);
             }
         }
@@ -97,6 +109,7 @@ public class Workflow extends UntypedActor {
         ControlMessage result = (failures.size() == 0) ? 
                 new Success() : new Failure("Error initializing workflow '" + name + "'" , failures);
 
+        logger.trace("Sending INITIALIZE response to RUNNER");
         getSender().tell(result, getSelf());
     }
 
@@ -104,14 +117,21 @@ public class Workflow extends UntypedActor {
     public void onReceive(Object message) throws Exception {
 
         if (message instanceof Initialize) {
+            logger.trace("Handling INITIALIZE message from RUNNER");
             initialize();
+            logger.trace("Done handling INITIALIZE message");
             return;
         }
 
         if (message instanceof Start) {
+            logger.trace("Handling START message from RUNNER");
+            logger.debug("Starting actors");
             for (ActorRef a : actors) {
+                logger.trace("Sending START message to ACTOR ");
                 a.tell(message, getSelf());
             }
+            logger.debug("Workflow starting with " + actors.size() + " active actors");
+            logger.trace("Done handling START message");
             return;
         }
         
@@ -127,15 +147,21 @@ public class Workflow extends UntypedActor {
         if (message instanceof Terminated) {
             Terminated t = (Terminated) message;
             ActorRef terminatedActor = t.actor();
+            logger.trace("Handling TERMINATED message from ACTOR");
             actors.remove(terminatedActor);
+            logger.debug("ACTOR has stopped");
+            logger.debug("Number of active actors is now " + actors.size());
             if (actors.size() == 0) {
+                logger.trace("Stopping because all actors have stopped");
                 getContext().stop(getSelf());
+                logger.debug("Shutting down ActorSystem");
                 actorSystem.shutdown();
             }
             return;
         }
         
         if (inputActor != null) {
+            logger.debug("Forwarding unhandled message to actor");
             inputActor.tell(message, getSelf());
         }
     }

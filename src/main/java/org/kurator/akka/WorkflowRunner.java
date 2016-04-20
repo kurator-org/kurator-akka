@@ -71,6 +71,7 @@ public class WorkflowRunner {
 
     public WorkflowRunner logger(Logger customLogger) {
         logger = customLogger;
+        logger.setSource("RUNNER");
         return this;
     }
     
@@ -242,6 +243,7 @@ public class WorkflowRunner {
                             actors, 
                             workflowName,
                             inputActor,
+                            logger.createChild(),
                             inStream,
                             outStream,
                             errStream,
@@ -255,7 +257,7 @@ public class WorkflowRunner {
     
     
     public WorkflowRunner tellWorkflow(Object message) {
-        logger.debug("Sending message to workflow: " + message);
+        logger.debug("Sending message to WORKFLOW: " + message);
         workflow.tell(message, system.lookupRoot());
         return this;
     }
@@ -283,22 +285,22 @@ public class WorkflowRunner {
     
     public WorkflowRunner init() throws Exception {
         logger.debug("Initializing workflow " + workflowName);
-        logger.trace("Sending INITIALIZE message to workflow");
+        logger.trace("Sending INITIALIZE message to WORKFLOW");
         Future<Object> future = ask(workflow, new Initialize(), Constants.TIMEOUT);
-        logger.trace("Waiting for INITIALIZE response from workflow");
+        logger.trace("Waiting for INITIALIZE response from WORKFLOW");
         future.ready(Constants.TIMEOUT_DURATION, null);
         ControlMessage result = (ControlMessage)future.value().get().get();
         if (result instanceof Failure) {
             throw new KuratorException(result.toString());
         }
-        logger.trace("Received INITIALIZE response from workflow");
+        logger.trace("Received INITIALIZE response from WORKFLOW");
         return this;
     }
     
     public WorkflowRunner start() throws Exception {
-        logger.trace("Sending START message to workflow");
+        logger.trace("Sending START message to WORKFLOW");
         workflow.tell(new Start(), system.lookupRoot());
-        logger.info("Workflow run started");        
+        logger.info("Workflow run starting");        
         return this;
     }
     

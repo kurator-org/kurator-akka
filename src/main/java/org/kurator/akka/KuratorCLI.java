@@ -84,7 +84,7 @@ public class KuratorCLI {
             cliLogger = new SilentLogger();
         }
         
-        Logger runnerLogger = cliLogger.createChild("RUNNER");
+        Logger runnerLogger = cliLogger.createChild();
         
         WorkflowRunner runner = null;
         String yamlFilePath = extractYamlFilePathFromOptions(options);

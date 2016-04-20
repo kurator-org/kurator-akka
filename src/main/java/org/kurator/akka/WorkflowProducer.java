@@ -19,21 +19,22 @@ public class WorkflowProducer implements IndirectActorProducer {
     private PrintStream outStream;
     private PrintStream errStream;
     private WorkflowRunner workflowRunner;
-    
-    public WorkflowProducer(ActorSystem system, Set<ActorRef> actors) {
-        this.system = system;
-        this.actors = actors;
-    }
+    private Logger logger;
 
-    public WorkflowProducer(ActorSystem system, Set<ActorRef> actors, String name, ActorRef inputActor,
+    public WorkflowProducer(ActorSystem system, Set<ActorRef> actors, String name, ActorRef inputActor, Logger logger,
             InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
-       this(system, actors);
-       this.inputActor = inputActor;
+
+       this.logger = logger;
+       logger.setSource("WFPRODUCER");
+
+       this.system = system;
+       this.actors = actors;
        this.name = name;
+       this.inputActor = inputActor;
        this.inStream = inStream;
        this.outStream = outStream;
        this.errStream = errStream;
-       this.workflowRunner = workflowRunner;
+       this.workflowRunner = workflowRunner;       
     }
     
     @Override
@@ -43,7 +44,9 @@ public class WorkflowProducer implements IndirectActorProducer {
 
     @Override
     public Workflow produce() {
-        Workflow workflow = new Workflow(system, name, inStream, outStream, errStream, workflowRunner);        
+        logger.trace("Producing workflow instance");
+        Workflow workflow = new Workflow(system, name, inStream, outStream, errStream, workflowRunner);
+        workflow.setLogger(logger.createChild());
         workflow.setActors(actors);
         workflow.setInput(inputActor);
         return workflow;

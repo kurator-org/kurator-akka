@@ -36,9 +36,8 @@ public class Logger {
     public boolean getShowSource() { return this.showSource; }
     public int getMaxMessageLength() { return this.maxMessageLength; }
     
-    public Logger createChild(String source) {
+    public Logger createChild() {
         Logger child = new Logger();
-        child.setSource(source);
         child.setLevel(this.level);
         child.setParent(this);
         return child;
