@@ -83,7 +83,7 @@ public class TestKuratorCLI extends KuratorAkkaTestCase {
 
     
     public void testKuratorAkka_FileOption_ClasspathScheme_HammingWorkflow() throws Exception {
-        String[] args = {"-l", "ALL", "-f", "classpath:/org/kurator/akka/samples/hamming.yaml"};
+        String[] args = {"-f", "classpath:/org/kurator/akka/samples/hamming.yaml"};
         KuratorCLI.runWorkflowForArgs(args, stdoutStream, stderrStream);
         assertEquals(
             "1"         + EOL +

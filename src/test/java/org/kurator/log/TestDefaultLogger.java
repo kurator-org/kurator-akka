@@ -1,24 +1,26 @@
-package org.kurator.akka;
+package org.kurator.log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import org.kurator.akka.KuratorAkkaTestCase;
+import org.kurator.log.DefaultLogger;
 import org.kurator.log.LogLevel;
 import org.kurator.log.Logger;
 
-public class TestLogger extends KuratorAkkaTestCase {
+public class TestDefaultLogger extends KuratorAkkaTestCase {
 
     private OutputStream logBuffer;
     private PrintStream logStream;
-    private Logger logger;
+    private DefaultLogger logger;
     
     @Override
     public void setUp() throws Exception {
         super.setUp();
         logBuffer = new ByteArrayOutputStream();
         logStream = new PrintStream(logBuffer);
-        logger = new Logger();
+        logger = new DefaultLogger();
         logger.setPrintStream(logStream);
         logger.setShowTimestamps(false);
         logger.setShowLevel(false);

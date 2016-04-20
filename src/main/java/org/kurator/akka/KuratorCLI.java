@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.kurator.exceptions.KuratorException;
+import org.kurator.log.DefaultLogger;
 import org.kurator.log.LogLevel;
 import org.kurator.log.Logger;
 import org.kurator.log.SilentLogger;
@@ -78,7 +79,7 @@ public class KuratorCLI {
         
         Logger cliLogger;
         if (options.has("l")) {
-            cliLogger = new Logger();
+            cliLogger = new DefaultLogger();
             String logLevelOption = (String) options.valueOf("l");
             LogLevel logLevel = LogLevel.toLogLevel(logLevelOption);
             cliLogger.setLevel(logLevel); 

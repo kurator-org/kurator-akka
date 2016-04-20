@@ -16,6 +16,7 @@ import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Start;
 import org.kurator.exceptions.KuratorException;
+import org.kurator.log.DefaultLogger;
 import org.kurator.log.Logger;
 import org.kurator.log.SilentLogger;
 
@@ -45,7 +46,7 @@ public class WorkflowRunner {
     private Exception lastException = null;
     private int actorIndex = 0;
     protected String workflowName = "Workflow";
-    protected Logger logger = new Logger();
+    protected Logger logger = new DefaultLogger();
     private Config actorSystemConfig;
     
     static {
