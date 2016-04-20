@@ -21,7 +21,7 @@ public abstract class YamlWorkflowRunner extends WorkflowRunner {
             springContext.refresh();
         } catch (Exception e) {
 //            String message = e.getMessage().replace("; ", ": " + EOL);
-            logger.critical(e.getMessage());
+            logger.fatal(e.getMessage());
             throw new KuratorException(e.getMessage());
         }        
         
@@ -29,11 +29,11 @@ public abstract class YamlWorkflowRunner extends WorkflowRunner {
         String workflowNames[] = springContext.getBeanNamesForType(Class.forName("org.kurator.akka.WorkflowConfig"));
         if (workflowNames.length == 0) {
             String message = "Workflow definition does not include a Workflow configuration object.";
-            logger.critical(message);
+            logger.fatal(message);
             throw new KuratorException(message);
         } else  if (workflowNames.length > 1) {
             String message = "Workflow definition contains multiple Workflow configuration objects.";
-            logger.critical(message);
+            logger.fatal(message);
             throw new KuratorException(message);
         }
         

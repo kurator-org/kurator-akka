@@ -11,8 +11,8 @@ public class TestKuratorCLI extends KuratorAkkaTestCase {
         "-f, --file <definition>                 workflow definition file               "   + EOL +
         "-h, --help                              display help                           "   + EOL +
         "-l, --loglevel <severity>               minimum severity of log entries shown: "   + EOL + 
-        "                                          ALL, OBJECT, DEBUG, INFO, WARNING,   "   + EOL +
-        "                                          ERROR, CRITICAL, NONE                "   + EOL +
+        "                                          ALL, TRACE, DEBUG, INFO, WARN,       "   + EOL +
+        "                                          ERROR, FATAL, OFF                    "   + EOL +
         "-p, --parameter <key=value>             key-valued parameter assignment        "   + EOL;            
     
     @Override

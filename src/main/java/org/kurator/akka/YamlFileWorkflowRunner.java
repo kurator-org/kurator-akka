@@ -15,7 +15,7 @@ public class YamlFileWorkflowRunner extends YamlWorkflowRunner {
             yamlBeanReader.registerBeanDefinitions(definitionFilePath);
         } catch (Exception e) {
             String message = e.getMessage().replace("; ", ": " + EOL);
-            logger.critical("Error reading YAML definition of workflow: " + message);
+            logger.fatal("Error reading YAML definition of workflow: " + message);
             throw new KuratorException(message);
         }
         

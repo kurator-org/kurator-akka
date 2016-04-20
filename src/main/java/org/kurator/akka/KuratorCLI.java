@@ -111,7 +111,7 @@ public class KuratorCLI {
                             .yamlFile(yamlFilePath);
             } catch(KuratorException ke) {
                 String errorMessage = "Error loading workflow definition from file " + yamlFilePath;
-                cliLogger.critical(errorMessage);
+                cliLogger.fatal(errorMessage);
                 errStream.println(errorMessage);
                 errStream.println(ke.getMessage());
                 return -1;
@@ -119,7 +119,7 @@ public class KuratorCLI {
 
         } else {
             String errorMessage = "Error: No workflow definition was provided.";
-            cliLogger.critical(errorMessage);
+            cliLogger.fatal(errorMessage);
             errStream.println(errorMessage);
             errStream.println();
             parser.printHelpOn(errStream);
@@ -210,7 +210,7 @@ public class KuratorCLI {
                 .describedAs("input parameter")
                 .describedAs("key=value");
 
-            acceptsAll(asList("l", "loglevel"), "minimum severity of log entries shown: ALL, OBJECT, DEBUG, INFO, WARNING, ERROR, CRITICAL, NONE")
+            acceptsAll(asList("l", "loglevel"), "minimum severity of log entries shown: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF")
                 .withRequiredArg()
                 .ofType(String.class)
                 .describedAs("severity");

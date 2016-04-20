@@ -13,7 +13,7 @@ public class YamlStringWorkflowRunner extends YamlWorkflowRunner {
     public YamlStringWorkflowRunner yamlString(String yamlString) throws Exception {
         super.createActorSystem();
         logger.info("Reading YAML definition from string");
-        logger.data("yamlString", yamlString);
+        logger.value("yamlString", yamlString);
         InputStream stream = new StringBufferInputStream(yamlString);
         yamlBeanReader.loadBeanDefinitions(stream, "-");
         super.loadWorkflowFromSpringContext();

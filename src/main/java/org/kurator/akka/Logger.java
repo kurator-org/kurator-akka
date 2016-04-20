@@ -8,7 +8,7 @@ public class Logger {
 
     private volatile Logger parent = null;
     private volatile PrintStream printStream = System.err;
-    private volatile LogLevel level = LogLevel.WARNING;
+    private volatile LogLevel level = LogLevel.WARN;
     private volatile boolean showTimestamps = true;
     private volatile boolean showLevel = true;
     private volatile boolean showSource = true;
@@ -44,8 +44,12 @@ public class Logger {
         return child;
     }
 
-    public synchronized void data(String name, String value) {
-        if (level.value <= LogLevel.OBJECT.value) log(LogLevel.OBJECT, name + " = " + value, source);
+    public synchronized void value(String name, String value) {
+        if (level.value <= LogLevel.TRACE.value) log(LogLevel.TRACE, name + " = " + value, source);
+    }
+
+    public synchronized void trace(String message) {
+        if (level.value <= LogLevel.TRACE.value) log(LogLevel.TRACE, message, source);
     }
 
     public synchronized void debug(String message) {
@@ -56,16 +60,16 @@ public class Logger {
         if (level.value <= LogLevel.INFO.value) log(LogLevel.INFO, message, source);
     }
 
-    public synchronized void warning(String message) {
-        if (level.value <= LogLevel.WARNING.value) log(LogLevel.WARNING, message, source);
+    public synchronized void warn(String message) {
+        if (level.value <= LogLevel.WARN.value) log(LogLevel.WARN, message, source);
     }
 
     public synchronized void error(String message) {
         if (level.value <= LogLevel.ERROR.value) log(LogLevel.ERROR, message, source);
     }
 
-    public synchronized void critical(String message) {
-        if (level.value <= LogLevel.CRITICAL.value) log(LogLevel.CRITICAL, message, source);
+    public synchronized void fatal(String message) {
+        if (level.value <= LogLevel.FATAL.value) log(LogLevel.FATAL, message, source);
     }
    
     public synchronized void log(LogLevel level, String message, String source) {
@@ -75,18 +79,19 @@ public class Logger {
        
         // otherwise build the log entry from the enabled log entry components
         StringBuffer entry = new StringBuffer();
-        if (this.showTimestamps) { 
-            String timestamp = new Timestamp(new Date().getTime()).toString();
-            if (timestamp.length() == 22) timestamp += "0";
-            if (timestamp.length() == 21) timestamp += "00";
-            append(entry, timestamp); 
-        }
+        if (this.showTimestamps) { append(entry, pad(new Timestamp(new Date().getTime()).toString())); }
         if (this.showLevel) { append(entry, level.toString()); }
-        if (this.showSource) { append(entry, source);}
+        if (this.showSource) { append(entry, source); }
         append(entry, getPrefix(message, maxMessageLength));
         
         // ...and then write the log entry
         this.printStream.println(entry);
+    }
+    
+    private String pad(String timestamp) {
+        if (timestamp.length() == 22) return timestamp += "0";
+        if (timestamp.length() == 21) return timestamp += "00";
+        return timestamp;
     }
     
     private void append(StringBuffer buffer, String s) {

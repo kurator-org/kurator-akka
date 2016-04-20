@@ -64,7 +64,7 @@ public class WorkflowRunner {
     
     protected WorkflowRunner createActorSystem() throws Exception {
         logger.debug("Creating ActorSystem named 'Workflow'");
-        logger.data("actorSystemConfig", actorSystemConfig.toString());
+        logger.value("actorSystemConfig", actorSystemConfig.toString());
         this.system = ActorSystem.create("Workflow",  this.actorSystemConfig);
         return this;
     }

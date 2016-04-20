@@ -22,12 +22,12 @@ public class TestLogger extends KuratorAkkaTestCase {
     }
     
     public void testLogger_LevelCritical() {
-        logger.setLevel(LogLevel.CRITICAL);
+        logger.setLevel(LogLevel.FATAL);
         logger.debug("debug");
         logger.info("info");
-        logger.warning("warning");
+        logger.warn("warning");
         logger.error("error");
-        logger.critical("critical");
+        logger.fatal("critical");
         assertEquals(
                 "critical"  + EOL,
                 logBuffer.toString());
@@ -37,9 +37,9 @@ public class TestLogger extends KuratorAkkaTestCase {
         logger.setLevel(LogLevel.ERROR);
         logger.debug("debug");
         logger.info("info");
-        logger.warning("warning");
+        logger.warn("warning");
         logger.error("error");
-        logger.critical("critical");
+        logger.fatal("critical");
         assertEquals(
                 "error"     + EOL +
                 "critical"  + EOL,
@@ -47,12 +47,12 @@ public class TestLogger extends KuratorAkkaTestCase {
     }
     
     public void testLogger_LevelWarning() {
-        logger.setLevel(LogLevel.WARNING);
+        logger.setLevel(LogLevel.WARN);
         logger.debug("debug");
         logger.info("info");
-        logger.warning("warning");
+        logger.warn("warning");
         logger.error("error");
-        logger.critical("critical");
+        logger.fatal("critical");
         assertEquals(
                 "warning"   + EOL +
                 "error"     + EOL +
@@ -64,9 +64,9 @@ public class TestLogger extends KuratorAkkaTestCase {
         logger.setLevel(LogLevel.DEBUG);
         logger.debug("debug");
         logger.info("info");
-        logger.warning("warning");
+        logger.warn("warning");
         logger.error("error");
-        logger.critical("critical");
+        logger.fatal("critical");
         assertEquals(
                 "debug"     + EOL +
                 "info"      + EOL + 
@@ -80,9 +80,9 @@ public class TestLogger extends KuratorAkkaTestCase {
         logger.setLevel(LogLevel.ALL);
         logger.debug("debug");
         logger.info("info");
-        logger.warning("warning");
+        logger.warn("warning");
         logger.error("error");
-        logger.critical("critical");
+        logger.fatal("critical");
         assertEquals(
                 "debug"     + EOL +
                 "info"      + EOL + 
