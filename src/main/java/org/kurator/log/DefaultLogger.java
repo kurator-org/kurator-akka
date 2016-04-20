@@ -86,23 +86,37 @@ public class DefaultLogger implements Logger {
        
         // otherwise build the log entry from the enabled log entry components
         StringBuffer entry = new StringBuffer();
-        if (this.showTimestamps) { append(entry, pad(new Timestamp(new Date().getTime()).toString())); }
-        if (this.showLevel) { append(entry, level.toString()); }
-        if (this.showSource) { append(entry, source); }
+        if (this.showTimestamps) { appendTimestamp(entry); }
+        if (this.showLevel) { appendLevel(entry, level); }
+        if (this.showSource) { appendSource(entry, source); }
         append(entry, getPrefix(message, maxMessageLength));
         
         // ...and then write the log entry
         this.printStream.println(entry);
     }
     
-    private String pad(String timestamp) {
-        if (timestamp.length() == 22) return timestamp += "0";
-        if (timestamp.length() == 21) return timestamp += "00";
-        return timestamp;
+    private void appendTimestamp(StringBuffer entry) {
+        String timestamp = new Timestamp(new Date().getTime()).toString();
+        if (timestamp.length() == 22) {
+            timestamp += "0";
+        } else if (timestamp.length() == 21) {
+            timestamp += "00";
+        }
+        append(entry, timestamp);
+    }
+    
+    private void appendLevel(StringBuffer entry, LogLevel level) {
+        String levelText = "[" + level + "]";
+        append(entry, levelText);
+        if (levelText.length() == 6) entry.append(' ');
+    }
+    
+    private void appendSource(StringBuffer entry, String source) {
+        append(entry, source + " ->");
     }
     
     private void append(StringBuffer buffer, String s) {
-        if (buffer.length() > 0 && !s.isEmpty()) buffer.append(separator);
+        if (buffer.length() > 0 && !s.isEmpty()) buffer.append(" ");
         buffer.append(s);
     }
     
