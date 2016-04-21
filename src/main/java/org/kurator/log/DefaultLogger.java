@@ -35,7 +35,8 @@ public class DefaultLogger implements Logger {
     public boolean getShowLevel() { return this.showLevel; }
     public boolean getShowSource() { return this.showSource; }
     public int getMaxMessageLength() { return this.maxMessageLength; }
-    
+
+    @Override 
     public Logger createChild() {
         Logger child = new DefaultLogger();
         child.setLevel(this.level);
@@ -43,42 +44,52 @@ public class DefaultLogger implements Logger {
         return child;
     }
 
+    @Override 
     public synchronized void trace(String message) {
         if (level.value <= LogLevel.TRACE.value) log(LogLevel.TRACE, message, source);
     }
 
-    public synchronized void trace(String message, String name, Object value) {
-        trace(message + " {" + name + " = " + value + "}");
+    @Override 
+    public synchronized void value(String message) {
+        if (level.value <= LogLevel.VALUE.value) log(LogLevel.VALUE, message, source);
+    }
+    
+    @Override 
+    public synchronized void value(String message, Object value) {
+        value(message + " = " + value);
     }
 
+    @Override 
+    public synchronized void value(String message, String name, Object value) {
+        value(message + " " + name + " = " + value);
+    }
+
+    @Override
     public synchronized void debug(String message) {
         if (level.value <= LogLevel.DEBUG.value) log(LogLevel.DEBUG, message, source);
     }
     
-    public synchronized void debug(String message, String name, Object value) {
-        debug(message + " {" + name + " = " + value + "}");
-    }
-    
+    @Override 
     public synchronized void info(String message) {
         if (level.value <= LogLevel.INFO.value) log(LogLevel.INFO, message, source);
     }
-
-    public synchronized void info(String message, String name, Object value) {
-        info(message + " {" + name + " = " + value + "}");
-    }
     
+    @Override 
     public synchronized void warn(String message) {
         if (level.value <= LogLevel.WARN.value) log(LogLevel.WARN, message, source);
     }
 
+    @Override 
     public synchronized void error(String message) {
         if (level.value <= LogLevel.ERROR.value) log(LogLevel.ERROR, message, source);
     }
 
+    @Override 
     public synchronized void fatal(String message) {
         if (level.value <= LogLevel.FATAL.value) log(LogLevel.FATAL, message, source);
     }
    
+    @Override 
     public synchronized void log(LogLevel level, String message, String source) {
        
         // delegate logging to parent if defined
@@ -89,7 +100,8 @@ public class DefaultLogger implements Logger {
         if (this.showTimestamps) { appendTimestamp(entry); }
         if (this.showLevel) { appendLevel(entry, level); }
         if (this.showSource) { appendSource(entry, source); }
-        append(entry, getPrefix(message, maxMessageLength));
+        appendMessage(entry, message);
+
         
         // ...and then write the log entry
         this.printStream.println(entry);
@@ -112,7 +124,12 @@ public class DefaultLogger implements Logger {
     }
     
     private void appendSource(StringBuffer entry, String source) {
-        append(entry, source + " ->");
+        append(entry, source);
+    }
+    
+    private void appendMessage(StringBuffer entry, String message) {
+        if (entry.length() > 0) entry.append(" ->");
+        append(entry, getPrefix(message, maxMessageLength));
     }
     
     private void append(StringBuffer buffer, String s) {

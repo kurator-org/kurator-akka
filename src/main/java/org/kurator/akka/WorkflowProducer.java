@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Set;
 
+import org.kurator.log.Log;
 import org.kurator.log.Logger;
 
 import akka.actor.Actor;
@@ -27,7 +28,7 @@ public class WorkflowProducer implements IndirectActorProducer {
             InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
 
        this.logger = logger;
-       logger.setSource("WORKFLOWPRODUCER");
+       logger.setSource("WORKFLOW-PRODUCER");
 
        this.system = system;
        this.actors = actors;
@@ -46,7 +47,7 @@ public class WorkflowProducer implements IndirectActorProducer {
 
     @Override
     public Workflow produce() {
-        logger.trace("Producing workflow instance");
+        logger.trace("Producing Akka actor representing WORKFLOW");
         Workflow workflow = new Workflow(system, name, inStream, outStream, errStream, workflowRunner);
         workflow.setLogger(logger.createChild());
         workflow.setActors(actors);

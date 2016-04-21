@@ -17,6 +17,7 @@ import org.kurator.akka.messages.Initialize;
 import org.kurator.akka.messages.Start;
 import org.kurator.exceptions.KuratorException;
 import org.kurator.log.DefaultLogger;
+import org.kurator.log.Log;
 import org.kurator.log.Logger;
 import org.kurator.log.SilentLogger;
 
@@ -37,6 +38,7 @@ public class WorkflowRunner {
     private ActorRef inputActor = null;
     private Map<ActorConfig,ActorRef> actorRefForActorConfig = new HashMap<ActorConfig, ActorRef>();
     private Map<String,ActorConfig> actorConfigForActorName = new HashMap<String, ActorConfig>();
+    private Map<ActorRef,String> actorNameForActorRef = new HashMap<ActorRef,String>();
     private ActorRef workflow;
     protected ActorConfig inputActorConfig;
     protected Map<String, Object> workflowParameters;
@@ -48,6 +50,7 @@ public class WorkflowRunner {
     protected String workflowName = "Workflow";
     protected Logger logger = new DefaultLogger();
     private Config actorSystemConfig;
+
     
     static {
         PythonActor.updateClasspath();
@@ -67,7 +70,7 @@ public class WorkflowRunner {
     
     protected WorkflowRunner createActorSystem() throws Exception {
         logger.debug("Instantiating ActorSystem");
-        logger.trace("Applying ActorSystem configuration", "config", actorSystemConfig.toString());
+        logger.value("Applying ActorSystem configuration", actorSystemConfig.root().toString());
         this.system = ActorSystem.create("Workflow",  this.actorSystemConfig);
         return this;
     }
@@ -160,7 +163,7 @@ public class WorkflowRunner {
     @SuppressWarnings("unchecked")
     public WorkflowRunner apply(String settingName, Object settingValue) throws Exception {
 
-        logger.info("Setting workflow parameter", workflowName + "." + settingName, settingValue);
+        logger.value("Setting workflow parameter", workflowName + "." + settingName, settingValue);
         
         Map<String,Object> workflowParameter = null;
         if (workflowParameters != null) {
@@ -170,7 +173,7 @@ public class WorkflowRunner {
         if (workflowParameter != null) {
             ActorConfig actor = (ActorConfig) workflowParameter.get("actor");
             String actorParameterName = (String) workflowParameter.get("parameter");
-            logger.info("Setting actor parameter", actor.getName() + "." + actorParameterName,  settingValue);
+            logger.value("Setting actor parameter", actor.getName() + "." + actorParameterName,  settingValue);
             actor.param(actorParameterName, settingValue);
             return this;
         }
@@ -179,7 +182,7 @@ public class WorkflowRunner {
         if (nameComponents.countTokens() > 1) {
             String actorName = nameComponents.nextToken();
             String parameterName = nameComponents.nextToken();
-            logger.info("Setting actor parameter ", actorName + "." + parameterName,  settingValue);
+            logger.value("Setting actor parameter ", actorName + "." + parameterName,  settingValue);
             ActorConfig actor = actorConfigForActorName.get(actorName);
             
             if (actor == null) {
@@ -200,8 +203,6 @@ public class WorkflowRunner {
 
         if (this.system == null) this.createActorSystem();
         
-        logger.info("Starting to assemble workflow");
-        
         Collection<ActorConfig> actorConfigs = actorConfigForActorName.values();
         if (actorConfigs.isEmpty()) {
             logger.error("Workflow definition contains no actors");
@@ -212,7 +213,7 @@ public class WorkflowRunner {
         if (actorConfigs.size() > 0) {
             for (ActorConfig actorConfig : actorConfigs) {
                 String actorName = actorConfig.getName();
-                logger.info("Instantiating ACTOR[" + actorName + "]");
+                logger.info("Instantiating " + Log.ACTOR(actorName));
                 ActorRef actor =  this.system.actorOf(Props.create(
                                     ActorProducer.class, 
                                     actorConfig.actorClass(), 
@@ -223,6 +224,7 @@ public class WorkflowRunner {
                                     actorConfig.getInputs(),
                                     actorConfig.getMetadataReaders(),
                                     actorConfig.getMetadataWriters(),
+                                    logger.createChild(),
                                     inStream,
                                     outStream,
                                     errStream,
@@ -231,15 +233,16 @@ public class WorkflowRunner {
             
                 actors.add(actor);
                 actorRefForActorConfig.put(actorConfig, actor);
+                actorNameForActorRef.put(actor, actorConfig.getName());
                 if (inputActorConfig == actorConfig) {
-                    logger.info("Setting input actor for workflow to :" + actorConfig.getName());
+                    logger.info("Setting input actor for workflow to :" + Log.ACTOR(actorConfig.getName()));
                     inputActor = actor;
                 }
             }
         }
     
         // create a workflow using the workflow configuration and comprising the actors
-        logger.info("Instantiating WORKFLOW[" + workflowName + "]");
+        logger.info("Instantiating WORKFLOW");
         workflow = system.actorOf(Props.create(
                             WorkflowProducer.class, 
                             system, 
@@ -252,8 +255,6 @@ public class WorkflowRunner {
                             errStream,
                             this
                        ));
-
-        logger.info("Finished assembling workflow");
 
         return this;
     }
@@ -284,6 +285,10 @@ public class WorkflowRunner {
             tellActor(actor, message);
         }
         return this;
+    }
+    
+    public synchronized String name(ActorRef actor) {
+        return  actorNameForActorRef.get(actor);
     }
     
     public WorkflowRunner init() throws Exception {

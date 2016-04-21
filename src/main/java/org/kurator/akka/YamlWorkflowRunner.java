@@ -38,7 +38,7 @@ public abstract class YamlWorkflowRunner extends WorkflowRunner {
         }
         
         workflowName = workflowNames[0];
-        logger.debug("Name of Workflow defined in YAML is: " + workflowName);
+        logger.debug("Name of Workflow defined in YAML is " + workflowName);
         
         WorkflowConfig workflowConfig = (WorkflowConfig) springContext.getBean(workflowName);
         

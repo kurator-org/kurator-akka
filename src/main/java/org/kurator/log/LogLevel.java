@@ -2,7 +2,7 @@ package org.kurator.log;
 
 public enum LogLevel {
     
-    ALL(0), TRACE(1), DEBUG(2), INFO(3), WARN(4), ERROR(5), FATAL(6), OFF(7);
+    ALL(0), TRACE(1), VALUE(2), DEBUG(3), INFO(4), WARN(5), ERROR(6), FATAL(7), OFF(8);
     
     final int value;
     LogLevel(int v) { this.value = v; }
@@ -17,6 +17,8 @@ public enum LogLevel {
             if (levelString.equalsIgnoreCase("A"))          return ALL;
             if (levelString.equalsIgnoreCase("TRACE"))      return TRACE;
             if (levelString.equalsIgnoreCase("T"))          return TRACE;
+            if (levelString.equalsIgnoreCase("VALUE"))      return VALUE;
+            if (levelString.equalsIgnoreCase("V"))          return VALUE;
             if (levelString.equalsIgnoreCase("DEBUG"))      return DEBUG;
             if (levelString.equalsIgnoreCase("D"))          return DEBUG;
             if (levelString.equalsIgnoreCase("INFO"))       return INFO;

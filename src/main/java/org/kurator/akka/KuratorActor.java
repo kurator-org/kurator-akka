@@ -22,6 +22,9 @@ import org.kurator.akka.metadata.BroadcastEventCountChecker;
 import org.kurator.akka.metadata.BroadcastEventCounter;
 import org.kurator.akka.metadata.MetadataWriter;
 import org.kurator.akka.metadata.MetadataReader;
+import org.kurator.log.Log;
+import org.kurator.log.Logger;
+import org.kurator.log.SilentLogger;
 
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
@@ -87,6 +90,7 @@ public abstract class KuratorActor extends UntypedActor {
     protected ActorFSM state = ActorFSM.CONSTRUCTED;
     private List<MetadataWriter> metadataWriters = null;
     private List<MetadataReader> metadataReaders = null;
+    private Logger logger = new SilentLogger();
 
     private WrappedMessage receivedWrappedMessage;
     
@@ -272,19 +276,23 @@ public abstract class KuratorActor extends UntypedActor {
             if (message instanceof ControlMessage) {
                 
                 if (message instanceof Initialize) {
-                
-                    Contract.requires(state, ActorFSM.CONSTRUCTED);
                     
                     name = (String) configuration.get("name");
+                    this.logger.setSource(Log.ACTOR(name));
+
+                    logger.trace("Received INITIALIZE message from WORKFLOW");
+                    
+                    Contract.requires(state, ActorFSM.CONSTRUCTED);
 
                     // compose the list of listeners from the configured list of listener configurations
                     for (ActorConfig listenerConfig : listenerConfigs) {
                         ActorRef listener = runner.getActorForConfig(listenerConfig);
                         listeners.add(listener);
                     }
-                                
+
                     // invoke the Initialize event handler
                     try {
+                        logger.trace("Invoking ON_INITIALIZE_EVENT handler");
                         onInitialize();
                     } catch(Exception initializationException) {
                         
@@ -305,23 +313,27 @@ public abstract class KuratorActor extends UntypedActor {
                     state = ActorFSM.INITIALIZED;
                     
                     // report success
+                    logger.trace("Sending INITIALIZE response to WORKFLOW");
                     getSender().tell(new Success(), getSelf());
                     
                 } else if (message instanceof Start) {
                     
+                    logger.trace("Received START message from WORKFLOW");
+
                     Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
-                    
+
                     if (state == ActorFSM.INITIALIZED) {
                         state = ActorFSM.STARTED;
+                        logger.trace("Invoking ON_START_EVENT handler");
                         handleOnStart();
                     }
                 
                 } else if (message instanceof EndOfStream) {
-                    
+                    logger.trace("Received END_OF_STREAM message from " + Log.ACTOR(runner.name(getSender())));
                     Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
-
-                    // invoke the EndOfStream message handler
+                    logger.trace("Invoking ON_END_OF_STREAM_EVENT handler");
                     onEndOfStream((EndOfStream)message);
+                    
                 } else if (message instanceof FutureComplete) {
 
                     Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
@@ -332,13 +344,18 @@ public abstract class KuratorActor extends UntypedActor {
             // all other messages are assumed to be data
             } else {
                 
+                logger.debug("Received DATA from " + Log.ACTOR(runner.name(getSender())));
+                logger.value("Received DATA", message);
+
                 Contract.requires(state, ActorFSM.STARTED, ActorFSM.INITIALIZED);
                 
                 if (state == ActorFSM.INITIALIZED) {
+                    logger.trace("Invoking ON_START_EVENT handler");
                     state = ActorFSM.STARTED;
                     handleOnStart();
                 }
                 
+                logger.trace("Invoking ON_DATA_EVENT handler");
                 onData(message);
             }
             
@@ -352,6 +369,7 @@ public abstract class KuratorActor extends UntypedActor {
     private void handleOnStart() throws Exception {
         onStart();
         if (this.needsTrigger) {
+            logger.trace("Invoking ON_TRIGGER_EVENT handler");
             onTrigger();
         }        
     }
@@ -367,7 +385,9 @@ public abstract class KuratorActor extends UntypedActor {
      * 
      * @throws Exception If the actor implementation of onInitialize() method throws an exception.
      */
-    protected void onInitialize() throws Exception {}
+    protected void onInitialize() throws Exception {
+        logger.trace("Executing default ON_INITIALIZE_EVENT handler");
+    }
 
     
     /** 
@@ -394,9 +414,13 @@ public abstract class KuratorActor extends UntypedActor {
      * 
      * @throws Exception If the actor implementation of onStart() method throws an exception.
      */
-    protected void onStart() throws Exception {}
+    protected void onStart() throws Exception {
+        logger.trace("Executing default ON_START_EVENT handler");
+    }
     
-    protected void onTrigger() throws Exception {}
+    protected void onTrigger() throws Exception {
+        logger.trace("Executing default ON_TRIGGER_EVENT handler");
+    }
     
     /** 
      * Default handler for {@link org.kurator.akka.messages.EndOfStream EndOfStream} message. 
@@ -413,6 +437,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @throws Exception If the actor implementation of onTrigger() method throws and exception.
      */
     protected void onEndOfStream(EndOfStream eos) throws Exception {
+        logger.trace("Executing default ON_END_OF_STREAM_EVENT handler");
         if (endOnEos) {
             endStreamAndStop(eos);
         }
@@ -425,7 +450,9 @@ public abstract class KuratorActor extends UntypedActor {
      *  
      * @throws Exception If the actor implementation of onEnd() method throws an exception.
      */
-    protected void onEnd() throws Exception {}
+    protected void onEnd() throws Exception {
+        logger.trace("Executing default ON_END_EVENT handler");
+    }
 
     protected void onFutureComplete(FutureComplete message) throws Exception { }
     
@@ -438,7 +465,9 @@ public abstract class KuratorActor extends UntypedActor {
      * @param value The received data value.
      * @throws Exception If the actor implementation of onEnd() method throws an exception.
      */
-    protected void onData(Object value) throws Exception {}
+    protected void onData(Object value) throws Exception {
+        logger.trace("Executing default ON_DATA_EVENT handler");
+    }
     
     
     private Object wrapMessage(Object message) {
@@ -479,7 +508,9 @@ public abstract class KuratorActor extends UntypedActor {
         
         for (ActorRef listener : listeners) {
             if (listener != null) {
+                logger.debug("Sending DATA to " + Log.ACTOR(runner.name(listener)));
                 listener.tell(wrappedMessage, this.getSelf());
+                logger.value("Sent DATA",  message);
             }
         }
     }    
@@ -548,5 +579,10 @@ public abstract class KuratorActor extends UntypedActor {
         ActorRef workflowRef = runner.getWorkflowRef();
         ExceptionMessage em = new ExceptionMessage(exception);
         workflowRef.tell(em, this.getSelf());
+    }
+
+    public KuratorActor logger(Logger logger) {
+        this.logger = logger;
+        return this;
     }
 }

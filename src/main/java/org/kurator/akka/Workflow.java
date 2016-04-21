@@ -20,6 +20,7 @@ import org.kurator.akka.messages.Start;
 import org.kurator.akka.messages.Success;
 import org.kurator.log.Logger;
 import org.kurator.log.SilentLogger;
+import org.kurator.log.Log;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -40,7 +41,7 @@ public class Workflow extends UntypedActor {
     @SuppressWarnings("unused")
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private final WorkflowRunner workflowRunner;
+    private final WorkflowRunner runner;
     
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
@@ -50,7 +51,7 @@ public class Workflow extends UntypedActor {
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
-        this.workflowRunner = workflowRunner;
+        this.runner = workflowRunner;
     }
 
     public void setLogger(Logger logger) {
@@ -64,7 +65,7 @@ public class Workflow extends UntypedActor {
 
     private void actor(ActorRef actor) {
         actors.add(actor);
-        logger.trace("Now watching ACTOR");
+        logger.trace("Now watching " + Log.ACTOR(runner.name(actor)));
         getContext().watch(actor);
     }
 
@@ -89,20 +90,24 @@ public class Workflow extends UntypedActor {
         
         // send an initialize message to each actor
         final ArrayList<Future<Object>> responseFutures = new ArrayList<Future<Object>>();
+        final ArrayList<String> messagedActors = new ArrayList<String>();
         Initialize initialize = new Initialize();
         for (ActorRef actor : actors) {
-            logger.trace("Sending INITIALIZE message to ACTOR");
+            logger.trace("Sending INITIALIZE message to " + Log.ACTOR(runner.name(actor)));
             responseFutures.add(ask(actor, initialize, Constants.TIMEOUT));
+            messagedActors.add(runner.name(actor));
         }
 
         List<Failure> failures = new LinkedList<Failure>();
         
         // wait for success or failure response from each actor
-        for (Future<Object> responseFuture : responseFutures) {
+        for (int i = 0; i < responseFutures.size(); ++i) {
+            Future<Object> responseFuture = responseFutures.get(i);
+            String actorName = messagedActors.get(i);
             responseFuture.ready(Constants.TIMEOUT_DURATION, null);
-            logger.trace("Waiting for INITIALIZE response from ACTOR");
+            logger.trace("Waiting for INITIALIZE response from " + Log.ACTOR(actorName));
             ControlMessage message = (ControlMessage)responseFuture.value().get().get();
-            logger.trace("Received INITIALIZE response from ACTOR");
+            logger.trace("Received INITIALIZE response from " + Log.ACTOR(actorName));
             if (message instanceof Failure) {
                 logger.error("Actor reports error during initialization: " + message);
                 failures.add((Failure)message);
@@ -112,6 +117,7 @@ public class Workflow extends UntypedActor {
         ControlMessage result = (failures.size() == 0) ? 
                 new Success() : new Failure("Error initializing workflow '" + name + "'" , failures);
 
+        logger.debug("Done initializing actors");
         logger.trace("Sending INITIALIZE response to RUNNER");
         getSender().tell(result, getSelf());
     }
@@ -129,9 +135,9 @@ public class Workflow extends UntypedActor {
         if (message instanceof Start) {
             logger.trace("Handling START message from RUNNER");
             logger.debug("Starting actors");
-            for (ActorRef a : actors) {
-                logger.trace("Sending START message to ACTOR ");
-                a.tell(message, getSelf());
+            for (ActorRef actor : actors) {
+                logger.trace("Sending START message to " + Log.ACTOR(runner.name(actor)));
+                actor.tell(message, getSelf());
             }
             logger.debug("Run starting with " + actors.size() + " active actors");
             logger.trace("Done handling START message");
@@ -143,22 +149,24 @@ public class Workflow extends UntypedActor {
             errStream.println(sender() + " threw an uncaught exception:");
             Exception e = em.getException();
             e.printStackTrace(errStream);
-            workflowRunner.setLastException(e);
+            runner.setLastException(e);
             return;
         }
         
         if (message instanceof Terminated) {
             Terminated t = (Terminated) message;
-            ActorRef terminatedActor = t.actor();
-            logger.trace("Handling TERMINATED message from ACTOR");
-            actors.remove(terminatedActor);
-            logger.debug("ACTOR has stopped");
+            ActorRef actor = t.actor();
+            logger.trace("Handling TERMINATED message from " + Log.ACTOR(runner.name(actor)));
+            actors.remove(actor);
+            logger.debug(Log.ACTOR(runner.name(actor)) + " has stopped");
             logger.debug("Number of active actors is now " + actors.size());
             if (actors.size() == 0) {
                 logger.trace("Stopping because all actors have stopped");
                 getContext().stop(getSelf());
                 logger.debug("Shutting down ActorSystem");
                 actorSystem.shutdown();
+            } else {
+                logger.debug("Currently active actors include " + activeActors(3));
             }
             return;
         }
@@ -168,4 +176,19 @@ public class Workflow extends UntypedActor {
             inputActor.tell(message, getSelf());
         }
     }
+    
+    private String activeActors(int max) {
+        StringBuffer buffer = new StringBuffer();
+        int i = 0;
+        for (ActorRef actor : actors) {
+            if (++i > max) {
+                buffer.append(" ...");
+                break;
+            }
+            if (buffer.length() > 2) buffer.append(", ");
+            buffer.append(Log.ACTOR(runner.name(actor)));
+        }
+        return buffer.toString();
+    }
+    
 }

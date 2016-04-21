@@ -214,7 +214,7 @@ public class KuratorCLI {
                 .describedAs("input parameter")
                 .describedAs("key=value");
 
-            acceptsAll(asList("l", "loglevel"), "minimum severity of log entries shown: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF")
+            acceptsAll(asList("l", "loglevel"), "minimum severity of log entries shown: ALL, TRACE, VALUE, DEBUG, INFO, WARN, ERROR, FATAL, OFF")
                 .withRequiredArg()
                 .ofType(String.class)
                 .describedAs("severity");

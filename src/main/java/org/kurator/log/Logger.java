@@ -4,11 +4,11 @@ public interface Logger {
     Logger createChild();
     void log(LogLevel l, String m, String s);
     void trace(String m);
-    void trace(String m, String n, Object v);
+    void value(String m);
+    void value(String m, Object v);
+    void value(String m, String n, Object v);
     void debug(String m);
-    void debug(String m, String n, Object v);
     void info(String m);
-    void info(String m, String n, Object v);
     void warn(String m);
     void error(String m);
     void fatal(String m);

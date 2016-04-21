@@ -7,7 +7,6 @@ import java.io.PrintStream;
 import org.kurator.akka.KuratorAkkaTestCase;
 import org.kurator.log.DefaultLogger;
 import org.kurator.log.LogLevel;
-import org.kurator.log.Logger;
 
 public class TestDefaultLogger extends KuratorAkkaTestCase {
 

@@ -14,6 +14,8 @@ import java.util.Map;
 
 import org.kurator.akka.metadata.MetadataReader;
 import org.kurator.akka.metadata.MetadataWriter;
+import org.kurator.log.Log;
+import org.kurator.log.Logger;
 
 import akka.actor.IndirectActorProducer;
 
@@ -29,9 +31,11 @@ public class ActorProducer implements IndirectActorProducer {
     private List<MetadataWriter> metadataWriters;
     private WorkflowRunner workflowRunner;
     private KuratorActor actor;
+    private String actorName;
     private InputStream inStream;
     private PrintStream outStream;
     private PrintStream errStream;
+    private Logger logger;
 
     public ActorProducer(
             Class<? extends KuratorActor> actorClass, 
@@ -42,10 +46,14 @@ public class ActorProducer implements IndirectActorProducer {
             Map<String, String> inputs,
             List<MetadataReader> metadataReaders,
             List<MetadataWriter> metadataWriters,
+            Logger logger,
             InputStream inStream, 
             PrintStream outStream, 
             PrintStream errStream,
             WorkflowRunner workflowRunner) {
+        
+        this.logger = logger;
+        this.logger.setSource("ACTOR-PRODUCER");
         
         this.actorClass = actorClass;
         this.configuration = configuration;
@@ -59,6 +67,7 @@ public class ActorProducer implements IndirectActorProducer {
         this.inStream = inStream;
         this.outStream = outStream;
         this.errStream = errStream;
+        this.actorName = (String) configuration.get("name");
         
         if (this.metadataReaders == null) {
             this.metadataReaders = new LinkedList<MetadataReader>();
@@ -77,6 +86,8 @@ public class ActorProducer implements IndirectActorProducer {
     @Override
     public KuratorActor produce() {
         
+        logger.trace("Producing Akka actor representing " + Log.ACTOR(actorName));
+        
         // create the actor instance from its class
         try {
             actor = actorClass.newInstance();
@@ -89,6 +100,7 @@ public class ActorProducer implements IndirectActorProducer {
         actor.listeners(listeners)
              .inputs(inputs)
              .runner(workflowRunner)
+             .logger(logger.createChild())
              .inputStream(inStream)
              .outputStream(outStream)
              .errorStream(errStream)
@@ -128,7 +140,7 @@ public class ActorProducer implements IndirectActorProducer {
     /**
      * Attempt to set an instance variable of actor to a provided value.
      * 
-     * @param pameterName the name of the instance variable to set.
+     * @param parameterName the name of the instance variable to set.
      * @param value the value to set it to
      * @return true if the value was successfully set, otherwise false.
      * 
@@ -136,19 +148,19 @@ public class ActorProducer implements IndirectActorProducer {
      * @throws IllegalArgumentException
      * @throws InvocationTargetException
      */
-    private boolean setParameter(String pameterName, Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {        
+    private boolean setParameter(String parameterName, Object value) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {        
 
     	boolean parameterWasSet = false;
     	try {
     		// First try setting the property with the Java Bean getter and setter convention.
-    		Method set = findSetFor(actor.getClass(), pameterName);
+    		Method set = findSetFor(actor.getClass(), parameterName);
     		set.invoke(actor, value);
     		parameterWasSet = true;
     	} catch (IntrospectionException e1) {
     		// If the set method doesn't exist, try setting the property directly
     		// in case it is simply exposed as public without encapsulation
     		try {
-    			Field field = actor.getClass().getField(pameterName);
+    			Field field = actor.getClass().getField(parameterName);
     			boolean accessible = field.isAccessible();
     			field.setAccessible(true);
     			field.set(actor, value);
