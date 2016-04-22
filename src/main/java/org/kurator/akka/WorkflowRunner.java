@@ -261,7 +261,7 @@ public class WorkflowRunner {
     
     
     public WorkflowRunner tellWorkflow(Object message) {
-        logger.debug("Sending message to WORKFLOW: " + message);
+        logger.comm("Sending message to WORKFLOW: " + message);
         workflow.tell(message, system.lookupRoot());
         return this;
     }
@@ -275,7 +275,7 @@ public class WorkflowRunner {
 
     public WorkflowRunner tellActor(ActorConfig actor, Object message) {
         ActorRef actorRef = this.actorRefForActorConfig.get(actor);
-        logger.debug("Sending message to actor " + actor.getName() + ": " + message);
+        logger.comm("Sending message to actor " + actor.getName() + ": " + message);
         actorRef.tell(message, system.lookupRoot());
         return this;
     }
@@ -293,21 +293,21 @@ public class WorkflowRunner {
     
     public WorkflowRunner init() throws Exception {
         logger.debug("Initializing WORKFLOW");
-        logger.trace("Sending INITIALIZE message to WORKFLOW");
+        logger.comm("Sending INITIALIZE message to WORKFLOW");
         Future<Object> future = ask(workflow, new Initialize(), Constants.TIMEOUT);
-        logger.trace("Waiting for INITIALIZE response from WORKFLOW");
+        logger.comm("Waiting for INITIALIZE response from WORKFLOW");
         future.ready(Constants.TIMEOUT_DURATION, null);
         ControlMessage result = (ControlMessage)future.value().get().get();
         if (result instanceof Failure) {
             throw new KuratorException(result.toString());
         }
-        logger.trace("Received INITIALIZE response from WORKFLOW");
+        logger.comm("Received INITIALIZE response from WORKFLOW");
         return this;
     }
     
     public WorkflowRunner start() throws Exception {
         logger.info("Workflow run starting");        
-        logger.trace("Sending START message to WORKFLOW");
+        logger.comm("Sending START message to WORKFLOW");
         workflow.tell(new Start(), system.lookupRoot());
         return this;
     }

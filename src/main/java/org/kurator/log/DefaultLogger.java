@@ -14,7 +14,7 @@ public class DefaultLogger implements Logger {
     private volatile boolean showSource = true;
     private volatile String source = "";
     private volatile String separator = ":";
-    private volatile int maxMessageLength = 128;
+    private volatile int maxMessageLength = 256;
 
     public void setParent(Logger parent) { this.parent = parent; }
     public void setLevel(LogLevel level) { this.level = level; }
@@ -64,6 +64,11 @@ public class DefaultLogger implements Logger {
         value(message + " " + name + " = " + value);
     }
 
+    @Override
+    public void comm(String message) {
+        if (level.value <= LogLevel.COMM.value) log(LogLevel.COMM, message, source);
+    }
+    
     @Override
     public synchronized void debug(String message) {
         if (level.value <= LogLevel.DEBUG.value) log(LogLevel.DEBUG, message, source);

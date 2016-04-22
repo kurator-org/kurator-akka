@@ -93,7 +93,7 @@ public class Workflow extends UntypedActor {
         final ArrayList<String> messagedActors = new ArrayList<String>();
         Initialize initialize = new Initialize();
         for (ActorRef actor : actors) {
-            logger.trace("Sending INITIALIZE message to " + Log.ACTOR(runner.name(actor)));
+            logger.comm("Sending INITIALIZE message to " + Log.ACTOR(runner.name(actor)));
             responseFutures.add(ask(actor, initialize, Constants.TIMEOUT));
             messagedActors.add(runner.name(actor));
         }
@@ -105,9 +105,9 @@ public class Workflow extends UntypedActor {
             Future<Object> responseFuture = responseFutures.get(i);
             String actorName = messagedActors.get(i);
             responseFuture.ready(Constants.TIMEOUT_DURATION, null);
-            logger.trace("Waiting for INITIALIZE response from " + Log.ACTOR(actorName));
+            logger.comm("Waiting for INITIALIZE response from " + Log.ACTOR(actorName));
             ControlMessage message = (ControlMessage)responseFuture.value().get().get();
-            logger.trace("Received INITIALIZE response from " + Log.ACTOR(actorName));
+            logger.comm("Received INITIALIZE response from " + Log.ACTOR(actorName));
             if (message instanceof Failure) {
                 logger.error("Actor reports error during initialization: " + message);
                 failures.add((Failure)message);
@@ -118,7 +118,7 @@ public class Workflow extends UntypedActor {
                 new Success() : new Failure("Error initializing workflow '" + name + "'" , failures);
 
         logger.debug("Done initializing actors");
-        logger.trace("Sending INITIALIZE response to RUNNER");
+        logger.comm("Sending INITIALIZE response to RUNNER");
         getSender().tell(result, getSelf());
     }
 
@@ -172,7 +172,7 @@ public class Workflow extends UntypedActor {
         }
         
         if (inputActor != null) {
-            logger.debug("Forwarding unhandled message to actor");
+            logger.comm("Forwarding unhandled message to input actor " +  Log.ACTOR(runner.name(inputActor)));
             inputActor.tell(message, getSelf());
         }
     }

@@ -6,7 +6,7 @@ import org.python.core.PyException;
 public class PythonClassActor extends PythonActor {
 
     private volatile String pythonClassName;
-    
+
     public PythonClassActor() {
         synchronized(this) {
             functionQualifier = "_PYTHON_CLASS_INSTANCE_.";
@@ -18,7 +18,7 @@ public class PythonClassActor extends PythonActor {
 
         String pythonClassConfig = (String)configuration.get("pythonClass");
         String pythonClassModule = null;
-        
+
         int lastDotIndex = pythonClassConfig.lastIndexOf(".");
         if (lastDotIndex == -1) {
             pythonClassModule = null;
@@ -27,19 +27,28 @@ public class PythonClassActor extends PythonActor {
             pythonClassModule = pythonClassConfig.substring(0, lastDotIndex);
             pythonClassName = pythonClassConfig.substring(lastDotIndex + 1);
         }
-                
+
         if (pythonClassModule != null) {
             try {
+                logger.debug("Importing Python module " + pythonClassModule);
+                interpreter.exec("import " + pythonClassModule);
                 interpreter.exec("from " + pythonClassModule + " import " + pythonClassName);
+                String classModule = interpreter.eval(pythonClassName + ".__module__").toString();
+                String modulePath = interpreter.eval(classModule + ".__file__").toString();
+                logger.debug("Found module at " + reconstructPythonSourcePath(modulePath));
+                logger.debug("Imported class " + pythonClassName + " from " + pythonClassModule);
             } catch (PyException e) {
                 throw new Exception("Error importing class '" + pythonClassConfig + "': " + e.value);
             }
         }
             
         try {
+            logger.trace("Instantiating Python class " + pythonClassName);
             interpreter.exec("_PYTHON_CLASS_INSTANCE_=" + pythonClassName + "()");
         } catch (PyException e) {
-            throw new Exception("Error instantiating class '" + pythonClassConfig + "': " + e.value);
+            String message = "Error instantiating class '" + pythonClassConfig + "': " + e.value;
+            logger.error(message);
+            throw new Exception(message);
         }
      }
     

@@ -7,6 +7,7 @@ public interface Logger {
     void value(String m);
     void value(String m, Object v);
     void value(String m, String n, Object v);
+    void comm(String string);
     void debug(String m);
     void info(String m);
     void warn(String m);

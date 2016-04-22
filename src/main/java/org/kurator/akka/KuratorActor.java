@@ -90,7 +90,7 @@ public abstract class KuratorActor extends UntypedActor {
     protected ActorFSM state = ActorFSM.CONSTRUCTED;
     private List<MetadataWriter> metadataWriters = null;
     private List<MetadataReader> metadataReaders = null;
-    private Logger logger = new SilentLogger();
+    protected Logger logger = new SilentLogger();
 
     private WrappedMessage receivedWrappedMessage;
     
@@ -280,7 +280,7 @@ public abstract class KuratorActor extends UntypedActor {
                     name = (String) configuration.get("name");
                     this.logger.setSource(Log.ACTOR(name));
 
-                    logger.trace("Received INITIALIZE message from WORKFLOW");
+                    logger.comm("Received INITIALIZE message from WORKFLOW");
                     
                     Contract.requires(state, ActorFSM.CONSTRUCTED);
 
@@ -313,12 +313,12 @@ public abstract class KuratorActor extends UntypedActor {
                     state = ActorFSM.INITIALIZED;
                     
                     // report success
-                    logger.trace("Sending INITIALIZE response to WORKFLOW");
+                    logger.comm("Sending INITIALIZE response to WORKFLOW");
                     getSender().tell(new Success(), getSelf());
                     
                 } else if (message instanceof Start) {
                     
-                    logger.trace("Received START message from WORKFLOW");
+                    logger.comm("Received START message from WORKFLOW");
 
                     Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
 
@@ -329,22 +329,20 @@ public abstract class KuratorActor extends UntypedActor {
                     }
                 
                 } else if (message instanceof EndOfStream) {
-                    logger.trace("Received END_OF_STREAM message from " + Log.ACTOR(runner.name(getSender())));
+                    logger.comm("Received END_OF_STREAM message from " + Log.ACTOR(runner.name(getSender())));
                     Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
                     logger.trace("Invoking ON_END_OF_STREAM_EVENT handler");
                     onEndOfStream((EndOfStream)message);
                     
                 } else if (message instanceof FutureComplete) {
-
                     Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
-
                     onFutureComplete((FutureComplete)message);
                 }
                 
             // all other messages are assumed to be data
             } else {
                 
-                logger.debug("Received DATA from " + Log.ACTOR(runner.name(getSender())));
+                logger.comm("Received DATA from " + Log.ACTOR(runner.name(getSender())));
                 logger.value("Received DATA", message);
 
                 Contract.requires(state, ActorFSM.STARTED, ActorFSM.INITIALIZED);
@@ -508,7 +506,7 @@ public abstract class KuratorActor extends UntypedActor {
         
         for (ActorRef listener : listeners) {
             if (listener != null) {
-                logger.debug("Sending DATA to " + Log.ACTOR(runner.name(listener)));
+                logger.comm("Sending DATA to " + Log.ACTOR(runner.name(listener)));
                 listener.tell(wrappedMessage, this.getSelf());
                 logger.value("Sent DATA",  message);
             }

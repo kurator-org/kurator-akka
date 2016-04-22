@@ -4,12 +4,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.kurator.log.DefaultLogger;
+import org.kurator.log.Logger;
 import org.kurator.util.SystemClasspathManager;
 import org.python.core.PyBoolean;
 import org.python.core.PyException;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
-import org.python.core.PyDictionary;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
@@ -199,6 +200,9 @@ public class PythonActor extends KuratorActor {
                 throw new Exception("Error importing Python module '" + 
                                     moduleConfig + "': " + e.value);
             }
+
+            String modulePath = interpreter.eval(moduleConfig + ".__file__").toString();
+            logger.info("Actor " + this.name + " imported module " + moduleConfig + " from " + modulePath);
             functionQualifier = moduleConfig + ".";
         }        
     }
@@ -438,6 +442,15 @@ public class PythonActor extends KuratorActor {
                     System.exit(-1);
                 }
             }
+        }
+    }
+    
+    protected String reconstructPythonSourcePath(String compiledClassPath) {
+        int i = compiledClassPath.lastIndexOf("$py.class");
+        if (i != -1) {
+            return compiledClassPath.substring(0, i) + ".py";
+        } else {
+            return compiledClassPath;
         }
     }
 }
