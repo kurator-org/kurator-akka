@@ -7,10 +7,13 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.kurator.akka.data.ActorProduct;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
@@ -50,8 +53,8 @@ public class WorkflowRunner {
     protected String workflowName = "Workflow";
     protected Logger logger = new DefaultLogger();
     private Config actorSystemConfig;
+    private List<ActorProduct> workflowProducts = new LinkedList<ActorProduct>();
 
-    
     static {
         PythonActor.updateClasspath();
     }
@@ -325,13 +328,15 @@ public class WorkflowRunner {
         logger.trace("Waiting for ActorSystem to terminate");
         system.awaitTermination();
         logger.trace("ActorSystem terminated");
-        logger.info("Workflow run completed");        
+        logger.info("Workflow run completed");
         if (lastException != null) {
             logger.error("Exception thrown during workflow run: " + lastException);
             throw(lastException);
         }
+        
         return this;
     }
+   
     
     public WorkflowRunner run() throws Exception {
         this.begin()
@@ -347,5 +352,18 @@ public class WorkflowRunner {
 
     public void setLastException(Exception e) {
         lastException = e;
+    }
+    
+    public synchronized void setProducts(List <ActorProduct> products) {
+        logger.info("Received workflow PRODUCTS from WORKFLOW");
+        logger.info("Workflow run yielded " + workflowProducts.size() + " PRODUCTS.");
+        for (ActorProduct product : workflowProducts) {
+            logger.value(product.toString());
+        }
+        this.workflowProducts = products;
+    }
+    
+    public List<ActorProduct> getProducts() {
+        return workflowProducts;
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.kurator.akka.data.ActorProduct;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Failure;
@@ -42,7 +43,8 @@ public class Workflow extends UntypedActor {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private final WorkflowRunner runner;
-    
+    private List<ActorProduct> products = new LinkedList<ActorProduct>();
+
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
     public Workflow(ActorSystem actorSystem, String name, InputStream inStream, PrintStream outStream, PrintStream errStream, WorkflowRunner workflowRunner) {
@@ -162,9 +164,16 @@ public class Workflow extends UntypedActor {
             logger.debug("Number of active actors is now " + actors.size());
             if (actors.size() == 0) {
                 logger.trace("Stopping because all actors have stopped");
+
+                logger.debug("Stopping WORKFLOW");
                 getContext().stop(getSelf());
+
                 logger.debug("Shutting down ActorSystem");
                 actorSystem.shutdown();
+                
+                logger.info("Sending workflow PRODUCTS to RUNNER");
+                runner.setProducts(products);
+
             } else {
                 logger.debug("Currently active actors include " + activeActors(3));
             }
@@ -176,7 +185,7 @@ public class Workflow extends UntypedActor {
             inputActor.tell(message, getSelf());
         }
     }
-    
+
     private String activeActors(int max) {
         StringBuffer buffer = new StringBuffer();
         int i = 0;
@@ -189,6 +198,5 @@ public class Workflow extends UntypedActor {
             buffer.append(Log.ACTOR(runner.name(actor)));
         }
         return buffer.toString();
-    }
-    
+    }    
 }
