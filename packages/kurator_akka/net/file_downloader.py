@@ -25,12 +25,10 @@ def download(url, options):
             f.write(block)
 
         return {
-            'path': f.name, 
-            'artifacts': {'downloaded_file':f.name}
-            }
-
-
-    return f.name
+            'path'     : f.name, 
+            'artifacts': { 'downloaded_file': f.name }, 
+            'products' : { 'size': f.tell() }
+    }
 
 def _create_output_file(filepath, tempdir):
     if filepath is None:

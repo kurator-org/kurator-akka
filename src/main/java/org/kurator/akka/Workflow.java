@@ -153,7 +153,7 @@ public class Workflow extends UntypedActor {
         if (message instanceof ProductPublication) {
             logger.comm("Received PUBLISH_PRODUCT message");
             ProductPublication p = (ProductPublication) message;
-            logger.value("Adding to list of workflow products:", p.product.label, p.product.value);
+            logger.value("Adding to list of workflow products: " + p.product);
             products.add(p.product);
             logger.trace("Workflow has yielded " + products.size() + " products so far.");
             logger.comm("Done handling PUBLISH_PRODUCT message");

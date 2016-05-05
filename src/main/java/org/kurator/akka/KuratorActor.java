@@ -607,9 +607,13 @@ public abstract class KuratorActor extends UntypedActor {
             logger.trace("Done publishing products");
         }
     }
-    
+
     protected void publishProduct(String label, Object product) {
-        WorkflowProduct ap = new WorkflowProduct(this.name, label, product);
+        publishProduct(label, product, product.getClass().getName());
+    }
+
+    protected void publishProduct(String label, Object product, String type) {
+        WorkflowProduct ap = new WorkflowProduct(this.name, type, label, product);
         logger.value("Published product:", label, product);
         ProductPublication message = new ProductPublication(ap);
         logger.trace("Sending product to " + workflowRef);
@@ -628,10 +632,14 @@ public abstract class KuratorActor extends UntypedActor {
             logger.trace("Done publishing artifacts");
         }
     }
-        
-    protected void publishArtifact(String label, String path) {
-        WorkflowArtifact ap = new WorkflowArtifact(this.name, label, path);
-        logger.value("Published artifact:", label, path);
+
+    protected void publishArtifact(String label, String pathToArtifact) {
+        publishProduct(label, pathToArtifact, "File");        
+    }
+    
+    protected void publishArtifact(String label, String pathToArtifact, String type) {
+        WorkflowArtifact ap = new WorkflowArtifact(this.name, type, label, pathToArtifact);
+        logger.value("Published artifact:", label, pathToArtifact);
         ProductPublication message = new ProductPublication(ap);
         logger.comm("Sending artifact PUBLICATION_REQUEST message to WORKFLOW");
         workflowRef.tell(message, getSelf());

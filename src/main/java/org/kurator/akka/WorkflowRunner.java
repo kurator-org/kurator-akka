@@ -360,8 +360,7 @@ public class WorkflowRunner {
 
         logger.info("Workflow run yielded " + workflowProducts.size() + " PRODUCTS.");
         for (int i = 0; i < workflowProducts.size(); ++i) {
-            WorkflowProduct product = workflowProducts.get(i);
-            logger.value("Workflow product (" + (i+1) + "): " + product.toString());
+            logger.value("Workflow product (" + (i+1) + "): " + workflowProducts.get(i).toString());
         }
     }
     
