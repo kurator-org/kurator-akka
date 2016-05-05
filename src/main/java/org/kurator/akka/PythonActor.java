@@ -411,11 +411,32 @@ public class PythonActor extends KuratorActor {
 
 
     private void broadcastOutput(Object output) {
+        
+        publishProducts(output);
+        
         if (output != null || broadcastNulls) {
             broadcast(output);
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private void publishProducts(Object output) {
+        
+        if (output != null && output instanceof Map) {
+            Map<Object,Object> outputMap = (Map<Object,Object>) output;
+            
+            Map<String,Object> products = (Map<String,Object>) outputMap.get("products");
+            if (products != null) {
+                publishProducts(products);                
+            }
+            
+            Map<String,String> fileProducts = (Map<String,String>) outputMap.get("fileProducts");
+            if (fileProducts != null) {
+                publishFileProducts(fileProducts);                
+            }
+        }
+    }
+    
     public static void updateClasspath() {
         
         for (String jythonPathVar : new String[] {"JYTHONPATH", "JYTHON_PATH"}) {

@@ -1,21 +1,19 @@
 package org.kurator.akka.data;
 
-import org.kurator.akka.KuratorActor;
-
 public class ActorProduct {
     
-    public final KuratorActor publisher;
+    public final String publisher;
     public final String label;
-    public final Object artifact;
+    public final Object product;
 
-    public ActorProduct(KuratorActor publisher, String label, Object artifact) {
-        this.publisher = publisher;
-        this.label = label;
-        this.artifact = artifact;
+    public ActorProduct(String actorName, String productLabel, Object product) {
+        this.publisher = actorName;
+        this.label = productLabel;
+        this.product = product;
     }
     
     @Override
     public String toString() {
-        return publisher + ":" + label + ":" + artifact; 
+        return String.format("{Actor:'%s', Label:'%s', Product:'%s'}", publisher, label, product); 
     }
 }

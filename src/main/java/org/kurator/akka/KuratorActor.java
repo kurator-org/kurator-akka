@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.kurator.akka.data.ActorFileProduct;
+import org.kurator.akka.data.ActorProduct;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.FutureComplete;
 import org.kurator.akka.messages.Initialize;
+import org.kurator.akka.messages.PublishProduct;
 import org.kurator.akka.messages.Success;
 import org.kurator.akka.messages.Start;
 import org.kurator.akka.messages.WrappedMessage;
@@ -91,6 +94,7 @@ public abstract class KuratorActor extends UntypedActor {
     private List<MetadataWriter> metadataWriters = null;
     private List<MetadataReader> metadataReaders = null;
     protected Logger logger = new SilentLogger();
+    protected ActorRef workflowRef;
 
     private WrappedMessage receivedWrappedMessage;
     
@@ -263,6 +267,9 @@ public abstract class KuratorActor extends UntypedActor {
 
         Contract.disallows(state, ActorFSM.ENDED);
 
+        logger.trace("Received message of type " + message.getClass() + " from " + getSender());
+        logger.value("Received message: ", message.toString());
+        
         try {
 
             if (message instanceof WrappedMessage) {
@@ -281,6 +288,8 @@ public abstract class KuratorActor extends UntypedActor {
                     this.logger.setSource(Log.ACTOR(name));
 
                     logger.comm("Received INITIALIZE message from WORKFLOW");
+                    
+//                    workflowRef = getContext().parent();
                     
                     Contract.requires(state, ActorFSM.CONSTRUCTED);
 
@@ -320,6 +329,9 @@ public abstract class KuratorActor extends UntypedActor {
                     
                     logger.comm("Received START message from WORKFLOW");
 
+                    workflowRef = getSender();
+
+                    
                     Contract.requires(state, ActorFSM.INITIALIZED, ActorFSM.STARTED);
 
                     if (state == ActorFSM.INITIALIZED) {
@@ -582,5 +594,44 @@ public abstract class KuratorActor extends UntypedActor {
     public KuratorActor logger(Logger logger) {
         this.logger = logger;
         return this;
+    }
+    
+    protected void publish(String label, Object product) {
+        ActorProduct ap = new ActorProduct(this.name, label, product);
+        logger.value("Published product:", label, product);
+        PublishProduct message = new PublishProduct(ap);
+        logger.trace("Sending product to " + workflowRef);
+        workflowRef.tell(message, getSelf());
+    }
+    
+    protected void publishFile(String label, String path) {
+        ActorProduct ap = new ActorFileProduct(this.name, label, path);
+        logger.value("Published file product:", label, path);
+        PublishProduct message = new PublishProduct(ap);
+        workflowRef.tell(message, getSelf());
+    }
+    
+    protected void publishProducts(Map<String,Object> products) {
+        if (products != null ) {
+            logger.debug("Publishing " + products.size() + " products.");
+            for(Map.Entry<String, Object> entry: products.entrySet()) {
+                String label = (String) entry.getKey();
+                Object product = entry.getValue();
+                publish(label, product);
+            }
+            logger.trace("Done publishing products");
+        }
+    }
+    
+    protected void publishFileProducts(Map<String,String> fileProducts) {
+        if (fileProducts != null ) {
+            logger.debug("Publishing " + fileProducts.size() + " file products.");
+            for(Map.Entry<String, String> entry: fileProducts.entrySet()) {
+                String label = (String) entry.getKey();
+                String productPath = (String)entry.getValue();
+                publishFile(label, productPath);
+            }
+            logger.trace("Done publishing file products");
+        }
     }
 }

@@ -336,8 +336,7 @@ public class WorkflowRunner {
         
         return this;
     }
-   
-    
+       
     public WorkflowRunner run() throws Exception {
         this.begin()
             .end();
@@ -355,12 +354,15 @@ public class WorkflowRunner {
     }
     
     public synchronized void setProducts(List <ActorProduct> products) {
-        logger.info("Received workflow PRODUCTS from WORKFLOW");
-        logger.info("Workflow run yielded " + workflowProducts.size() + " PRODUCTS.");
-        for (ActorProduct product : workflowProducts) {
-            logger.value(product.toString());
-        }
+        
+        logger.comm("Received workflow PRODUCTS from WORKFLOW");
         this.workflowProducts = products;
+
+        logger.info("Workflow run yielded " + workflowProducts.size() + " PRODUCTS.");
+        for (int i = 0; i < workflowProducts.size(); ++i) {
+            ActorProduct product = workflowProducts.get(i);
+            logger.value("Workflow product (" + (i+1) + "): " + product.toString());
+        }
     }
     
     public List<ActorProduct> getProducts() {

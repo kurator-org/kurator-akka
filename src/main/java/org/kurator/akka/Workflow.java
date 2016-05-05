@@ -17,6 +17,7 @@ import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
+import org.kurator.akka.messages.PublishProduct;
 import org.kurator.akka.messages.Start;
 import org.kurator.akka.messages.Success;
 import org.kurator.log.Logger;
@@ -127,22 +128,35 @@ public class Workflow extends UntypedActor {
     @Override
     public void onReceive(Object message) throws Exception {
 
+        logger.trace("Received message of type " + message.getClass() + " from " + getSender());
+        logger.value("Received message: ", message.toString());
+        
         if (message instanceof Initialize) {
-            logger.trace("Handling INITIALIZE message from RUNNER");
+            logger.comm("Handling INITIALIZE message from RUNNER");
             initialize();
-            logger.trace("Done handling INITIALIZE message");
+            logger.comm("Done handling INITIALIZE message");
             return;
         }
 
         if (message instanceof Start) {
-            logger.trace("Handling START message from RUNNER");
+            logger.comm("Handling START message from RUNNER");
             logger.debug("Starting actors");
             for (ActorRef actor : actors) {
                 logger.trace("Sending START message to " + Log.ACTOR(runner.name(actor)));
                 actor.tell(message, getSelf());
             }
             logger.debug("Run starting with " + actors.size() + " active actors");
-            logger.trace("Done handling START message");
+            logger.comm("Done handling START message");
+            return;
+        }
+        
+        if (message instanceof PublishProduct) {
+            logger.comm("Received PUBLISH_PRODUCT message");
+            PublishProduct p = (PublishProduct) message;
+            logger.value("Adding to list of workflow products:", p.product.label, p.product.product);
+            products.add(p.product);
+            logger.trace("Workflow has yielded " + products.size() + " products so far.");
+            logger.comm("Done handling PUBLISH_PRODUCT message");
             return;
         }
         
@@ -171,7 +185,7 @@ public class Workflow extends UntypedActor {
                 logger.debug("Shutting down ActorSystem");
                 actorSystem.shutdown();
                 
-                logger.info("Sending workflow PRODUCTS to RUNNER");
+                logger.comm("Sending " + products.size() + " workflow PRODUCTS to RUNNER");
                 runner.setProducts(products);
 
             } else {

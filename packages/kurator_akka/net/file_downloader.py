@@ -24,6 +24,12 @@ def download(url, options):
         for block in r.iter_content(1024):
             f.write(block)
 
+        return {
+            'path': f.name, 
+            'products': {'downloaded':f.name}
+            }
+
+
     return f.name
 
 def _create_output_file(filepath, tempdir):

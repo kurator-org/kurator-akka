@@ -35,10 +35,12 @@ components:
   type: PythonActor
   properties:
     code: |
-      def on_data(path):
-        print path
+      def on_data(inputs):
+        print "Saved downloaded file to", inputs['filePath']
     listensTo:
       - !ref DownloadFile
+    inputs:
+      path: filePath
 
 - id: FileDownloaderWorkflow
   type: Workflow
