@@ -9,15 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.kurator.akka.data.ActorFileProduct;
-import org.kurator.akka.data.ActorProduct;
+import org.kurator.akka.data.WorkflowArtifact;
+import org.kurator.akka.data.WorkflowProduct;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.FutureComplete;
 import org.kurator.akka.messages.Initialize;
-import org.kurator.akka.messages.PublishProduct;
+import org.kurator.akka.messages.ProductPublication;
 import org.kurator.akka.messages.Success;
 import org.kurator.akka.messages.Start;
 import org.kurator.akka.messages.WrappedMessage;
@@ -596,42 +596,45 @@ public abstract class KuratorActor extends UntypedActor {
         return this;
     }
     
-    protected void publish(String label, Object product) {
-        ActorProduct ap = new ActorProduct(this.name, label, product);
-        logger.value("Published product:", label, product);
-        PublishProduct message = new PublishProduct(ap);
-        logger.trace("Sending product to " + workflowRef);
-        workflowRef.tell(message, getSelf());
-    }
-    
-    protected void publishFile(String label, String path) {
-        ActorProduct ap = new ActorFileProduct(this.name, label, path);
-        logger.value("Published file product:", label, path);
-        PublishProduct message = new PublishProduct(ap);
-        workflowRef.tell(message, getSelf());
-    }
-    
     protected void publishProducts(Map<String,Object> products) {
         if (products != null ) {
             logger.debug("Publishing " + products.size() + " products.");
             for(Map.Entry<String, Object> entry: products.entrySet()) {
                 String label = (String) entry.getKey();
                 Object product = entry.getValue();
-                publish(label, product);
+                publishProduct(label, product);
             }
             logger.trace("Done publishing products");
         }
     }
     
-    protected void publishFileProducts(Map<String,String> fileProducts) {
-        if (fileProducts != null ) {
-            logger.debug("Publishing " + fileProducts.size() + " file products.");
-            for(Map.Entry<String, String> entry: fileProducts.entrySet()) {
+    protected void publishProduct(String label, Object product) {
+        WorkflowProduct ap = new WorkflowProduct(this.name, label, product);
+        logger.value("Published product:", label, product);
+        ProductPublication message = new ProductPublication(ap);
+        logger.trace("Sending product to " + workflowRef);
+        logger.comm("Sending value PUBLICATION_REQUEST message to WORKFLOW");
+        workflowRef.tell(message, getSelf());
+    }
+    
+    protected void publishArtifacts(Map<String,String> artifacts) {
+        if (artifacts != null ) {
+            logger.debug("Publishing " + artifacts.size() + " artifacts.");
+            for(Map.Entry<String, String> entry: artifacts.entrySet()) {
                 String label = (String) entry.getKey();
-                String productPath = (String)entry.getValue();
-                publishFile(label, productPath);
+                String artifact = (String)entry.getValue();
+                publishArtifact(label, artifact);
             }
-            logger.trace("Done publishing file products");
+            logger.trace("Done publishing artifacts");
         }
     }
+        
+    protected void publishArtifact(String label, String path) {
+        WorkflowArtifact ap = new WorkflowArtifact(this.name, label, path);
+        logger.value("Published artifact:", label, path);
+        ProductPublication message = new ProductPublication(ap);
+        logger.comm("Sending artifact PUBLICATION_REQUEST message to WORKFLOW");
+        workflowRef.tell(message, getSelf());
+    }
+    
 }

@@ -427,12 +427,12 @@ public class PythonActor extends KuratorActor {
             
             Map<String,Object> products = (Map<String,Object>) outputMap.get("products");
             if (products != null) {
-                publishProducts(products);                
+                publishProducts(products);
             }
             
-            Map<String,String> fileProducts = (Map<String,String>) outputMap.get("fileProducts");
-            if (fileProducts != null) {
-                publishFileProducts(fileProducts);                
+            Map<String,String> artifacts = (Map<String,String>) outputMap.get("artifacts");
+            if (artifacts != null) {
+                publishArtifacts(artifacts);                
             }
         }
     }

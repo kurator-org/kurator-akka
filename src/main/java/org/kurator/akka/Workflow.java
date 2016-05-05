@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.kurator.akka.data.ActorProduct;
+import org.kurator.akka.data.WorkflowProduct;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.ExceptionMessage;
 import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
-import org.kurator.akka.messages.PublishProduct;
+import org.kurator.akka.messages.ProductPublication;
 import org.kurator.akka.messages.Start;
 import org.kurator.akka.messages.Success;
 import org.kurator.log.Logger;
@@ -44,7 +44,7 @@ public class Workflow extends UntypedActor {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private final WorkflowRunner runner;
-    private List<ActorProduct> products = new LinkedList<ActorProduct>();
+    private List<WorkflowProduct> products = new LinkedList<WorkflowProduct>();
 
     final Map<ActorRef, Set<ActorRef>> actorConnections = new HashMap<ActorRef, Set<ActorRef>>();
 
@@ -150,10 +150,10 @@ public class Workflow extends UntypedActor {
             return;
         }
         
-        if (message instanceof PublishProduct) {
+        if (message instanceof ProductPublication) {
             logger.comm("Received PUBLISH_PRODUCT message");
-            PublishProduct p = (PublishProduct) message;
-            logger.value("Adding to list of workflow products:", p.product.label, p.product.product);
+            ProductPublication p = (ProductPublication) message;
+            logger.value("Adding to list of workflow products:", p.product.label, p.product.value);
             products.add(p.product);
             logger.trace("Workflow has yielded " + products.size() + " products so far.");
             logger.comm("Done handling PUBLISH_PRODUCT message");
@@ -186,7 +186,7 @@ public class Workflow extends UntypedActor {
                 actorSystem.shutdown();
                 
                 logger.comm("Sending " + products.size() + " workflow PRODUCTS to RUNNER");
-                runner.setProducts(products);
+                runner.setWorkflowProducts(products);
 
             } else {
                 logger.debug("Currently active actors include " + activeActors(3));

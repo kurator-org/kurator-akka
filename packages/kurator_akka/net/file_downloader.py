@@ -26,7 +26,7 @@ def download(url, options):
 
         return {
             'path': f.name, 
-            'products': {'downloaded':f.name}
+            'artifacts': {'downloaded_file':f.name}
             }
 
 

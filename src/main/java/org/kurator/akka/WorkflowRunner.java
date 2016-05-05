@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.kurator.akka.data.ActorProduct;
+import org.kurator.akka.data.WorkflowProduct;
 import org.kurator.akka.messages.ControlMessage;
 import org.kurator.akka.messages.Failure;
 import org.kurator.akka.messages.Initialize;
@@ -53,7 +53,7 @@ public class WorkflowRunner {
     protected String workflowName = "Workflow";
     protected Logger logger = new DefaultLogger();
     private Config actorSystemConfig;
-    private List<ActorProduct> workflowProducts = new LinkedList<ActorProduct>();
+    private List<WorkflowProduct> workflowProducts = new LinkedList<WorkflowProduct>();
 
     static {
         PythonActor.updateClasspath();
@@ -353,19 +353,19 @@ public class WorkflowRunner {
         lastException = e;
     }
     
-    public synchronized void setProducts(List <ActorProduct> products) {
+    public synchronized void setWorkflowProducts(List<WorkflowProduct> products) {
         
         logger.comm("Received workflow PRODUCTS from WORKFLOW");
         this.workflowProducts = products;
 
         logger.info("Workflow run yielded " + workflowProducts.size() + " PRODUCTS.");
         for (int i = 0; i < workflowProducts.size(); ++i) {
-            ActorProduct product = workflowProducts.get(i);
+            WorkflowProduct product = workflowProducts.get(i);
             logger.value("Workflow product (" + (i+1) + "): " + product.toString());
         }
     }
     
-    public List<ActorProduct> getProducts() {
+    public List<WorkflowProduct> getWorkflowProducts() {
         return workflowProducts;
     }
 }
