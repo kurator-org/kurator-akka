@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.kurator.akka.data.DQReport.DQReport;
 import org.kurator.akka.data.DQReport.Improvement;
 import org.kurator.akka.data.DQReport.Validation;
-import play.libs.Json;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +44,7 @@ public class ReportSummary {
 
                 if (validation.getResult() != null && validation.getResult().equals("Compliant")) {
                     if (!compliant.containsKey(criterion)) {
-                        compliant.put(criterion, new ArrayList<>());
+                        compliant.put(criterion, new ArrayList<Validation>());
                     }
 
                     List<Validation> compliantValidations = compliant.get(criterion);
@@ -53,7 +52,7 @@ public class ReportSummary {
                     compliantValidations.add(validation);
                 } else if (validation.getResult() == null || validation.getResult().equals("Not Compliant")) {
                     if (!nonCompliant.containsKey(criterion)) {
-                        nonCompliant.put(criterion, new ArrayList<>());
+                        nonCompliant.put(criterion, new ArrayList<Validation>());
                     }
 
                     List<Validation> nonCompliantValidations = nonCompliant.get(criterion);
@@ -66,7 +65,7 @@ public class ReportSummary {
                 String enhancement = improvement.getEnhancement();
 
                 if (!improvements.containsKey(enhancement)) {
-                    improvements.put(enhancement, new ArrayList<>());
+                    improvements.put(enhancement, new ArrayList<Improvement>());
                 }
 
                 List<Improvement> improvementsList = improvements.get(enhancement);
@@ -141,6 +140,8 @@ public class ReportSummary {
             System.out.println("    " + enhancement + ": " + getImprovementsCount(enhancement));
         }
 
+        /* TODO: Replace play json lib with alternative library
+
         ArrayNode data = Json.newArray();
 
         int compliantCount = getCompliantCount("Coordinates must fall inside the country");
@@ -175,6 +176,7 @@ public class ReportSummary {
         nonCompliant.put("label", "Non Compliant");
 
         data.add(nonCompliant);
-        return data.toString();
+        return data.toString();*/
+        return "";
     }
 }
