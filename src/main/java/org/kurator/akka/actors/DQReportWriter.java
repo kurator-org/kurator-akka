@@ -6,22 +6,26 @@ import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONArray;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import org.kurator.akka.KuratorActor;
 import org.kurator.akka.data.DQReport.*;
+import org.kurator.postproccess.PostProcessor;
+import org.kurator.postproccess.ffdq.FullReportPostProcessor;
+
 public class DQReportWriter extends KuratorActor {
   public boolean jsonOutput = true;
   public boolean consoleOutput = true;
-  public String filePath = "output.json";
-  private FileWriter file;
+  //public String filePath = "output.json";
+  public String filePath;
+  private FileWriter fileWriter;
   private DQReport report;
+    private File xlsFile;
+    private List<DQReport> reports;
   private StringWriter reportWriter;
 
   private boolean firstReport = false; // true if first report has been written
@@ -29,32 +33,46 @@ public class DQReportWriter extends KuratorActor {
   public void onStart() throws Exception {
     if(this.jsonOutput){
         reportWriter = new StringWriter();
-          if (filePath != null) {
-              file = new FileWriter(filePath, false);
-              file.write("[");
-          }
+        File file = File.createTempFile("output", ".json");
+         xlsFile = File.createTempFile("output", ".xls");
+
+        fileWriter = new FileWriter(file, false);
+        fileWriter.write("[");
+
+        filePath = file.getAbsolutePath();
     }
   }
+
   @Override
   @SuppressWarnings("unchecked")
   public void onData(Object value) {
     this.report = (DQReport)value;
 
-      System.out.println(((DQReport)value).getImprovements().get(0).getDataResource().get("catalogNumber"));
     if(this.consoleOutput)
         consoleDQReport();
     if(this.jsonOutput)
         jsonDQReport();
-
-    broadcast(value);
+        broadcast(value);
   }
+
   @Override
   public void onEnd() throws Exception {
-      if (file != null) {
-          file.write(reportWriter.toString());
-          file.write("]");
-          file.flush();
-          file.close();
+      if (fileWriter != null) {
+          fileWriter.write(reportWriter.toString());
+          fileWriter.write("]");
+          fileWriter.flush();
+          fileWriter.close();
+
+          ByteArrayInputStream input = new ByteArrayInputStream(reportWriter.toString().getBytes());
+
+          PostProcessor postProcessor = new FullReportPostProcessor();
+
+
+          //postProcessor.postprocess(input, "json", new FileOutputStream(xlsFile));
+
+          publishArtifact("dq_report_json", filePath);
+          //publishArtifact("dq_report_xls", xlsFile.getAbsolutePath());
+
           System.out.print("\n DQ Report written to: "+filePath+" \n ");
       }
   }
