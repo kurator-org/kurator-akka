@@ -50,7 +50,7 @@ public class DQReportWriter extends KuratorActor {
   public void onStart() throws Exception {
     if(this.jsonOutput){
         reportWriter = new StringWriter();
-        File file = File.createTempFile("output", ".json");
+        File file = File.createTempFile("output_", ".json");
 
         fileWriter = new FileWriter(file, false);
         fileWriter.write("[");
@@ -309,7 +309,7 @@ public class DQReportWriter extends KuratorActor {
           fileWriter.flush();
           fileWriter.close();
 
-          File xlsFile = File.createTempFile("output", ".xls");
+          File xlsFile = File.createTempFile("output_", ".xls");
           wb.write(new FileOutputStream(xlsFile));
           wb.close();
 
