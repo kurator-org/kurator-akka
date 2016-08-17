@@ -114,15 +114,11 @@
 	       <optional>true</optional>
 	   </dependency>
 
-		<!-- actor configuration -->
+		<!-- actor configuration data-binding-->
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>2.7.6</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
 			<version>2.7.6</version>
 		</dependency>
 		<dependency>
