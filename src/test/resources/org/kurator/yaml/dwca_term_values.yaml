@@ -1,0 +1,157 @@
+#####################################################################################
+# dwca_term_values.yaml
+#####################################################################################
+#
+# This workflow:
+#    - downloads a Darwin Core Archive from a URL
+#    - extracts the core file of a Darwin Core Archive to a tab-separated text file
+#    - extracts distinct values and their record counts for each field in a set 
+#      of fields from the text file
+#    - writes the distinct value lists to report files
+#
+# Example command-line usage:
+# kurator -f dwca_term_values.yaml 
+#         -p url=http://ipt.vertnet.org:8080/ipt/archive.do?r=ccber_mammals
+#         -l DEBUG (optional)
+#
+# Requires:
+# jython pip install requests
+# jython pip install python-dwca-reader
+# jython pip install py
+#
+#####################################################################################
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# __author__ = "John Wieczorek"
+# __copyright__ = "Copyright 2016 President and Fellows of Harvard College"
+# __version__ = "dwca_term_values.yaml 2016-06-11T20:32-03:00"
+
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+
+components:
+
+# Inline python actor to demonstrate making a workspace on the fly to use for 
+# writing temporary workflow artifacts. 
+- id: MakeWorkspace
+  type: PythonActor
+  properties:
+    code: |
+        import uuid
+        import os
+        def on_start(options):
+            print 'Started MakeWorkspace'
+            print 'MakeWorkspace options: %s' % options
+            if options.has_key('workspace') == False:
+                options['workspace'] ='./workspace_'+str(uuid.uuid1())
+                if not os.path.exists(options['workspace']):
+                    os.makedirs(options['workspace'])
+            return options
+
+# Download file into workspace from URL given by url parameter.
+- id: Downloader
+  type: PythonActor
+  properties:
+    module: kurator_dwca.downloader
+    onData: downloader
+    inputs:
+        url: url
+        workspace : workspace
+    listensTo:
+      - !ref MakeWorkspace
+
+# Extract core file into a tab-separated value file in workspace from Darwin Core archive.
+- id: DWCAtoTSVWriter
+  type: PythonActor
+  properties:
+    module: kurator_dwca.dwca_core_to_tsv
+    onData: dwca_core_to_tsv
+    inputs:
+        outputfile: inputfile
+        workspace : workspace
+    listensTo:
+      - !ref Downloader
+
+# Inline python actor to demonstrate actor iteration. Passes an options dictionary 
+# including the source tsv file and a term to downstream listener for each of a set of
+# terms.
+- id: VocabList
+  type: PythonActor
+  properties:
+    code: |
+        def on_data(options):
+            print 'Started VocabList'
+            print 'VocabList options: %s' % options
+            termlist = ['continent', 'country', 'stateProvince', \
+                'waterBody', 'islandGroup', 'island', \
+                'class', 'order', 'family', 'genus', 'scientificName', \
+                'type', 'language', 'license', 'basisOfRecord', 'sex', 'lifeStage', \
+                'reproductiveCondition', 'establishmentMeans', 'occurrenceStatus', \
+                'preparations', 'disposition', 'organismScope', 'month', 'day', \
+                'geodeticDatum', 'georeferenceVerificationStatus', \
+                'identificationQualifier', 'typeStatus', \
+                'identificationVerificationStatus', 'taxonRank', 'nomenclaturalCode', \
+                'taxonomicStatus', 'nomenclaturalStatus']
+            for term in termlist:
+                yield { 'inputfile':options['inputfile'], 'workspace':options['workspace'], 'termname':term }
+    inputs:
+        outputfile: inputfile
+        workspace: workspace
+    listensTo:
+      - !ref DWCAtoTSVWriter
+
+- id: VocabReporter
+  type: PythonActor
+  properties:
+    module: kurator_dwca.term_count_reporter
+    onData: term_count_reporter
+    inputs:
+        inputfile: inputfile
+        termname: termname
+        workspace: workspace
+    parameters:
+        format: 'csv'
+    listensTo:
+      - !ref VocabList
+
+- id: WrapUp
+  type: PythonActor
+  properties:
+    code: |
+        def on_data(options):
+            print 'WrapUp options: %s' % options
+            print '### Finished DwCA Term Values Workflow ###'
+    inputs:
+        workspace: workspace
+        outputfile: outputfile
+    listensTo:
+      - !ref VocabReporter
+
+- id: DwCAVocabExtractor
+  type: Workflow
+  properties:
+    actors:
+      - !ref MakeWorkspace
+      - !ref Downloader
+      - !ref DWCAtoTSVWriter
+      - !ref VocabList
+      - !ref VocabReporter
+      - !ref WrapUp
+    parameters:
+       url:
+         actor: !ref MakeWorkspace
+         parameter: url
+       workspace:
+         actor: !ref MakeWorkspace
+         parameter: workspace
