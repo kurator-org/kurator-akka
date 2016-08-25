@@ -234,7 +234,7 @@ If you would like to browse and edit the sample workflows included in the **Kura
 
     jar xf kurator-akka.jar org/kurator/akka/samples
 
-To run a script residing on the filesystem, you can use the `file:` qualifier instead of `claasspath:`:
+To run a script residing on the filesystem, you can use the `file:` qualifier instead of `classpath:`:
 
     $ java -jar kurator-akka.jar -f file:org/kurator/akka/samples/hello.yaml
     Hello World!
