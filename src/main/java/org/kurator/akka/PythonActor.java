@@ -221,6 +221,10 @@ public class PythonActor extends KuratorActor {
 
         // cache a python None object
         none = interpreter.eval("None");
+
+        // Set up system path from env vars
+        interpreter.exec("sys.path.append(\"" + System.getenv("JYTHON_PATH") + "\")");
+        interpreter.exec("sys.path.append(\"" + System.getenv("JYTHON_HOME") + "/Lib/site-packages\")");
     }
     
     private Boolean isGlobalFunction(String f) {
