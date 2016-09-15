@@ -318,7 +318,7 @@ public class FSMPythonStrategy extends FSMActorStrategy {
     }
 
     @Override
-    public void onStart() {
+    public void onStart() throws Exception{
         Map<String,Object> settings = initializeState();
 
         if (onStart != null) {
@@ -333,7 +333,7 @@ public class FSMPythonStrategy extends FSMActorStrategy {
     }
 
     @Override
-    public void onData(Object value) {
+    public void onData(Object value) throws Exception {
 
         if (onData == null) {
             throw new Exception("No onData handler for actor " + this);

@@ -3,12 +3,11 @@ package org.kurator.akka;
 import akka.actor.*;
 import org.kurator.FSMActorStrategy;
 import org.kurator.FSMActorWorkflow;
-import org.kurator.akka.messages.EndOfStream;
-import org.kurator.akka.messages.Initialize;
-import org.kurator.akka.messages.Start;
-import org.kurator.akka.messages.Success;
+import org.kurator.akka.messages.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,7 +24,7 @@ public class FSMActor extends AbstractLoggingFSM<FSMActor.State, FSMActor.Data> 
 
         actor.tell(new SubscribeTransitionCallBack(workflow), ActorRef.noSender());
 
-        actor.tell(new Initialize(), ActorRef.noSender());
+        actor.tell(new InitializeFSM(new FSMActorStrategyImpl(), new ArrayList<ActorRef>()), ActorRef.noSender());
         actor.tell(new Start(), ActorRef.noSender());
 
         Map data = new LinkedHashMap<>();
@@ -40,8 +39,12 @@ public class FSMActor extends AbstractLoggingFSM<FSMActor.State, FSMActor.Data> 
 
         // When an Initialize message is received in state CONSTRUCTED, call onInitialize() and go to state INITIALIZED
         when(State.CONSTRUCTED,
-                matchEvent(Initialize.class, Data.class, (initialize, data) -> {
+                matchEvent(InitializeFSM.class, Data.class, (initialize, data) -> {
+                    data.listeners = initialize.listeners;
+                    data.strategy = initialize.strategy;
+
                     data.strategy.onInitialize();
+
                     return goTo(State.INITIALIZED).replying(new Success());
                 })
         );
@@ -59,6 +62,22 @@ public class FSMActor extends AbstractLoggingFSM<FSMActor.State, FSMActor.Data> 
                 matchEvent(EndOfStream.class, Data.class, (end, data) -> {
                     data.strategy.onEnd();
                     return goTo(State.ENDED);
+                })
+        );
+
+        // When a SetStrategy message is received in state STARTED, set the strategy and stay in state STARTED
+        when(State.CONSTRUCTED,
+                matchEvent(SetStrategy.class, Data.class, (setStrategy, data) -> {
+                    data.strategy = setStrategy.strategy;
+                    return stay();
+                })
+        );
+
+        // When a RegisterListener message is received in state STARTED, add listener and stay in state STARTED
+        when(State.CONSTRUCTED,
+                matchEvent(RegisterListener.class, Data.class, (register, data) -> {
+                    data.listeners.add(register.listener);
+                    return stay();
                 })
         );
 
@@ -92,32 +111,33 @@ public class FSMActor extends AbstractLoggingFSM<FSMActor.State, FSMActor.Data> 
 
     // state data
     public class Data {
-        public final FSMActorStrategy strategy;
-
-        public Data() {
-            // TODO: set strategy elsewhere
-            this.strategy = new FSMActorStrategy() {
-                @Override
-                public void onInitialize() {
-                    System.out.println("onInitialize()");
-                }
-
-                @Override
-                public void onStart() {
-                    System.out.println("onStart()");
-                }
-
-                @Override
-                public void onData(Object value) {
-                    System.out.println("onData()");
-                }
-
-                @Override
-                public void onEnd() {
-                    System.out.println("onEnd()");
-                }
-            };
-        }
+        public FSMActorStrategy strategy;
+        public List<ActorRef> listeners = new ArrayList<ActorRef>();
     }
 
+}
+
+/**
+ * strategy class implementation for testing
+ */
+class FSMActorStrategyImpl extends FSMActorStrategy {
+    @Override
+    public void onInitialize() {
+        System.out.println("onInitialize()");
+    }
+
+    @Override
+    public void onStart() {
+        System.out.println("onStart()");
+    }
+
+    @Override
+    public void onData(Object value) {
+        System.out.println("onData()");
+    }
+
+    @Override
+    public void onEnd() {
+        System.out.println("onEnd()");
+    }
 }
