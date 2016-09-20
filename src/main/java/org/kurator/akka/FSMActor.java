@@ -81,10 +81,23 @@ public class FSMActor extends AbstractLoggingFSM<FSMActor.State, FSMActor.Data> 
                 })
         );
 
+        // When a DeregisterListener message is received in state STARTED, remove listener and stay in state STARTED
+        when(State.CONSTRUCTED,
+                matchEvent(RegisterListener.class, Data.class, (register, data) -> {
+                    data.listeners.add(register.listener);
+                    return stay();
+                })
+        );
+
         // When any other message is received in state STARTED, call onData() and stay in the current state
         when(State.STARTED,
                 matchAnyEvent((message, data) -> {
-                    data.strategy.onData(message);
+                    Object response = data.strategy.onData(message);
+
+                    for (ActorRef actorRef : data.listeners) {
+                        actorRef.tell(response, self());
+                    }
+
                     return stay();
                 })
         );
@@ -98,7 +111,6 @@ public class FSMActor extends AbstractLoggingFSM<FSMActor.State, FSMActor.Data> 
         }));
 
     }
-
 
     // states
     public enum State {
@@ -132,8 +144,9 @@ class FSMActorStrategyImpl extends FSMActorStrategy {
     }
 
     @Override
-    public void onData(Object value) {
+    public Object onData(Object value) {
         System.out.println("onData()");
+        return null;
     }
 
     @Override

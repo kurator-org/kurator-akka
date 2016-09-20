@@ -5,9 +5,7 @@ import org.kurator.util.SystemClasspathManager;
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Python actor FSM strategy class. Based on PythonActor
@@ -333,7 +331,7 @@ public class FSMPythonStrategy extends FSMActorStrategy {
     }
 
     @Override
-    public void onData(Object value) throws Exception {
+    public Object onData(Object value) throws Exception {
 
         if (onData == null) {
             throw new Exception("No onData handler for actor " + this);
@@ -356,7 +354,10 @@ public class FSMPythonStrategy extends FSMActorStrategy {
         interpreter.set("_KURATOR_STATE_", state);
         interpreter.set("_KURATOR_INPUT_", input);
         interpreter.eval("_call_ondata()");
-        broadcastOutputs();
+
+        List<Object> messages = broadcastOutputs();
+
+        return messages;
     }
 
     private synchronized Map<String,Object> mapInputs(Object receivedValue) {
@@ -391,32 +392,34 @@ public class FSMPythonStrategy extends FSMActorStrategy {
     }
 
 
-    private void broadcastOutputs() {
+    private List<Object> broadcastOutputs() {
+        List<Object> messages = new ArrayList<>();
 
         if (! interpreter.get("_KURATOR_MORE_DATA_", Boolean.class)) {
-            broadcastOutput(interpreter.get("_KURATOR_OUTPUT_", outputType));
-            return;
+            broadcastOutput(interpreter.get("_KURATOR_OUTPUT_", outputType), messages);
         }
 
         do {
             interpreter.eval("_get_next_data()");
             Object output = interpreter.get("_KURATOR_OUTPUT_", outputType);
-            if (output != null) broadcastOutput(output);
+            if (output != null) broadcastOutput(output, messages);
         } while (interpreter.get("_KURATOR_MORE_DATA_", Boolean.class));
+
+        return messages;
     }
 
 
-    private void broadcastOutput(Object output) {
+    private void broadcastOutput(Object output, List<Object> messages) {
 
-        publishProducts(output);
+        publishProducts(output, messages);
 
         if (output != null || broadcastNulls) {
-            broadcast(output);
+            messages.add(output);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void publishProducts(Object output) {
+    private void publishProducts(Object output, List<Object> messages) {
 
         if (output != null && output instanceof Map) {
             Map<Object,Object> outputMap = (Map<Object,Object>) output;

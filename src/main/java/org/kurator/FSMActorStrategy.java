@@ -50,7 +50,7 @@ public abstract class FSMActorStrategy {
 
     public abstract void onInitialize() throws Exception;
     public abstract void onStart() throws Exception;
-    public abstract void onData(Object value) throws Exception;
+    public abstract Object onData(Object value) throws Exception;
     public abstract void onEnd() throws Exception;
 
     /**
@@ -96,7 +96,15 @@ public abstract class FSMActorStrategy {
     }
 
     protected void publishProducts(Map<String,Object> products) {
-        // TODO: add implementation
+        if (products != null ) {
+            logger.debug("Publishing " + products.size() + " products.");
+            for(Map.Entry<String, Object> entry: products.entrySet()) {
+                String label = (String) entry.getKey();
+                Object product = entry.getValue();
+                publishProduct(label, product);
+            }
+            logger.trace("Done publishing products");
+        }
     }
 
     protected void publishProduct(String label, Object product) {
@@ -104,18 +112,36 @@ public abstract class FSMActorStrategy {
     }
 
     protected void publishProduct(String label, Object product, String type) {
-        // TODO: add implementation
+        WorkflowProduct ap = new WorkflowProduct(this.name, type, label, product);
+        logger.value("Published product:", label, product);
+        ProductPublication message = new ProductPublication(ap);
+        //logger.trace("Sending product to " + workflowRef);
+        logger.comm("Sending value PUBLICATION_REQUEST message to WORKFLOW");
+       // workflowRef.tell(message, getSelf());
     }
 
     protected void publishArtifacts(Map<String,String> artifacts) {
-        // TODO: add implementation
+        if (artifacts != null ) {
+            logger.debug("Publishing " + artifacts.size() + " artifacts.");
+            for(Map.Entry<String, String> entry: artifacts.entrySet()) {
+                String label = (String) entry.getKey();
+                String artifact = (String)entry.getValue();
+                publishArtifact(label, artifact);
+            }
+            logger.trace("Done publishing artifacts");
+        }
     }
 
     protected void publishArtifact(String label, String pathToArtifact) {
         publishProduct(label, pathToArtifact, "File");
     }
 
-    protected void publishArtifact(String label, String pathToArtifact, String type) {
-        // TODO: add implementation
+    protected ProductPublication publishArtifact(String label, String pathToArtifact, String type) {
+        WorkflowArtifact ap = new WorkflowArtifact(this.name, type, label, pathToArtifact);
+        logger.value("Published artifact:", label, pathToArtifact);
+        ProductPublication message = new ProductPublication(ap);
+        logger.comm("Sending artifact PUBLICATION_REQUEST message to WORKFLOW");
+
+        return message;
     }
 }
