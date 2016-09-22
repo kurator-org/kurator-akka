@@ -222,9 +222,27 @@ public class PythonActor extends KuratorActor {
         // cache a python None object
         none = interpreter.eval("None");
 
-        // Set up system path from env vars
-        interpreter.exec("sys.path.append(\"" + System.getenv("JYTHON_PATH") + "\")");
-        interpreter.exec("sys.path.append(\"" + System.getenv("JYTHON_HOME") + "/Lib/site-packages\")");
+        // Set up system path from env vars or config
+
+        String jythonPath;
+        String jythonHome;
+
+        if (System.getenv("JYTHON_PATH") != null && !System.getenv("JYTHON_PATH").isEmpty()) {
+            jythonPath = System.getenv("JYTHON_PATH");
+        } else {
+            jythonPath = configuration.get("jython_path").toString();
+
+        }
+
+        if (System.getenv("JYTHON_HOME") != null && !System.getenv("JYTHON_HOME").isEmpty()) {
+            jythonHome = System.getenv("JYTHON_HOME");
+        } else {
+            jythonHome = configuration.get("jython_home").toString();
+
+        }
+
+        interpreter.exec("sys.path.append(\"" + jythonPath + "\")");
+        interpreter.exec("sys.path.append(\"" + jythonHome + "/Lib/site-packages\")");
     }
     
     private Boolean isGlobalFunction(String f) {

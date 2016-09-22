@@ -55,6 +55,8 @@ public class WorkflowRunner {
     private Config actorSystemConfig;
     private List<WorkflowProduct> workflowProducts = new LinkedList<WorkflowProduct>();
 
+    private Map<String, Object> globalActorConfig = new HashMap<>();
+
     static {
         PythonActor.updateClasspath();
     }
@@ -307,7 +309,7 @@ public class WorkflowRunner {
         logger.comm("Received INITIALIZE response from WORKFLOW");
         return this;
     }
-    
+
     public WorkflowRunner start() throws Exception {
         logger.info("Workflow run starting");        
         logger.comm("Sending START message to WORKFLOW");
@@ -366,5 +368,15 @@ public class WorkflowRunner {
     
     public List<WorkflowProduct> getWorkflowProducts() {
         return workflowProducts;
+    }
+
+    public WorkflowRunner configure(Map<String, Object> config) {
+        this.globalActorConfig = config;
+
+        for (ActorConfig actorConfig : actorConfigForActorName.values()) {
+            actorConfig.getConfig().putAll(globalActorConfig); // Add the global configuration to all actors
+        }
+
+        return this;
     }
 }
