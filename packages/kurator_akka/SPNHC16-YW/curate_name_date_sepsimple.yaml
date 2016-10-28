@@ -1,9 +1,9 @@
 #####################################################################################
-# curate_name_date.yaml
+# curate_name_date_sepsimple.yaml
 #####################################################################################
 #
 # Clean data provided via standard input and print results to standard output:
-# ka curate_name_date.yaml 
+# ka curate_name_date_sepsimple.yaml 
 #
 #####################################################################################
 
