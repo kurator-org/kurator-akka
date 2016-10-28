@@ -1,0 +1,38 @@
+#####################################################################################
+# curate_name_date.yaml
+#####################################################################################
+#
+# Clean data provided via standard input and print results to standard output:
+# ka curate_name_date.yaml 
+#
+#####################################################################################
+
+imports:
+
+- classpath:/org/kurator/akka/types.yaml
+- classpath:/org/kurator/akka/actors.yaml
+
+components:
+
+- id: CleanScientificName
+  type: PythonActor
+  properties:
+    script: clean_name.py
+    onData: clean_scientific_name
+
+
+- id: CleanEventDate
+  type: PythonActor
+  properties:
+    script: clean_event_date.py
+    onData: clean_event_date
+    listensTo:
+      - !ref CleanScientificName
+
+
+- id: CleanNameDate
+  type: Workflow
+  properties:
+    actors:
+      - !ref CleanScientificName
+      - !ref CleanEventDate
