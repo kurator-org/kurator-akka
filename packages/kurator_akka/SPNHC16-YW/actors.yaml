@@ -3,20 +3,18 @@ imports:
 
 types:
 
-- id: Multiplier
+- id: CleanScientificName
   type: PythonActor
   properties:
-    script: multiplier.py
-    onData: multiply
+    script: clean_name.py
+    onStart: clean_scientific_name
 
-- id: NumReader
-  type: PythonActor
-  properties:
-    script: reader.py
-    onStart: readnum
 
-- id: NumPrinter
+
+- id: CleanEventDate
   type: PythonActor
   properties:
-    script: printer.py
-    onData: printnum
+    script: clean_event_date.py
+    onData: clean_event_date
+
+
