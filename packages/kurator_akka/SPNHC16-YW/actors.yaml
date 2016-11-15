@@ -1,0 +1,22 @@
+imports:
+- classpath:/org/kurator/akka/types.yaml
+
+types:
+
+- id: Multiplier
+  type: PythonActor
+  properties:
+    script: multiplier.py
+    onData: multiply
+
+- id: NumReader
+  type: PythonActor
+  properties:
+    script: reader.py
+    onStart: readnum
+
+- id: NumPrinter
+  type: PythonActor
+  properties:
+    script: printer.py
+    onData: printnum
