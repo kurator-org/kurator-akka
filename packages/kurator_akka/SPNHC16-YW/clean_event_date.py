@@ -5,7 +5,7 @@ from datetime import datetime
 import re
 import os
 import glob
-from shutil import copy
+from shutil import copy2
 
 #######################################################################
 
@@ -34,22 +34,21 @@ def create_RunID_directory():
 
 # copy file into RunID directory
 def copy_file(filename, destdir):
-    copy(filename, destdir) 
+    copy2(filename, destdir) 
 
-def clean_event_date():
+def clean_event_date(input2_data_file_name, record_id_file_name):
     
     CurrentRunDir = create_RunID_directory()
-    copy('clean_event_date.py', CurrentRunDir)
+    copy2('clean_event_date.py', CurrentRunDir)
     
     # print 'Please enter the input csv file path: '
-    # '../Run_1/demo_output_name_val.csv'
+    # 'Run_1/demo_output_name_val.csv'
     # input2_data_file_name = raw_input()
-    input2_data_file_name = 'Run_1/demo_output_name_val.csv'
     copy_file(input2_data_file_name,CurrentRunDir)
-    print 'Please enter the unique record_id file path: '
-    # '../Run_1/record_id.txt'
+    # print 'Please enter the unique record_id file path: '
+    # 'Run_1/record_id.txt'
     # record_id_file_name = raw_input()
-    record_id_file_name = 'Run_1/record_id.txt'
+    # record_id_file_name = 'Run_1/record_id.txt'
     copy_file(record_id_file_name,CurrentRunDir)
     output2_data_file_name = CurrentRunDir + '/' + 'demo_output_name_date_val.csv'
     date_val_log_file_name = CurrentRunDir + '/' + 'date_val_log.txt'
@@ -308,4 +307,6 @@ def timestamp(message):
 @end timestamp
 """
 
-
+if __name__ == '__main__':
+    """ Demo of clean_name_and_date_workflow script """
+    clean_event_date('Run_1/demo_output_name_val.csv','Run_1/record_id.txt')

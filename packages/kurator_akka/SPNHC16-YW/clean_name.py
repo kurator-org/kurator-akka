@@ -5,7 +5,7 @@ from datetime import datetime
 import uuid
 import os
 import glob
-from shutil import copy
+from shutil import copy2
 
 #######################################################################
 
@@ -51,7 +51,7 @@ def create_RunID_directory():
 
 # copy file into RunID directory
 def copy_file(filename, destdir):
-    copy(filename, destdir) 
+    copy2(filename, destdir) 
 
 """
 @end copy_file
@@ -69,14 +69,18 @@ def copy_file(filename, destdir):
 @out record_id_data @uri file:{CurrentRunDir}/record_id.txt
 """
 
-def clean_scientific_name():  
+def clean_scientific_name(input1_data_file_name, local_authority_source_file_name):  
     
     CurrentRunDir = create_RunID_directory()
     copy_file('clean_name.py',CurrentRunDir)
     
-    input1_data_file_name='demo_input.csv'
+    # print 'Please enter the input csv file path: '
+    # 'demo_input.csv'
+    # input1_data_file_name = raw_input()
     copy_file(input1_data_file_name,CurrentRunDir)
-    local_authority_source_file_name='demo_localDB.csv'
+    # print 'Please enter the authority source file path: '
+    # 'demo_localDB.csv'
+    # local_authority_source_file_name = raw_input()
     copy_file(local_authority_source_file_name,CurrentRunDir)
     output1_data_file_name = CurrentRunDir + '/' + 'demo_output_name_val.csv'
     name_val_log_file_name = CurrentRunDir + '/' + 'name_val_log.txt'
@@ -164,6 +168,7 @@ def clean_scientific_name():
                                       delimiter=',')
     output1_data.writeheader()
     record_id_data = open(record_id_file_name,'w')    
+    all_record_dict_lst = []
        
     for original1_record in input1_data:
         RecordID = str(uuid.uuid4().fields[-1])[:8]
@@ -395,6 +400,9 @@ def clean_scientific_name():
         """
         @end write_output1_data
         """
+        output1_record['record_id'] = RecordID
+        all_record_dict_lst.append(output1_record)
+        
 
     """
     @begin log_summary @desc Summarize on all the records
@@ -411,6 +419,12 @@ def clean_scientific_name():
     """
     @end log_summary
     """
+    all_record_dict = {}
+    for k in all_record_dict_lst[0].keys():
+        all_record_dict[k] = [all_record_dict[k] for all_record_dict in all_record_dict_lst]
+    # print all_record_dict
+    # return all_record_dict
+    return [output1_data_file_name,record_id_file_name]
     
 """
 @end clean_scientific_name
@@ -509,4 +523,9 @@ def timestamp(message):
 """
 @end timestamp
 """
+    
+    
+if __name__ == '__main__':
+    """ Demo of clean_name_workflow script """
+    clean_scientific_name('demo_input.csv', 'demo_localDB.csv')    
 
