@@ -3,7 +3,7 @@ imports:
 
 types:
 
-- id: CleanScientificName
+- id: CleanScientificNameID
   type: PythonActor
   properties:
     script: clean_name.py
@@ -11,7 +11,7 @@ types:
 
 
 
-- id: CleanEventDate
+- id: CleanEventDateID
   type: PythonActor
   properties:
     script: clean_event_date.py
