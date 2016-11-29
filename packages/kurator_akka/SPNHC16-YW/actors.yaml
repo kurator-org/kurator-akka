@@ -1,0 +1,20 @@
+imports:
+- classpath:/org/kurator/akka/types.yaml
+
+types:
+
+- id: CleanScientificNameID
+  type: PythonActor
+  properties:
+    script: clean_name.py
+    onStart: clean_scientific_name
+
+
+
+- id: CleanEventDateID
+  type: PythonActor
+  properties:
+    script: clean_event_date.py
+    onData: clean_event_date
+
+
