@@ -4,7 +4,7 @@
 
 	<groupId>org.kurator</groupId>
 	<artifactId>kurator-akka</artifactId>
-	<version>0.5-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>kurator-akka</name>
 	<url>http://opensource.ncsa.illinois.edu/projects/KURATOR</url>
