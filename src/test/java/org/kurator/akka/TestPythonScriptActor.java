@@ -1,6 +1,6 @@
 package org.kurator.akka;
 
-public class TestPythonActor extends KuratorAkkaTestCase {
+public class TestPythonScriptActor extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     
