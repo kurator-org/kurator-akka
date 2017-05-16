@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.kurator.log.DefaultLogger;
-import org.kurator.log.Logger;
 import org.kurator.util.SystemClasspathManager;
 import org.python.core.PyBoolean;
 import org.python.core.PyException;
