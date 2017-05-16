@@ -19,8 +19,7 @@ public class TestRScriptActor extends KuratorAkkaTestCase {
         ActorConfig actor = wr.actor(RScriptActor.class)
                               .config("onStart", "cat('Hello R-Actor!')");
 
-        wr.begin()
-          .end();
+        wr.run();
 
         assertEquals("", stderrBuffer.toString());
         assertEquals("Hello R-Actor!", stdoutBuffer.toString());

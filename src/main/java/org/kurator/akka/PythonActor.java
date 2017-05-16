@@ -350,7 +350,7 @@ public class PythonActor extends KuratorActor {
     }
     
     @Override
-    public synchronized void onData(Object value) throws Exception {  
+    public synchronized void onData(Object value) throws Exception {
         
         if (onData == null) {
             throw new Exception("No onData handler for actor " + this);

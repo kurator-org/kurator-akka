@@ -1,29 +1,37 @@
 package org.kurator.akka;
 
-import org.yesworkflow.actors.ActorBuilder;
-import org.yesworkflow.actors.ScriptActor;
+import org.yesworkflow.actors.Actor;
+import org.yesworkflow.actors.ScriptActorBuilder;
 
 public class YesWorkflowActor extends KuratorActor {
     
-    private final ActorBuilder actorBuilder;
+    private ScriptActorBuilder actorBuilder;
+    private Actor actor;
 
-    protected YesWorkflowActor(ActorBuilder actorBuilder) {
+    protected YesWorkflowActor(ScriptActorBuilder actorBuilder) {
         this.actorBuilder = actorBuilder;
     }
     
     @Override
-    protected synchronized void onStart() throws Exception {
+    protected synchronized void onInitialize() throws Exception {
 
-    	String onStart = (String)configuration.get("onStart");
+        String onStart = (String)configuration.get("onStart");
+        String onInitialize = (String)configuration.get("onInit");
         
-		ScriptActor actor = (ScriptActor)actorBuilder
-             		   		.outputStream(outStream)
-	             		    .errorStream(errStream)
-	             		    .step(onStart)
-	             		    .build();
+        actor = actorBuilder
+                .step(onStart)
+                .initialize(onInitialize)                
+                .outputStream(outStream)
+                .errorStream(errStream)
+                .build();
 
-		actor.configure();
-		actor.initialize();
+        actor.configure();
+        actor.initialize();
+    }
+    
+    @Override
+    protected synchronized void onStart() throws Exception {
+        
 		actor.step();
 			
         endStreamAndStop();

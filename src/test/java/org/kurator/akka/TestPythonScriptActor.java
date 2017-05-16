@@ -18,8 +18,7 @@ public class TestPythonScriptActor extends KuratorAkkaTestCase {
         ActorConfig actor = wr.actor(PythonScriptActor.class)
                               .config("onStart", "print('Hello Python-Actor!')");
 
-        wr.begin()
-          .end();
+        wr.run();
 
         assertEquals("", stderrBuffer.toString());
         assertEquals("Hello Python-Actor!" + EOL, stdoutBuffer.toString());
