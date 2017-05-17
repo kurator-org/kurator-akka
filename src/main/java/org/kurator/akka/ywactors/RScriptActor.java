@@ -1,10 +1,10 @@
-package org.kurator.akka;
+package org.kurator.akka.ywactors;
 
 import org.yesworkflow.actors.r.RActorBuilder;
 
 public class RScriptActor extends YesWorkflowActor {
     
-    protected RScriptActor() {
+    public RScriptActor() {
         super(new RActorBuilder());
     }
 }

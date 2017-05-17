@@ -1,4 +1,8 @@
-package org.kurator.akka;
+package org.kurator.akka.ywactors;
+
+import org.kurator.akka.KuratorAkkaTestCase;
+import org.kurator.akka.WorkflowRunner;
+import org.kurator.akka.ywactors.PythonScriptActor;
 
 public class TestPythonScriptActor extends KuratorAkkaTestCase {
 
@@ -15,8 +19,8 @@ public class TestPythonScriptActor extends KuratorAkkaTestCase {
 
     public void testPythonScriptActor_PrintHelloWorld() throws Exception {
 
-        ActorConfig actor = wr.actor(PythonScriptActor.class)
-                              .config("onStart", "print('Hello Python-Actor!')");
+        wr.actor(PythonScriptActor.class)
+          .config("onStart", "print('Hello Python-Actor!')");
 
         wr.run();
 

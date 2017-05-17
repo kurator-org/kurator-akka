@@ -1,4 +1,8 @@
-package org.kurator.akka;
+package org.kurator.akka.ywactors;
+
+import org.kurator.akka.KuratorAkkaTestCase;
+import org.kurator.akka.WorkflowRunner;
+import org.kurator.akka.ywactors.RScriptActor;
 
 public class TestRScriptActor extends KuratorAkkaTestCase {
 
@@ -16,8 +20,8 @@ public class TestRScriptActor extends KuratorAkkaTestCase {
 
     public void testRScriptActor_PrintHelloWorld() throws Exception {
 
-        ActorConfig actor = wr.actor(RScriptActor.class)
-                              .config("onStart", "cat('Hello R-Actor!')");
+        wr.actor(RScriptActor.class)
+          .config("onStart", "cat('Hello R-Actor!')");
 
         wr.run();
 

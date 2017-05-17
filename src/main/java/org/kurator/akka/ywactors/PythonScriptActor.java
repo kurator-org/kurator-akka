@@ -1,10 +1,10 @@
-package org.kurator.akka;
+package org.kurator.akka.ywactors;
 
 import org.yesworkflow.actors.python.PythonActorBuilder;
 
 public class PythonScriptActor extends YesWorkflowActor {
     
-    protected PythonScriptActor() {
+    public PythonScriptActor() {
         super(new PythonActorBuilder());
     }
 }
