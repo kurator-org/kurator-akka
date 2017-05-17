@@ -18,14 +18,53 @@ public class TestRScriptActor extends KuratorAkkaTestCase {
          System.setProperty("yw.actors.r.command", "/usr/local/bin/R");
     }
 
-    public void testRScriptActor_PrintHelloWorld() throws Exception {
+    public void testRScriptActor_PrintHelloWorld_OnInit() throws Exception {
 
         wr.actor(RScriptActor.class)
-          .config("onStart", "cat('Hello R-Actor!')");
+          .config("onInit", "cat('Initializing: Hello R-Actor!\n')");
 
         wr.run();
 
         assertEquals("", stderrBuffer.toString());
-        assertEquals("Hello R-Actor!", stdoutBuffer.toString());
+        assertEquals("Initializing: Hello R-Actor!" + EOL, stdoutBuffer.toString());
     }
+
+    public void testRScriptActor_PrintHelloWorld_OnStart() throws Exception {
+
+        wr.actor(RScriptActor.class)
+          .config("onStart", "cat('Starting: Hello R-Actor!\n')");
+
+        wr.run();
+
+        assertEquals("", stderrBuffer.toString());
+        assertEquals("Starting: Hello R-Actor!" + EOL, stdoutBuffer.toString());
+    }
+    
+    public void testRScriptActor_PrintHelloWorld_OnEnd() throws Exception {
+
+        wr.actor(RScriptActor.class)
+          .config("onEnd", "cat('Ending: Hello R-Actor!\n')");
+
+        wr.run();
+
+        assertEquals("", stderrBuffer.toString());
+        assertEquals("Ending: Hello R-Actor!" + EOL, stdoutBuffer.toString());
+    }
+    
+    public void testRScriptActor_PrintHelloWorld_OnInitStartEnd() throws Exception {
+
+        wr.actor(RScriptActor.class)
+          .config("onInit",  "cat('Initializing: Hello R-Actor!\n')")
+          .config("onStart", "cat('Starting: Hello R-Actor!\n')")
+          .config("onEnd",   "cat('Ending: Hello R-Actor!\n')");
+
+        wr.run();
+
+        assertEquals("", stderrBuffer.toString());
+        assertEquals("Initializing: Hello R-Actor!" + EOL +
+                     "Starting: Hello R-Actor!"     + EOL +
+                     "Ending: Hello R-Actor!"       + EOL,
+                     stdoutBuffer.toString());
+    }
+
 }
