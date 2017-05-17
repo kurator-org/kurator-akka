@@ -7,14 +7,15 @@ import org.yesworkflow.actors.ScriptActorBuilder;
 public class YesWorkflowActor extends KuratorActor {
     
     protected Actor ywActor;
-    protected ScriptActorBuilder ywScriptActorBuilder;
+    protected ScriptActorBuilder ywActorBuilder;
     protected String onInitialize;
     protected String onStart;
     protected String onData;
     protected String onEnd;
-    
+    public boolean broadcastNulls = false;
+
     protected YesWorkflowActor(ScriptActorBuilder actorBuilder) {
-        this.ywScriptActorBuilder = actorBuilder;
+        this.ywActorBuilder = actorBuilder;
     }
     
     @Override
@@ -25,30 +26,35 @@ public class YesWorkflowActor extends KuratorActor {
         onData = (String)configuration.get("onData");
         onEnd = (String)configuration.get("onEnd");
         
-        ywActor = ywScriptActorBuilder
-                .initialize(onInitialize)       
-                .start(onStart)
-                .step(onData)
-                .wrapup(onEnd)
-                .outputStream(outStream)
-                .errorStream(errStream)
-                .build();
+        ywActorBuilder.initialize(onInitialize)       
+                      .start(onStart)
+                      .wrapup(onEnd)
+                      .outputStream(outStream)
+                      .errorStream(errStream);
+
+        if (onData != null) {
+            ywActorBuilder.step(onData)
+                          .input("inp")
+                          .output("out");
+        }
+                
+        ywActor = ywActorBuilder.build();
 
         ywActor.initialize();
     }
     
     @Override
     protected synchronized void onStart() throws Exception {
-        
 		ywActor.start();
-			
-        if (onData == null) {
-            endStreamAndStop();       
-        }
+        if (onData == null) endStreamAndStop();
     }
 
     @Override
     public synchronized void onData(Object value) throws Exception {
+        ywActor.setInputValue("inp", value);
+        ywActor.step();
+        Object output = ywActor.getOutputValue("out");
+        if (output != null || broadcastNulls) broadcast(output);
     }
     
     @Override
