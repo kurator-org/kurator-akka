@@ -19,20 +19,19 @@ public class YesWorkflowActor extends KuratorActor {
         String onInitialize = (String)configuration.get("onInit");
         
         actor = actorBuilder
-                .step(onStart)
-                .initialize(onInitialize)                
+                .initialize(onInitialize)       
+                .start(onStart)
                 .outputStream(outStream)
                 .errorStream(errStream)
                 .build();
 
-        actor.configure();
         actor.initialize();
     }
     
     @Override
     protected synchronized void onStart() throws Exception {
         
-		actor.step();
+		actor.start();
 			
         endStreamAndStop();
     }
