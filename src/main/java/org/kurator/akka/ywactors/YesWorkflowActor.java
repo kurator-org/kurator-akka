@@ -32,7 +32,7 @@ public class YesWorkflowActor extends KuratorActor {
                       .outputStream(outStream)
                       .errorStream(errStream);
 
-        if (onData != null) {
+        if (onData != null || onStart != null) {
             ywActorBuilder.step(onData)
                           .input("inp")
                           .output("out");
@@ -46,6 +46,8 @@ public class YesWorkflowActor extends KuratorActor {
     @Override
     protected synchronized void onStart() throws Exception {
 		ywActor.start();
+        Object output = ywActor.getOutputValue("out");
+        if (output != null || broadcastNulls) broadcast(output);
         if (onData == null) endStreamAndStop();
     }
 

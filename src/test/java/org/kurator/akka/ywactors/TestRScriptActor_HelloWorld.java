@@ -6,7 +6,7 @@ import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.ywactors.RScriptActor;
 
-public class TestRScriptActor extends KuratorAkkaTestCase {
+public class TestRScriptActor_HelloWorld extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     
@@ -14,8 +14,8 @@ public class TestRScriptActor extends KuratorAkkaTestCase {
     public void setUp() throws Exception {
          super.setUp();
          wr = new WorkflowRunner()
-        		  .outputStream(stdoutStream)
-        		  .errorStream(stderrStream);
+              .outputStream(stdoutStream)
+        	  .errorStream(stderrStream);
          System.setProperty("yw.actors.r.command", "/usr/local/bin/R");
     }
 
@@ -38,7 +38,7 @@ public class TestRScriptActor extends KuratorAkkaTestCase {
     public void testRScriptActor_PrintHelloWorld_OnData() throws Exception {
         ActorConfig actor = 
         wr.actor(RScriptActor.class)
-          .config("onData", "cat('Data: ',inp,'\n',sep=''); out <- NULL");
+          .config("onData", "cat('Data: ',inp,'\n',sep='')");
         wr.inputActor(actor)
           .begin()
           .tellWorkflow("Hello R-Actor!", new EndOfStream())
@@ -73,7 +73,7 @@ public class TestRScriptActor extends KuratorAkkaTestCase {
         wr.actor(RScriptActor.class)
           .config("onInit",  "cat('Initializing: Hello R-Actor!\n')")
           .config("onStart", "cat('Starting: Hello R-Actor!\n')")
-          .config("onData",  "cat('Data: ',inp,'\n',sep=''); out <- NULL")
+          .config("onData",  "cat('Data: ',inp,'\n',sep='')")
           .config("onEnd",   "cat('Ending: Hello R-Actor!\n')");
         wr.inputActor(actor)
           .begin()
@@ -86,5 +86,5 @@ public class TestRScriptActor extends KuratorAkkaTestCase {
             "Data: Hello R-Actor!"         + EOL +
             "Ending: Hello R-Actor!"       + EOL,
             stdoutBuffer.toString());
-    }
+    }    
 }

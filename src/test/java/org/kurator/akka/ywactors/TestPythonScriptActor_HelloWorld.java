@@ -6,7 +6,7 @@ import org.kurator.akka.WorkflowRunner;
 import org.kurator.akka.messages.EndOfStream;
 import org.kurator.akka.ywactors.PythonScriptActor;
 
-public class TestPythonScriptActor extends KuratorAkkaTestCase {
+public class TestPythonScriptActor_HelloWorld extends KuratorAkkaTestCase {
 
     private WorkflowRunner wr;
     
@@ -37,7 +37,7 @@ public class TestPythonScriptActor extends KuratorAkkaTestCase {
     public void testPythonScriptActor_PrintHelloWorld_OnData() throws Exception {
       ActorConfig actor = 
       wr.actor(PythonScriptActor.class)
-        .config("onData", "print('Data: ' + inp);out=None");
+        .config("onData", "print('Data: ' + inp)");
       wr.inputActor(actor)
         .begin()
         .tellWorkflow("Hello Python-Actor!", new EndOfStream())
@@ -73,7 +73,7 @@ public class TestPythonScriptActor extends KuratorAkkaTestCase {
         wr.actor(PythonScriptActor.class)
           .config("onInit",  "print('Initializing: Hello Python-Actor!')")
           .config("onStart", "print('Starting: Hello Python-Actor!')")
-          .config("onData",  "print('Data: ' + inp);out=None")
+          .config("onData",  "print('Data: ' + inp)")
           .config("onEnd",   "print('Ending: Hello Python-Actor!')");
         wr.inputActor(actor)
           .begin()
