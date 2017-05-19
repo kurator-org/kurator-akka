@@ -152,7 +152,8 @@ public class ActorConfig implements BeanNameAware {
         return this;
     }
     
-    
+    public ActorConfig output(String value)                    { return this.setOutput(value); }
+    public ActorConfig setOutput(String value)          { config.put("outputName", value); return this;}
     public void setPythonClass(String value)            { config.put("pythonClass", value); }
     public void setPojoClass(String value)              { config.put("pojoClass", value); }
     public void setInputStreamProperty(String value)    { config.put("inputStreamProperty", value); }

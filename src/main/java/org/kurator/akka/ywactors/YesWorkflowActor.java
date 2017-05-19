@@ -12,8 +12,9 @@ public class YesWorkflowActor extends KuratorActor {
     protected String onStart;
     protected String onData;
     protected String onEnd;
-    public boolean broadcastNulls = false;
-    public String inputName;
+    protected boolean broadcastNulls = false;
+    protected String inputName;
+    protected String outputName;
     
     protected YesWorkflowActor(ScriptActorBuilder actorBuilder) {
         this.ywActorBuilder = actorBuilder;
@@ -34,11 +35,14 @@ public class YesWorkflowActor extends KuratorActor {
                       .errorStream(errStream);
 
         inputName = (inputs.size() == 1) ? inputs.values().iterator().next() : "input";
+        outputName = (String)configuration.get("outputName");
+        if (outputName == null) outputName = "output";
+        
         
         if (onData != null || onStart != null) {
             ywActorBuilder.step(onData)
                           .input(inputName)
-                          .output("out");
+                          .output(outputName);
         }
                 
         ywActor = ywActorBuilder.build();
@@ -49,7 +53,7 @@ public class YesWorkflowActor extends KuratorActor {
     @Override
     protected synchronized void onStart() throws Exception {
 		ywActor.start();
-        Object output = ywActor.getOutputValue("out");
+        Object output = ywActor.getOutputValue(outputName);
         if (output != null || broadcastNulls) broadcast(output);
         if (onData == null) endStreamAndStop();
     }
@@ -58,7 +62,7 @@ public class YesWorkflowActor extends KuratorActor {
     public synchronized void onData(Object value) throws Exception {
         ywActor.setInputValue(inputName, value);
         ywActor.step();
-        Object output = ywActor.getOutputValue("out");
+        Object output = ywActor.getOutputValue(outputName);
         if (output != null || broadcastNulls) broadcast(output);
     }
     

@@ -22,7 +22,8 @@ public class TestRScriptActor_EmphasizedGreeting extends KuratorAkkaTestCase {
     public void testRScriptActor_SingleGreeting() throws Exception {
         ActorConfig greetingSource = 
             wr.actor(RScriptActor.class)
-              .config("onStart", "out <- 'Hello'");
+              .output("greeting")
+              .config("onStart", "greeting <- 'Hello'");
         ActorConfig greetingPrinter = 
             wr.actor(RScriptActor.class)
               .input("greeting")
@@ -36,11 +37,13 @@ public class TestRScriptActor_EmphasizedGreeting extends KuratorAkkaTestCase {
     public void testRScriptActor_SingleEmphasizedGreeting() throws Exception {
         ActorConfig greetingSource = 
             wr.actor(RScriptActor.class)
-              .config("onStart", "out <- 'Hello'");
+              .output("baseGreeting")
+              .config("onStart", "baseGreeting <- 'Hello'");
         ActorConfig greetingEmphasizer = 
             wr.actor(RScriptActor.class)
               .input("originalGreeting")
-              .config("onData", "out <- paste(originalGreeting,'!!',sep='')")
+              .output("emphasizedGreeting")
+              .config("onData", "emphasizedGreeting <- paste(originalGreeting,'!!',sep='')")
               .listensTo(greetingSource);
         ActorConfig greetingPrinter = 
             wr.actor(RScriptActor.class)
@@ -56,11 +59,13 @@ public class TestRScriptActor_EmphasizedGreeting extends KuratorAkkaTestCase {
         ActorConfig greetingSource = 
             wr.actor(RScriptActor.class)
               .input("inputGreeting")
-              .config("onData", "out <- inputGreeting");
+              .output("baseGreeting")
+              .config("onData", "baseGreeting <- inputGreeting");
         ActorConfig greetingEmphasizer = 
             wr.actor(RScriptActor.class)
               .input("originalGreeting")
-              .config("onData", "out <- paste(originalGreeting,'!!',sep='')")
+              .output("emphasizedGreeting")
+              .config("onData", "emphasizedGreeting <- paste(originalGreeting,'!!',sep='')")
               .listensTo(greetingSource);
         ActorConfig greetingPrinter = 
             wr.actor(RScriptActor.class)
