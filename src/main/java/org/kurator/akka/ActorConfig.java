@@ -112,10 +112,14 @@ public class ActorConfig implements BeanNameAware {
     }
 
     public ActorConfig input(String name) {
+        return this.setInput(name);
+    }
+
+    public ActorConfig setInput(String name) {
         inputs.put(name, name);
         return this;
     }
-    
+
     public void setMetadataReaders(List<MetadataReader> metadataReaders) {
         this.metadataReaders = metadataReaders;
     }

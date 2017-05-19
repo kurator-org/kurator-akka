@@ -38,7 +38,8 @@ public class TestRScriptActor_HelloWorld extends KuratorAkkaTestCase {
     public void testRScriptActor_PrintHelloWorld_OnData() throws Exception {
         ActorConfig actor = 
         wr.actor(RScriptActor.class)
-          .config("onData", "cat('Data: ',inp,'\n',sep='')");
+          .input("greeting")
+          .config("onData", "cat('Data: ',greeting,'\n',sep='')");
         wr.inputActor(actor)
           .begin()
           .tellWorkflow("Hello R-Actor!", new EndOfStream())
@@ -71,9 +72,10 @@ public class TestRScriptActor_HelloWorld extends KuratorAkkaTestCase {
     public void testRScriptActor_PrintHelloWorld_OnInitStartDataEnd() throws Exception {
         ActorConfig actor = 
         wr.actor(RScriptActor.class)
+          .input("greeting")
           .config("onInit",  "cat('Initializing: Hello R-Actor!\n')")
           .config("onStart", "cat('Starting: Hello R-Actor!\n')")
-          .config("onData",  "cat('Data: ',inp,'\n',sep='')")
+          .config("onData",  "cat('Data: ',greeting,'\n',sep='')")
           .config("onEnd",   "cat('Ending: Hello R-Actor!\n')");
         wr.inputActor(actor)
           .begin()

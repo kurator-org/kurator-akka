@@ -35,12 +35,13 @@ public class TestRScriptActor_YamlStringWorkflows extends KuratorAkkaTestCase {
             "- id: Printer"                                             + EOL +
             "  type: RScriptActor"                                      + EOL +
             "  properties:"                                             + EOL +
+            "    input: greeting"                                       + EOL + 
             "    onInit: |"                                             + EOL +
             "      cat('Initialize', '\\n', sep='')"                    + EOL +
             "    onStart: |"                                            + EOL +
             "      cat('Start', '\\n', sep='')"                         + EOL +
             "    onData: |"                                             + EOL +
-            "      cat('Data: ', inp, '\\n', sep='')"                   + EOL +
+            "      cat('Data: ', greeting, '\\n', sep='')"              + EOL +
             "    onEnd: |"                                              + EOL +
             "      cat('End', '\\n', sep='')"                           + EOL +
             ""                                                          + EOL

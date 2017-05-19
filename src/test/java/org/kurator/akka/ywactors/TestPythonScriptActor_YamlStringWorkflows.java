@@ -34,12 +34,13 @@ public class TestPythonScriptActor_YamlStringWorkflows extends KuratorAkkaTestCa
             "- id: Printer"                                             + EOL +
             "  type: PythonScriptActor"                                 + EOL +
             "  properties:"                                             + EOL +
+            "    input: greeting"                                       + EOL + 
             "    onInit: |"                                             + EOL +
             "      print('Initialize')"                                 + EOL +
             "    onStart: |"                                            + EOL +
             "      print('Start')"                                      + EOL +
             "    onData: |"                                             + EOL +
-            "      print('Data: ' + inp)"                               + EOL +
+            "      print('Data: ' + greeting)"                          + EOL +
             "    onEnd: |"                                              + EOL +
             "      print('End')"                                        + EOL +
             ""                                                          + EOL
