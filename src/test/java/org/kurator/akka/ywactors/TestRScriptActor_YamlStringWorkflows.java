@@ -16,25 +16,25 @@ public class TestRScriptActor_YamlStringWorkflows extends KuratorAkkaTestCase {
              .errorStream(stderrStream);
          System.setProperty("yw.actors.r.command", "/usr/local/bin/R");
     }
-    
+   
     public void testOneActorWorkflow() throws Exception {
         
         wr.yamlString(
+            "imports:"                                                  + EOL +
+            "- classpath:/org/kurator/akka/types.yaml"                  + EOL +
+            ""                                                          + EOL +
             "components:"                                               + EOL +
             ""                                                          + EOL +
             "- id: OneActorWorkflow"                                    + EOL +
-            "  className: org.kurator.akka.WorkflowConfig"              + EOL +
-            "  singleton: true"                                         + EOL +
+            "  type: Workflow"                                          + EOL +
             "  properties:"                                             + EOL +
             "    actors:"                                               + EOL +
             "    - !ref Printer"                                        + EOL +
             "    inputActor: !ref Printer"                              + EOL +
             ""                                                          + EOL +
             "- id: Printer"                                             + EOL +
-            "  className: org.kurator.akka.YWActorConfig"               + EOL +
-            "  singleton: true"                                         + EOL +
+            "  type: RScriptActor"                                      + EOL +
             "  properties:"                                             + EOL +
-            "    actorClass: org.kurator.akka.ywactors.RScriptActor"    + EOL +
             "    onInit: |"                                             + EOL +
             "      cat('Initialize', '\\n', sep='')"                    + EOL +
             "    onStart: |"                                            + EOL +

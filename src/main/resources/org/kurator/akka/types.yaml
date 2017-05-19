@@ -25,4 +25,15 @@ types:
   singleton: true
   properties:
     actorClass: org.kurator.akka.PythonClassActor  
-  
+ 
+- id: RScriptActor
+  className: org.kurator.akka.YWActorConfig
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.ywactors.RScriptActor
+ 
+- id: PythonScriptActor
+  className: org.kurator.akka.YWActorConfig
+  singleton: true
+  properties:
+    actorClass: org.kurator.akka.ywactors.PythonScriptActor
