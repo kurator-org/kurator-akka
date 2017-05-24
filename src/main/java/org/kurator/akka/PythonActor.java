@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.kurator.log.DefaultLogger;
-import org.kurator.log.Logger;
 import org.kurator.util.SystemClasspathManager;
 import org.python.core.PyBoolean;
 import org.python.core.PyException;
@@ -196,6 +194,7 @@ public class PythonActor extends KuratorActor {
             try {
                 interpreter.exec("import " + moduleConfig);
             } catch (PyException e) {
+            	logger.error("Error importing Python module " + moduleConfig + ": " + e.getMessage());
                 System.out.println("Error: "+  e);
                 throw new Exception("Error importing Python module '" + 
                                     moduleConfig + "': " + e.value);
@@ -318,7 +317,7 @@ public class PythonActor extends KuratorActor {
         } else if (argCount == minArgumentCount + 1) {
             interpreter.exec(String.format(statefulWrapperTemplate, functionQualifier, actualMethodName));
         }
-
+        logger.trace("actualMethodName="+ actualMethodName);
         return actualMethodName;
     }    
     private synchronized void applySettings() {
@@ -353,7 +352,7 @@ public class PythonActor extends KuratorActor {
     
     @Override
     public synchronized void onData(Object value) throws Exception {  
-        
+        logger.comm("onData: " + value.toString());  
         if (onData == null) {
             throw new Exception("No onData handler for actor " + this);
         }

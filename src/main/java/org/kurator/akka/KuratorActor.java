@@ -86,6 +86,9 @@ public abstract class KuratorActor extends UntypedActor {
     private List<ActorConfig> listenerConfigs = new LinkedList<ActorConfig>();
     private Set<ActorRef> listeners = new HashSet<ActorRef>();
     private WorkflowRunner runner;
+    /**
+     * Mapping between input field keys and output field keys.
+     */
     protected Map<String, String> inputs = new HashMap<String,String>();
     protected String name;
     protected Map<String,Object> settings;
@@ -371,7 +374,7 @@ public abstract class KuratorActor extends UntypedActor {
             
         } catch (Exception e) {
             reportException(e);
-            errStream.println(e);
+            errStream.println(e.getMessage());
             endStreamAndStop();
         }
     }
@@ -585,7 +588,7 @@ public abstract class KuratorActor extends UntypedActor {
      * @param exception The reported exception.
      */
     protected final void reportException(Exception exception) {
-//        exception.printStackTrace();
+    	logger.error(exception.getMessage());
         ActorRef workflowRef = runner.getWorkflowRef();
         ExceptionMessage em = new ExceptionMessage(exception);
         workflowRef.tell(em, this.getSelf());
