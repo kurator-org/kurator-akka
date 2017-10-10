@@ -1,5 +1,8 @@
 #include "org_kurator_akka_interpreters_RInterpreter.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include <Rinternals.h>
 #include <Rembedded.h>
 
@@ -8,7 +11,7 @@ JNIEXPORT jobject
 JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject obj, jstring name, jstring func, jobject options) {
     /* Adapted from https://github.com/parkerabercrombie/call-r-from-c */
 
-    // Intialize the embedded R environment.
+    // Initialize the embedded R environment.
     int r_argc = 2;
     char *r_argv[] = { "R", "--silent" };
     Rf_initEmbeddedR(r_argc, r_argv);
@@ -32,8 +35,8 @@ JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject
 
     // Allocate an R vector and copy the C array into it.
     SEXP arg;
-    PROTECT(arg = allocVector(INTSXP, alen));
-    memcpy(INTEGER(arg), a, alen * sizeof(int));
+    PROTECT(arg = allocVector(INTSXP, length));
+    memcpy(INTEGER(arg), arr, length * sizeof(int));
 
     // Setup a call to the R function
     SEXP func_call;
@@ -41,7 +44,7 @@ JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject
 
     // Execute the function
     int errorOccurred;
-    SEXP ret = R_tryEval(add1_call, R_GlobalEnv, &errorOccurred);
+    SEXP ret = R_tryEval(func_call, R_GlobalEnv, &errorOccurred);
 
     if (!errorOccurred)
     {
