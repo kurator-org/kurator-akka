@@ -1,23 +1,35 @@
-#include "org_kurator_akka_interpreters_RInterpreter.h"
-
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 #include <Rinternals.h>
 #include <Rembedded.h>
 
+#define R_INTERFACE_PTRS 1
+#define CSTACK_DEFNS 1
+#include <Rinterface.h>
+
+#include "org_kurator_akka_interpreters_RInterpreter.h"
+
 JNIEXPORT jobject
 
-JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject obj, jstring name, jstring func, jobject options) {
+JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject obj, jstring jname, jstring jfunc, jobject options) {
     /* Adapted from https://github.com/parkerabercrombie/call-r-from-c */
 
     // Initialize the embedded R environment.
-    int r_argc = 2;
-    char *r_argv[] = { "R", "--silent" };
-    Rf_initEmbeddedR(r_argc, r_argv);
+    char *r_argv[] = { "R", "--no-save" };
+    int r_argc = sizeof(r_argv)/sizeof(r_argv[0]);
+
+    Rf_initialize_R(r_argc, r_argv);
+
+    /* disable stack checking, because threads will thow it off */
+    R_CStackLimit = (uintptr_t) -1;
+    setup_Rmainloop();
+
+    //Rf_mainloop(); /* does not return */
 
     // Hardcoded name for now
-    const char* name = "test.R";
+    const char* name = "/home/lowery/IdeaProjects/kurator-akka/src/main/c/test.R";
     const char* func = "hello";
 
     // S-expression represented by a pair (function to invoke, arguments to function)
@@ -58,7 +70,11 @@ JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject
 
     // Unprotect func_call and arg
     UNPROTECT(2);
+    printf("testing");
 
     // Release R environment
-    Rf_endEmbeddedR(0);
+    kill(getpid(), SIGINT);
+
+    jobject jMap
+    return 0;
 }

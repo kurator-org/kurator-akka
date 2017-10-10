@@ -9,4 +9,10 @@ public class PythonInterpreter {
     }
 
     public final synchronized native Map<String, Object> run(String name, String func, HashMap<String, Object> options);
+
+
+    public static void main(String[] args) {
+        PythonInterpreter interpreter = new PythonInterpreter();
+        interpreter.run("test", "test", new HashMap<String, Object>());
+    }
 }

@@ -15,6 +15,140 @@ extern "C" {
 JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run
   (JNIEnv *, jobject, jstring, jstring, jobject);
 
+PyObject* request_dict(JNIEnv *env, jobject options) {
+    PyObject *pDict, *pValue, *pKey;
+    jboolean iscopy;
+
+    jclass c_String = (*env)->FindClass(env, "java/lang/String");
+    jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
+
+    jmethodID m_IntValue = (*env)->GetMethodID(env, c_Integer, "intValue", "()I");
+
+ // initialize the Java Map interface and methods
+    jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
+
+    jmethodID m_KeySet = (*env)->GetMethodID(env, c_Map, "keySet", "()Ljava/util/Set;");
+    jmethodID m_Get = (*env)->GetMethodID(env, c_Map, "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+
+ // initialize the Java Set interface and methods
+    jclass c_Set = (*env)->FindClass(env, "java/util/Set");
+
+    jmethodID m_ToArray = (*env)->GetMethodID(env, c_Set, "toArray", "()[Ljava/lang/Object;");
+
+            pDict = PyDict_New();
+
+            // Get the Java Map key set and convert it to an array
+            jobject set = (*env)->CallObjectMethod(env, options, m_KeySet);
+            jobjectArray keys = (*env)->CallObjectMethod(env, set, m_ToArray);
+
+            // Size is the length of the jobjectArray
+            int jSize = (*env)->GetArrayLength(env, keys);
+
+            // Get the parameters from the map
+            for (int i = 0; i < jSize; i++) {
+
+                // Get the key from java
+                jstring jString = (*env)->GetObjectArrayElement(env, keys, i);
+                char *key = (*env)->GetStringUTFChars(env, jString, &iscopy);
+
+                // Get the value from java
+                jobject jObject = (*env)->CallObjectMethod(env, options, m_Get, jString);
+
+                // Check if the value is a String or int otherwise assume that it is a nested Map
+                if ((*env)->IsInstanceOf(env, jObject, c_String) == JNI_TRUE) {
+                    char *value = (*env)->GetStringUTFChars(env, jObject, &iscopy);
+
+                    // Create the PyString objects
+                    pKey = PyString_FromString(key);
+                    pValue = PyString_FromString(value);
+
+                    // Add the item to the PyDict
+                    PyDict_SetItem(pDict, pKey, pValue);
+                } else if ((*env)->IsInstanceOf(env, jObject, c_Integer) == JNI_TRUE) {
+                    // Integer value
+                    int value = (*env)->CallIntMethod(env, jObject, m_IntValue);
+
+                    // Process the value as a nested map and recursively call this
+                    // function to create an inner python dict
+                    pKey = PyString_FromString(key);
+                    pValue = PyInt_FromLong(value);
+
+                    // Add the item to the PyDict
+                    PyDict_SetItem(pDict, pKey, pValue);
+                } else {
+                    // Process the value as a nested map and recursively call this
+                    // function to create an inner python dict
+                    pKey = PyString_FromString(key);
+                    pValue = request_dict(env, jObject);
+
+                    // Add the item to the PyDict
+                    PyDict_SetItem(pDict, pKey, pValue);
+                }
+
+                Py_DECREF(pKey);
+                Py_DECREF(pValue);
+            }
+
+            return pDict;
+    }
+
+jobject response_map(JNIEnv *env, PyObject *pDict) {
+    PyObject *pList, *pKey, *pValue;
+
+    jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
+
+    jmethodID m_InitInt = (*env)->GetMethodID(env, c_Integer, "<init>", "(I)V");
+
+        jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
+        jmethodID m_Init = (*env)->GetMethodID(env, c_Map, "<init>", "()V");
+        jmethodID m_Put = (*env)->GetMethodID(env, c_Map, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+                // Get a list of the keys from the python dict
+                pList = PyDict_Keys(pDict);
+                int map_len = PyList_Size(pList);
+
+                // Create the response Java Map
+                jobject jMap = (*env)->NewObject(env, c_Map, m_Init, map_len);
+
+                // Iterate over return dictionary items
+                for (int i = 0; i < map_len; i++) {
+
+                    // Get the key and value from the python dict
+                    pKey = PyList_GetItem(pList, i);
+                    char* key = PyString_AsString(pKey);
+
+                    pValue = PyDict_GetItem(pDict, pKey);
+
+                    // Create Java strings for the key and value
+                    jstring jKey = (*env)->NewStringUTF(env, key);
+
+                    // If the value is a dict then recursively call this function,
+                    // otherwise treat it as a string value
+                    if (PyDict_Check(pValue)) {
+                        jobject jValue = response_map(env, pValue);
+
+                        // Put the key and value in the Java Map
+                        (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jValue);
+                    } else if (PyString_Check(pValue)) {
+                        char* value = PyString_AsString(pValue);
+                        jstring jValue = (*env)->NewStringUTF(env, value);
+
+                        // Put the key and value in the Java Map
+                        (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jValue);
+                    } else if (PyInt_Check(pValue)) {
+                        int value = PyInt_AsLong(pValue);
+                        jobject jValue = (*env)->NewObject(env, c_Integer, m_InitInt, value);
+
+                        // Put the key and value in the Java Map
+                        (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jValue);
+                    }
+
+                    // TODO: Check for boolean
+                }
+
+                return jMap;
+}
+
 #ifdef __cplusplus
 }
 #endif

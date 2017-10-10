@@ -8,5 +8,11 @@ public class RInterpreter {
         System.loadLibrary("kurator"); // Load native library at runtime
     }
 
-    public final synchronized native Map<String, Object> run(String name, String func, HashMap<String, Object> options);
+    public final native Map<String, Object> run(String name, String func, HashMap<String, Object> options);
+
+    public static void main(String[] args) {
+        RInterpreter interpreter = new RInterpreter();
+        System.out.println(interpreter);
+        interpreter.run("test", "test", new HashMap<String, Object>());
+    }
 }
