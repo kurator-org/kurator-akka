@@ -6,6 +6,98 @@
 
 JNIEXPORT jobject
 
+JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, jobject obj, jstring code, jstring func, jobject options) {
+
+    // Python variables
+    PyObject *pArgs, *pValue, *pModule, *pFunc, *pGlobal, *pLocal, *pDict;
+
+    // JNI variables
+    jboolean iscopy;
+    const *jCode, *jFunc;
+
+    // Load python2.7 dynamic library, symbols defined will be made
+    // available to subsequently loaded shared objects via the
+    // RTLD_GLOBAL flag
+    dlopen("libpython2.7.so", RTLD_LAZY | RTLD_GLOBAL);
+
+    // Initialize the python interpreter
+    Py_Initialize();
+
+    // Create a new module object for the inline code
+    pModule = PyImport_AddModule("__main__");
+
+    // Get the dictionary object from the module
+    pGlobal = PyModule_GetDict(pModule);
+    pLocal = pGlobal;
+
+    // Get inline code and name of the python function from java strings
+    jCode = (*env)->GetStringUTFChars(env, code, &iscopy);
+    jFunc = (*env)->GetStringUTFChars(env, func, &iscopy);
+
+    //printf("name: %s, func: %s\n", jCode, jFunc);
+
+    // Define functions in new module by running inline code
+    pValue = PyRun_String(jCode, Py_file_input, pGlobal, pLocal);
+
+    if (pValue == NULL) {
+        if (PyErr_Occurred()) {
+            PyErr_Print();
+        }
+        return 1;
+    }
+
+    Py_DECREF(pValue);
+
+    // Get function from the new module
+    pFunc = PyObject_GetAttrString(pModule, jFunc);
+
+    if (pFunc && PyCallable_Check(pFunc)) {
+        // Create the empty optdict python argument
+        pArgs = PyTuple_New(1);
+
+        // Get the options as a python dict
+        pDict = request_dict(env, options);
+
+        // Add pDict to input args and call the function
+        PyTuple_SetItem(pArgs, 0, pDict);
+        pDict = PyObject_CallObject(pFunc, pArgs);
+
+        Py_DECREF(pArgs);
+
+        // Process python return value
+        if (pDict != NULL) {
+            // If the function didn't return a dict, the Java
+            // return type should be NULL
+            if (!PyDict_Check(pDict)) {
+                return 0;
+            }
+
+            // Create the response Java Map
+            jobject jMap = response_map(env, pDict);
+
+            // Return map as response
+            return jMap;
+        } else {
+            Py_DECREF(pFunc);
+            Py_DECREF(pModule);
+            PyErr_Print();
+            fprintf(stderr, "Call failed\n");
+            return 1;
+        }
+    } else {
+        if (PyErr_Occurred())
+        PyErr_Print();
+        fprintf(stderr, "Cannot find function \"%s\"\n", func);
+    }
+
+    Py_XDECREF(pFunc);
+    Py_DECREF(pModule);
+
+    Py_Finalize();
+}
+
+JNIEXPORT jobject
+
 JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jobject obj, jstring name, jstring func, jobject options) {
 
     // Python variables

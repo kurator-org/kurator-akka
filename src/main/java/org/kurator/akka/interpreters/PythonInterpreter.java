@@ -10,9 +10,12 @@ public class PythonInterpreter {
 
     public final synchronized native Map<String, Object> run(String name, String func, HashMap<String, Object> options);
 
+    public final synchronized native Map<String, Object> eval(String code, String on_start, Map<String, Object> input);
 
     public static void main(String[] args) {
         PythonInterpreter interpreter = new PythonInterpreter();
-        interpreter.run("test", "test", new HashMap<String, Object>());
+        String code = "def on_start(options):\n    print 'Hello!'";
+
+        interpreter.eval(code, "on_start", new HashMap<String, Object>());
     }
 }

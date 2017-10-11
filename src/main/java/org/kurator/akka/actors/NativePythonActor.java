@@ -16,27 +16,39 @@ public class NativePythonActor extends KuratorActor {
 
     @Override
     protected void onStart() throws Exception {
-        String module = (String)configuration.get("module");
-        String onStart = (String)configuration.get("onStart");
-        String onData = (String)configuration.get("onData");
+        HashMap<String, Object> input = new HashMap<>();
 
-        Map<String, Object> input = new HashMap<>();
+        String onStart = (String) configuration.get("onStart");
+        String onData = (String) configuration.get("onData");
+
+        String code = (String)configuration.get("code");
+        String module = (String) configuration.get("module");
 
         if (onStart != null) {
-            Map<String, Object> response = interpreter.run(module, onStart, (HashMap<String, Object>) input);
-            broadcast(response);
+            Map<String, Object> response = new HashMap<>();
+
+            if (code != null) {
+                // inline python actor
+                response = interpreter.eval(code, onStart, input);
+            } else if (module != null) {
+                // module python actor
+                response = interpreter.run(module, onStart, input);
+            }
+
+            broadcastOutput(response);
         }
 
         if (onData == null) {
             endStreamAndStop();
         }
-
     }
 
     @Override
     public void onData(Object value) throws Exception {
-        String module = (String)configuration.get("module");
         String onData = (String)configuration.get("onData");
+
+        String code = (String)configuration.get("code");
+        String module = (String) configuration.get("module");
 
         if (onData != null) {
             Object input = null;
@@ -47,9 +59,29 @@ public class NativePythonActor extends KuratorActor {
                 ((Map) input).putAll(settings);
             }
 
-            Map<String, Object> response = interpreter.run(module, onData, (HashMap<String, Object>) input);
-            broadcast(response);
+            Map<String, Object> response = new HashMap<>();
+
+            if (code != null) {
+                // inline python actor
+                response = interpreter.eval(code, onData, (HashMap<String, Object>) input);
+            } else if (module != null) {
+                // module python actor
+                response = interpreter.run(module, onData, (HashMap<String, Object>) input);
+            }
+
+            broadcastOutput(response);
         }
+    }
+    private void broadcastOutput(Map<String, Object> output) {
+        if (output != null) {
+            // process the response, publish artifacts
+            Map<String, String> artifacts = (Map<String, String>) output.get("artifacts");
+            if (artifacts != null) {
+                publishArtifacts(artifacts);
+            }
+        }
+
+        broadcast(output);
     }
 
     private synchronized Map<String,Object> mapInputs(Object receivedValue) {

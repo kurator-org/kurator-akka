@@ -15,14 +15,25 @@ extern "C" {
 JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run
   (JNIEnv *, jobject, jstring, jstring, jobject);
 
+/*
+ * Class:     org_kurator_akka_interpreters_PythonInterpreter
+ * Method:    eval
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)Ljava/util/Map;
+ */
+JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval
+  (JNIEnv *, jobject, jstring, jstring, jobject);
+
 PyObject* request_dict(JNIEnv *env, jobject options) {
     PyObject *pDict, *pValue, *pKey;
     jboolean iscopy;
 
     jclass c_String = (*env)->FindClass(env, "java/lang/String");
     jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
+    jclass c_Boolean = (*env)->FindClass(env, "java/lang/Boolean");
 
     jmethodID m_IntValue = (*env)->GetMethodID(env, c_Integer, "intValue", "()I");
+    jmethodID m_BoolValue = (*env)->GetMethodID(env, c_Boolean, "booleanValue", "()Z");
+
 
  // initialize the Java Map interface and methods
     jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
@@ -54,7 +65,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                 // Get the value from java
                 jobject jObject = (*env)->CallObjectMethod(env, options, m_Get, jString);
 
-                // Check if the value is a String or int otherwise assume that it is a nested Map
+                // Check if the value is a String int or boolean otherwise assume that it is a nested Map
                 if ((*env)->IsInstanceOf(env, jObject, c_String) == JNI_TRUE) {
                     char *value = (*env)->GetStringUTFChars(env, jObject, &iscopy);
 
@@ -68,10 +79,18 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                     // Integer value
                     int value = (*env)->CallIntMethod(env, jObject, m_IntValue);
 
-                    // Process the value as a nested map and recursively call this
-                    // function to create an inner python dict
+                    // Create the PyInt objects
                     pKey = PyString_FromString(key);
                     pValue = PyInt_FromLong(value);
+
+                    // Add the item to the PyDict
+                    PyDict_SetItem(pDict, pKey, pValue);
+                } else if ((*env)->IsInstanceOf(env, jObject, c_Boolean) == JNI_TRUE) {
+                    // Boolean value
+                    int value = (*env)->CallBooleanMethod(env, jObject, m_BoolValue);
+
+                    pKey = PyString_FromString(key);
+                    pValue = PyBool_FromLong(value);
 
                     // Add the item to the PyDict
                     PyDict_SetItem(pDict, pKey, pValue);
@@ -95,8 +114,10 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
 jobject response_map(JNIEnv *env, PyObject *pDict) {
     PyObject *pList, *pKey, *pValue;
 
-    jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
+    jclass c_Boolean = (*env)->FindClass(env, "java/lang/Boolean");
+    jmethodID m_InitBool = (*env)->GetMethodID(env, c_Boolean, "<init>", "(Z)V");
 
+    jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
     jmethodID m_InitInt = (*env)->GetMethodID(env, c_Integer, "<init>", "(I)V");
 
         jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
@@ -135,6 +156,16 @@ jobject response_map(JNIEnv *env, PyObject *pDict) {
 
                         // Put the key and value in the Java Map
                         (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jValue);
+                    } else if (PyBool_Check(pValue)) {
+                        jobject jTrue = (*env)->NewObject(env, c_Boolean, m_InitBool, 1);
+                        jobject jFalse = (*env)->NewObject(env, c_Boolean, m_InitBool, 0);
+
+                        if (PyObject_IsTrue(pValue)) {
+                            // Put the key and value in the Java Map
+                            (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jTrue);
+                        } else {
+                            (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jFalse);
+                        }
                     } else if (PyInt_Check(pValue)) {
                         int value = PyInt_AsLong(pValue);
                         jobject jValue = (*env)->NewObject(env, c_Integer, m_InitInt, value);
@@ -142,8 +173,6 @@ jobject response_map(JNIEnv *env, PyObject *pDict) {
                         // Put the key and value in the Java Map
                         (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jValue);
                     }
-
-                    // TODO: Check for boolean
                 }
 
                 return jMap;
