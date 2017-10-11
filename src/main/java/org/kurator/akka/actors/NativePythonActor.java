@@ -16,7 +16,9 @@ public class NativePythonActor extends KuratorActor {
 
     @Override
     protected void onStart() throws Exception {
-        HashMap<String, Object> input = new HashMap<>();
+        HashMap<String, Object> input = new HashMap<>(settings);
+
+        //System.out.println("request: " + input);
 
         String onStart = (String) configuration.get("onStart");
         String onData = (String) configuration.get("onData");
@@ -59,6 +61,8 @@ public class NativePythonActor extends KuratorActor {
                 ((Map) input).putAll(settings);
             }
 
+            //System.out.println("request: " + input);
+
             Map<String, Object> response = new HashMap<>();
 
             if (code != null) {
@@ -81,6 +85,7 @@ public class NativePythonActor extends KuratorActor {
             }
         }
 
+        //System.out.println("response: " + output);
         broadcast(output);
     }
 

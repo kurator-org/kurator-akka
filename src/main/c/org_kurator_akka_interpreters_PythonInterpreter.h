@@ -62,12 +62,24 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                 jstring jString = (*env)->GetObjectArrayElement(env, keys, i);
                 char *key = (*env)->GetStringUTFChars(env, jString, &iscopy);
 
+                printf("key: %s", key);
+
                 // Get the value from java
                 jobject jObject = (*env)->CallObjectMethod(env, options, m_Get, jString);
 
                 // Check if the value is a String int or boolean otherwise assume that it is a nested Map
-                if ((*env)->IsInstanceOf(env, jObject, c_String) == JNI_TRUE) {
+                if ((*env)->IsSameObject(env, jObject, NULL) ) {
+                    printf(", value: null\n");
+
+                    // Create the PyString objects
+                    pKey = PyString_FromString(key);
+                    pValue = Py_None;
+
+                    // Add the item to the PyDict
+                    PyDict_SetItem(pDict, pKey, pValue);
+                } else if ((*env)->IsInstanceOf(env, jObject, c_String) == JNI_TRUE) {
                     char *value = (*env)->GetStringUTFChars(env, jObject, &iscopy);
+                    printf(", value: %s\n", value);
 
                     // Create the PyString objects
                     pKey = PyString_FromString(key);
@@ -78,6 +90,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                 } else if ((*env)->IsInstanceOf(env, jObject, c_Integer) == JNI_TRUE) {
                     // Integer value
                     int value = (*env)->CallIntMethod(env, jObject, m_IntValue);
+                    printf(", value: %d\n", value);
 
                     // Create the PyInt objects
                     pKey = PyString_FromString(key);
@@ -88,6 +101,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                 } else if ((*env)->IsInstanceOf(env, jObject, c_Boolean) == JNI_TRUE) {
                     // Boolean value
                     int value = (*env)->CallBooleanMethod(env, jObject, m_BoolValue);
+                    printf(", value: %d\n", value);
 
                     pKey = PyString_FromString(key);
                     pValue = PyBool_FromLong(value);
