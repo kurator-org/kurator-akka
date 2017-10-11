@@ -75,6 +75,5 @@ JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject
     // Release R environment
     kill(getpid(), SIGINT);
 
-    jobject jMap
     return 0;
 }
