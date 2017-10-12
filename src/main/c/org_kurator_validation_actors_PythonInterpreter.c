@@ -34,8 +34,6 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
     jCode = (*env)->GetStringUTFChars(env, code, &iscopy);
     jFunc = (*env)->GetStringUTFChars(env, func, &iscopy);
 
-    //printf("name: %s, func: %s\n", jCode, jFunc);
-
     // Define functions in new module by running inline code
     pValue = PyRun_String(jCode, Py_file_input, pGlobal, pLocal);
 
@@ -131,7 +129,7 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
     jName = (*env)->GetStringUTFChars(env, name, &iscopy);
     jFunc = (*env)->GetStringUTFChars(env, func, &iscopy);
 
-    // printf("name: %s, func: %s\n", jName, jFunc);
+    printf("name: %s, func: %s\n", jName, jFunc);
 
     // Initialize the python interpreter and import the module
     Py_Initialize();

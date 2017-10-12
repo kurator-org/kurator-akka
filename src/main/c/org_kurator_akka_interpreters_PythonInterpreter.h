@@ -24,22 +24,28 @@ JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_e
   (JNIEnv *, jobject, jstring, jstring, jobject);
 
 PyObject* request_dict(JNIEnv *env, jobject options) {
-    PyObject *pDict, *pValue, *pKey;
+    PyObject *pDict, *pValue, *pKey, *pList;
     jboolean iscopy;
 
     jclass c_String = (*env)->FindClass(env, "java/lang/String");
     jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
     jclass c_Boolean = (*env)->FindClass(env, "java/lang/Boolean");
 
+
     jmethodID m_IntValue = (*env)->GetMethodID(env, c_Integer, "intValue", "()I");
     jmethodID m_BoolValue = (*env)->GetMethodID(env, c_Boolean, "booleanValue", "()Z");
 
 
- // initialize the Java Map interface and methods
+
+ // initialize the Java Map and List interfaces and methods
     jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
+    jclass c_List = (*env)->FindClass(env, "java/util/List");
 
     jmethodID m_KeySet = (*env)->GetMethodID(env, c_Map, "keySet", "()Ljava/util/Set;");
     jmethodID m_Get = (*env)->GetMethodID(env, c_Map, "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
+
+    jmethodID m_ListSize = (*env)->GetMethodID(env, c_List, "size", "()I");
+    jmethodID m_ListGet = (*env)->GetMethodID(env, c_List, "get", "(I)Ljava/lang/Object;");
 
  // initialize the Java Set interface and methods
     jclass c_Set = (*env)->FindClass(env, "java/util/Set");
@@ -108,6 +114,26 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
 
                     // Add the item to the PyDict
                     PyDict_SetItem(pDict, pKey, pValue);
+                } else if ((*env)->IsInstanceOf(env, jObject, c_List) == JNI_TRUE) {
+                    jint jSize = (*env)->CallIntMethod(env, jObject, m_ListSize);
+                    printf("it's a list! size: %d\n", jSize);
+
+                    // Process the value as a list
+                    pKey = PyString_FromString(key);
+                    pList = PyList_New(jSize);
+
+                    for (int i = 0; i < jSize; i++) {
+                        jobject jElement = (*env)->CallObjectMethod(env, jObject, m_ListGet, i);
+                        char* elem = (*env)->GetStringUTFChars(env, jElement, &iscopy);
+                        pValue = PyString_FromString(elem);
+
+                        printf("%d: %s\n", i, elem);
+
+                        PyList_SetItem(pList, i, pValue);
+                    }
+
+                    // Add the list to the PyDict
+                    PyDict_SetItem(pDict, pKey, pList);
                 } else {
                     // Process the value as a nested map and recursively call this
                     // function to create an inner python dict
@@ -126,7 +152,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
     }
 
 jobject response_map(JNIEnv *env, PyObject *pDict) {
-    PyObject *pList, *pKey, *pValue;
+    PyObject *pList, *pKey, *pValue, *pElem;
 
     jclass c_Boolean = (*env)->FindClass(env, "java/lang/Boolean");
     jmethodID m_InitBool = (*env)->GetMethodID(env, c_Boolean, "<init>", "(Z)V");
@@ -134,9 +160,14 @@ jobject response_map(JNIEnv *env, PyObject *pDict) {
     jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
     jmethodID m_InitInt = (*env)->GetMethodID(env, c_Integer, "<init>", "(I)V");
 
-        jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
-        jmethodID m_Init = (*env)->GetMethodID(env, c_Map, "<init>", "()V");
-        jmethodID m_Put = (*env)->GetMethodID(env, c_Map, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+    jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
+    jclass c_List = (*env)->FindClass(env, "java/util/ArrayList");
+
+    jmethodID m_ListInit = (*env)->GetMethodID(env, c_List, "<init>", "()V");
+    jmethodID m_ListAdd = (*env)->GetMethodID(env, c_List, "add", "(ILjava/lang/Object;)V");
+
+    jmethodID m_Init = (*env)->GetMethodID(env, c_Map, "<init>", "()V");
+    jmethodID m_Put = (*env)->GetMethodID(env, c_Map, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
 
                 // Get a list of the keys from the python dict
                 pList = PyDict_Keys(pDict);
@@ -186,6 +217,24 @@ jobject response_map(JNIEnv *env, PyObject *pDict) {
 
                         // Put the key and value in the Java Map
                         (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jValue);
+                    } else if (PyList_Check(pValue)) {
+                        int size = PyList_Size(pValue);
+                        //printf("size: %d\n", size);
+                        jobject jList = (*env)->NewObject(env, c_List, m_ListInit, size);
+
+                        for (int i = 0; i < size; i++) {
+                            pElem = PyList_GetItem(pValue, i);
+                            char* elem = PyString_AsString(pElem);
+
+                            //printf("elem: %s\n", elem);
+                            jstring jValue = (*env)->NewStringUTF(env, elem);
+
+                            (*env)->CallObjectMethod(env, jList, m_ListAdd, i, jValue);
+                        }
+
+                        (*env)->CallObjectMethod(env, jMap, m_Put, jKey, jList);
+
+                        //printf("the request contains a py list!");
                     }
                 }
 
