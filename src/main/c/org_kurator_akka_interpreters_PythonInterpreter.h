@@ -68,14 +68,14 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                 jstring jString = (*env)->GetObjectArrayElement(env, keys, i);
                 char *key = (*env)->GetStringUTFChars(env, jString, &iscopy);
 
-                printf("key: %s", key);
+                //printf("key: %s", key);
 
                 // Get the value from java
                 jobject jObject = (*env)->CallObjectMethod(env, options, m_Get, jString);
 
                 // Check if the value is a String int or boolean otherwise assume that it is a nested Map
                 if ((*env)->IsSameObject(env, jObject, NULL) ) {
-                    printf(", value: null\n");
+                    //printf(", value: null\n");
 
                     // Create the PyString objects
                     pKey = PyString_FromString(key);
@@ -85,7 +85,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                     PyDict_SetItem(pDict, pKey, pValue);
                 } else if ((*env)->IsInstanceOf(env, jObject, c_String) == JNI_TRUE) {
                     char *value = (*env)->GetStringUTFChars(env, jObject, &iscopy);
-                    printf(", value: %s\n", value);
+                    //printf(", value: %s\n", value);
 
                     // Create the PyString objects
                     pKey = PyString_FromString(key);
@@ -96,7 +96,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                 } else if ((*env)->IsInstanceOf(env, jObject, c_Integer) == JNI_TRUE) {
                     // Integer value
                     int value = (*env)->CallIntMethod(env, jObject, m_IntValue);
-                    printf(", value: %d\n", value);
+                    //printf(", value: %d\n", value);
 
                     // Create the PyInt objects
                     pKey = PyString_FromString(key);
@@ -107,7 +107,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                 } else if ((*env)->IsInstanceOf(env, jObject, c_Boolean) == JNI_TRUE) {
                     // Boolean value
                     int value = (*env)->CallBooleanMethod(env, jObject, m_BoolValue);
-                    printf(", value: %d\n", value);
+                    //printf(", value: %d\n", value);
 
                     pKey = PyString_FromString(key);
                     pValue = PyBool_FromLong(value);
@@ -116,7 +116,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                     PyDict_SetItem(pDict, pKey, pValue);
                 } else if ((*env)->IsInstanceOf(env, jObject, c_List) == JNI_TRUE) {
                     jint jSize = (*env)->CallIntMethod(env, jObject, m_ListSize);
-                    printf("it's a list! size: %d\n", jSize);
+                    //printf("it's a list! size: %d\n", jSize);
 
                     // Process the value as a list
                     pKey = PyString_FromString(key);
@@ -127,7 +127,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
                         char* elem = (*env)->GetStringUTFChars(env, jElement, &iscopy);
                         pValue = PyString_FromString(elem);
 
-                        printf("%d: %s\n", i, elem);
+                        //printf("%d: %s\n", i, elem);
 
                         PyList_SetItem(pList, i, pValue);
                     }

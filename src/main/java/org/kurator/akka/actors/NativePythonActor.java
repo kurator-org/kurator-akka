@@ -61,7 +61,7 @@ public class NativePythonActor extends KuratorActor {
                 ((Map) input).putAll(settings);
             }
 
-            //System.out.println("request: " + input);
+            //System.out.println("request (" + module + "): " + input);
 
             Map<String, Object> response = new HashMap<>();
 
@@ -70,12 +70,14 @@ public class NativePythonActor extends KuratorActor {
                 response = interpreter.eval(code, onData, (HashMap<String, Object>) input);
             } else if (module != null) {
                 // module python actor
+                //System.out.println("about to invoke: " + module);
                 response = interpreter.run(module, onData, (HashMap<String, Object>) input);
             }
 
             broadcastOutput(response);
         }
     }
+
     private void broadcastOutput(Map<String, Object> output) {
         if (output != null) {
             // process the response, publish artifacts

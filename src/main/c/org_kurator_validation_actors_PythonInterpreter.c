@@ -129,7 +129,7 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
     jName = (*env)->GetStringUTFChars(env, name, &iscopy);
     jFunc = (*env)->GetStringUTFChars(env, func, &iscopy);
 
-    printf("name: %s, func: %s\n", jName, jFunc);
+    //printf("name: %s, func: %s\n", jName, jFunc);
 
     // Initialize the python interpreter and import the module
     Py_Initialize();
