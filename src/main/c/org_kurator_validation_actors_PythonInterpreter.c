@@ -23,6 +23,14 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
     // Initialize the python interpreter
     Py_Initialize();
 
+    // Redirect stdout to file
+    // TODO: interface with Java and pass python std as jstring?
+    PyObject *sys = PyImport_ImportModule("sys");
+    PyObject *out = PyFile_FromString("python_out", "w+");
+    PyObject_SetAttrString(sys, "stdout", out);
+
+    FILE *output = PyFile_AsFile(out);
+
     // Create a new module object for the inline code
     pModule = PyImport_AddModule("__main__");
 
@@ -92,6 +100,9 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
     Py_DECREF(pModule);
 
     Py_Finalize();
+
+    // Write stdout to file
+    fclose(output);
 }
 
 JNIEXPORT jobject
