@@ -10,18 +10,18 @@ extern "C" {
 /*
  * Class:     org_kurator_akka_interpreters_PythonInterpreter
  * Method:    run
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/util/HashMap;)Ljava/util/Map;
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/util/HashMap;Ljava/io/OutputStream;)Ljava/util/Map;
  */
 JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run
-  (JNIEnv *, jobject, jstring, jstring, jobject);
+  (JNIEnv *, jobject, jstring, jstring, jobject, jstring);
 
 /*
  * Class:     org_kurator_akka_interpreters_PythonInterpreter
  * Method:    eval
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)Ljava/util/Map;
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/io/OutputStream;)Ljava/util/Map;
  */
 JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval
-  (JNIEnv *, jobject, jstring, jstring, jobject);
+  (JNIEnv *, jobject, jstring, jstring, jobject, jstring);
 
 PyObject* request_dict(JNIEnv *env, jobject options) {
     PyObject *pDict, *pValue, *pKey, *pList;
@@ -31,13 +31,10 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
     jclass c_Integer = (*env)->FindClass(env, "java/lang/Integer");
     jclass c_Boolean = (*env)->FindClass(env, "java/lang/Boolean");
 
-
     jmethodID m_IntValue = (*env)->GetMethodID(env, c_Integer, "intValue", "()I");
     jmethodID m_BoolValue = (*env)->GetMethodID(env, c_Boolean, "booleanValue", "()Z");
 
-
-
- // initialize the Java Map and List interfaces and methods
+    // initialize the Java Map and List interfaces and methods
     jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
     jclass c_List = (*env)->FindClass(env, "java/util/List");
 
@@ -47,7 +44,7 @@ PyObject* request_dict(JNIEnv *env, jobject options) {
     jmethodID m_ListSize = (*env)->GetMethodID(env, c_List, "size", "()I");
     jmethodID m_ListGet = (*env)->GetMethodID(env, c_List, "get", "(I)Ljava/lang/Object;");
 
- // initialize the Java Set interface and methods
+    // initialize the Java Set interface and methods
     jclass c_Set = (*env)->FindClass(env, "java/util/Set");
 
     jmethodID m_ToArray = (*env)->GetMethodID(env, c_Set, "toArray", "()[Ljava/lang/Object;");

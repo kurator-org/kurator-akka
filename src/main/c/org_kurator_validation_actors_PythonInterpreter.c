@@ -6,7 +6,7 @@
 
 JNIEXPORT jobject
 
-JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, jobject obj, jstring code, jstring func, jobject options) {
+JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, jobject obj, jstring code, jstring func, jobject options, jstring file) {
 
     // Python variables
     PyObject *pArgs, *pValue, *pModule, *pFunc, *pGlobal, *pLocal, *pDict;
@@ -23,11 +23,14 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
     // Initialize the python interpreter
     Py_Initialize();
 
-    // Redirect stdout to file
-    // TODO: interface with Java and pass python std as jstring?
+    // Get the name of the output log file from the argument
+    char* jFile = (*env)->GetStringUTFChars(env, file, &iscopy);
+
+    // Redirect stdout and stderr to the file
     PyObject *sys = PyImport_ImportModule("sys");
-    PyObject *out = PyFile_FromString("python_out", "w+");
+    PyObject *out = PyFile_FromString(jFile, "w+");
     PyObject_SetAttrString(sys, "stdout", out);
+    PyObject_SetAttrString(sys, "stderr", out);
 
     FILE *output = PyFile_AsFile(out);
 
@@ -47,7 +50,11 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
 
     if (pValue == NULL) {
         if (PyErr_Occurred()) {
+            char message[256];
+            sprintf(message, "Python error while loading script, stderr logged to: %s", jFile);
+
             PyErr_Print();
+            return throwException(env, message);
         }
         return 1;
     }
@@ -72,6 +79,7 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
 
         // Process python return value
         if (pDict != NULL) {
+
             // If the function didn't return a dict, the Java
             // return type should be NULL
             if (!PyDict_Check(pDict)) {
@@ -86,8 +94,15 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
         } else {
             Py_DECREF(pFunc);
             Py_DECREF(pModule);
-            PyErr_Print();
             fprintf(stderr, "Call failed\n");
+
+            if (PyErr_Occurred()) {
+                char message[256];
+                sprintf(message, "Python error during function call, stderr logged to: %s", jFile);
+
+                PyErr_Print();
+                return throwException(env, message);
+            }
             return 1;
         }
     } else {
@@ -107,7 +122,7 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
 
 JNIEXPORT jobject
 
-JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jobject obj, jstring name, jstring func, jobject options) {
+JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jobject obj, jstring name, jstring func, jobject options, jstring file) {
 
     // Python variables
     PyObject *pName, *pModule, *pDict, *pFunc;
@@ -144,6 +159,16 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
 
     // Initialize the python interpreter and import the module
     Py_Initialize();
+
+        // Get the name of the output log file from the argument
+        char* jFile = (*env)->GetStringUTFChars(env, file, &iscopy);
+
+        // Redirect stdout and stderr to the file
+        PyObject *sys = PyImport_ImportModule("sys");
+        PyObject *out = PyFile_FromString(jFile, "w+");
+        PyObject_SetAttrString(sys, "stdout", out);
+        PyObject_SetAttrString(sys, "stderr", out);
+
     pName = PyString_FromString(jName);
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
@@ -187,6 +212,15 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
                   Py_DECREF(pModule);
                   PyErr_Print();
                   fprintf(stderr, "Call failed\n");
+
+                    if (PyErr_Occurred()) {
+                        char message[256];
+                        sprintf(message, "Python error during function call, stderr logged to: %s", jFile);
+
+                        PyErr_Print();
+                        return throwException(env, message);
+                    }
+
                   return 1;
             }
         } else {
@@ -204,4 +238,9 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
 
 
     Py_Finalize();
+}
+
+jint throwException(JNIEnv *env, char *message) {
+    jclass c_Exception = (*env)->FindClass(env, "java/lang/RuntimeException");
+    return (*env)->ThrowNew(env, c_Exception, message);
 }

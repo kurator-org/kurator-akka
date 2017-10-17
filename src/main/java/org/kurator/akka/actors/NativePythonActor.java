@@ -1,17 +1,22 @@
 package org.kurator.akka.actors;
 
+import org.apache.commons.io.IOUtils;
 import org.kurator.akka.KuratorActor;
 import org.kurator.akka.interpreters.PythonInterpreter;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 public class NativePythonActor extends KuratorActor {
     private PythonInterpreter interpreter;
+    private File logfile;
 
     @Override
     protected void onInitialize() throws Exception {
         interpreter = new PythonInterpreter();
+        logfile = File.createTempFile("python_out_", ".txt");
     }
 
     @Override
@@ -31,10 +36,10 @@ public class NativePythonActor extends KuratorActor {
 
             if (code != null) {
                 // inline python actor
-                response = interpreter.eval(code, onStart, input);
+                response = interpreter.eval(code, onStart, input, logfile.getAbsolutePath());
             } else if (module != null) {
                 // module python actor
-                response = interpreter.run(module, onStart, input);
+                response = interpreter.run(module, onStart, input, logfile.getAbsolutePath());
             }
 
             broadcastOutput(response);
@@ -47,34 +52,41 @@ public class NativePythonActor extends KuratorActor {
 
     @Override
     public void onData(Object value) throws Exception {
-        String onData = (String)configuration.get("onData");
+        try {
+            String onData = (String) configuration.get("onData");
 
-        String code = (String)configuration.get("code");
-        String module = (String) configuration.get("module");
+            String code = (String) configuration.get("code");
+            String module = (String) configuration.get("module");
 
-        if (onData != null) {
-            Object input = null;
-            if (this.inputs.isEmpty()) {
-                input = value;
-            } else {
-                input = mapInputs(value);
-                ((Map) input).putAll(settings);
+            if (onData != null) {
+                Object input = null;
+                if (this.inputs.isEmpty()) {
+                    input = value;
+                } else {
+                    input = mapInputs(value);
+                    ((Map) input).putAll(settings);
+                }
+
+                //System.out.println("request (" + module + "): " + input);
+
+                Map<String, Object> response = new HashMap<>();
+
+                if (code != null) {
+                    // inline python actor
+                    response = interpreter.eval(code, onData, (HashMap<String, Object>) input, logfile.getAbsolutePath());
+                } else if (module != null) {
+                    // module python actor
+                    //System.out.println("about to invoke: " + module);
+                    response = interpreter.run(module, onData, (HashMap<String, Object>) input, logfile.getAbsolutePath());
+                }
+
+                broadcastOutput(response);
             }
+        } catch (Exception e) {
 
-            //System.out.println("request (" + module + "): " + input);
-
-            Map<String, Object> response = new HashMap<>();
-
-            if (code != null) {
-                // inline python actor
-                response = interpreter.eval(code, onData, (HashMap<String, Object>) input);
-            } else if (module != null) {
-                // module python actor
-                //System.out.println("about to invoke: " + module);
-                response = interpreter.run(module, onData, (HashMap<String, Object>) input);
-            }
-
-            broadcastOutput(response);
+        } finally {
+            String log = IOUtils.toString(new FileInputStream(logfile));
+            System.out.println(log);
         }
     }
 
@@ -106,5 +118,4 @@ public class NativePythonActor extends KuratorActor {
 
         return mappedInputs;
     }
-
 }
