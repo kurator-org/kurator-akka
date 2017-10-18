@@ -6,6 +6,8 @@ import org.kurator.akka.interpreters.PythonInterpreter;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,36 +24,45 @@ public class NativePythonActor extends KuratorActor {
     @Override
     protected void onStart() throws Exception {
         HashMap<String, Object> input = new HashMap<>(settings);
-
+        Writer writer = new StringWriter();
         //System.out.println("request: " + input);
+        try {
+            String onStart = (String) configuration.get("onStart");
+            String onData = (String) configuration.get("onData");
 
-        String onStart = (String) configuration.get("onStart");
-        String onData = (String) configuration.get("onData");
+            String code = (String) configuration.get("code");
+            String module = (String) configuration.get("module");
 
-        String code = (String)configuration.get("code");
-        String module = (String) configuration.get("module");
+            if (onStart != null) {
+                Map<String, Object> response = new HashMap<>();
 
-        if (onStart != null) {
-            Map<String, Object> response = new HashMap<>();
+                if (code != null) {
+                    // inline python actor
+                    response = interpreter.eval(code, onStart, input, writer);
+                } else if (module != null) {
+                    // module python actor
+                    response = interpreter.run(module, onStart, input, writer);
+                }
 
-            if (code != null) {
-                // inline python actor
-                response = interpreter.eval(code, onStart, input, logfile.getAbsolutePath());
-            } else if (module != null) {
-                // module python actor
-                response = interpreter.run(module, onStart, input, logfile.getAbsolutePath());
+                broadcastOutput(response);
             }
 
-            broadcastOutput(response);
-        }
-
-        if (onData == null) {
-            endStreamAndStop();
+            if (onData == null) {
+                endStreamAndStop();
+            }
+        } finally {
+            writer.close();
+            String output = writer.toString();
+            if (!output.isEmpty()) {
+                System.out.println(writer.toString());
+            }
         }
     }
 
     @Override
     public void onData(Object value) throws Exception {
+        Writer writer = new StringWriter();
+
         try {
             String onData = (String) configuration.get("onData");
 
@@ -73,20 +84,21 @@ public class NativePythonActor extends KuratorActor {
 
                 if (code != null) {
                     // inline python actor
-                    response = interpreter.eval(code, onData, (HashMap<String, Object>) input, logfile.getAbsolutePath());
+                    response = interpreter.eval(code, onData, (HashMap<String, Object>) input, writer);
                 } else if (module != null) {
                     // module python actor
                     //System.out.println("about to invoke: " + module);
-                    response = interpreter.run(module, onData, (HashMap<String, Object>) input, logfile.getAbsolutePath());
+                    response = interpreter.run(module, onData, (HashMap<String, Object>) input, writer);
                 }
 
                 broadcastOutput(response);
             }
-        } catch (Exception e) {
-
         } finally {
-            String log = IOUtils.toString(new FileInputStream(logfile));
-            System.out.println(log);
+            writer.close();
+            String output = writer.toString();
+            if (!output.isEmpty()) {
+                System.out.println(writer.toString());
+            }
         }
     }
 

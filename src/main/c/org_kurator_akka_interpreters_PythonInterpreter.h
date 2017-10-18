@@ -13,7 +13,7 @@ extern "C" {
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/util/HashMap;Ljava/io/OutputStream;)Ljava/util/Map;
  */
 JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run
-  (JNIEnv *, jobject, jstring, jstring, jobject, jstring);
+  (JNIEnv *, jobject, jstring, jstring, jobject, jobject);
 
 /*
  * Class:     org_kurator_akka_interpreters_PythonInterpreter
@@ -21,7 +21,7 @@ JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_r
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/io/OutputStream;)Ljava/util/Map;
  */
 JNIEXPORT jobject JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval
-  (JNIEnv *, jobject, jstring, jstring, jobject, jstring);
+  (JNIEnv *, jobject, jstring, jstring, jobject, jobject);
 
 PyObject* request_dict(JNIEnv *env, jobject options) {
     PyObject *pDict, *pValue, *pKey, *pList;

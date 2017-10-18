@@ -4,9 +4,85 @@
 #include <Python.h>
 #include "org_kurator_akka_interpreters_PythonInterpreter.h"
 
+void initIO() {
+        // Get python StringIO object instances to log to
+        PyObject *io = PyImport_ImportModule("StringIO");
+        PyObject *pClass = PyObject_GetAttrString(io, "StringIO");
+
+        PyObject *stringIO_out = PyObject_CallObject(pClass, NULL);
+        PyObject *stringIO_err = PyObject_CallObject(pClass, NULL);
+
+        // Redirect python stdout and stderr to StringIO instances
+        PyObject *sys = PyImport_ImportModule("sys");
+        PyObject_SetAttrString(sys, "stdout", stringIO_out);
+        PyObject_SetAttrString(sys, "stderr", stringIO_err);
+}
+
+void writeStdOut(JNIEnv *env, jobject writer) {
+        // Get python stdout variable
+        PyObject *sys = PyImport_ImportModule("sys");
+        PyObject *stdout = PyObject_GetAttrString(sys, "stdout");
+
+        // Get the string value for the stdout StringIO instance
+        PyObject *getValue = PyObject_GetAttrString(stdout, "getvalue");
+        PyObject *output = PyObject_CallObject(getValue, NULL);
+
+        char* str = PyString_AsString(output);
+
+        // initialize the Java Writer interface and methods
+        jclass c_Writer= (*env)->FindClass(env, "java/io/Writer");
+        jmethodID m_Write = (*env)->GetMethodID(env, c_Writer, "write", "(Ljava/lang/String;)V");
+
+        // write string to java
+        jstring jOut = (*env)->NewStringUTF(env, str);
+        (*env)->CallObjectMethod(env, writer, m_Write, jOut);
+}
+
+char* getErrors() {
+        // Get python stderr variable
+        PyObject *sys = PyImport_ImportModule("sys");
+        PyObject *stderr = PyObject_GetAttrString(sys, "stderr");
+
+        // Get the string value for the stderr StringIO instance
+        PyObject *getValue = PyObject_GetAttrString(stderr, "getvalue");
+        PyObject *output = PyObject_CallObject(getValue, NULL);
+
+        char* str = PyString_AsString(output);
+        return str;
+
+        // initialize the Java Writer interface and methods
+        //jclass c_Writer= (*env)->FindClass(env, "java/io/Writer");
+        //jmethodID m_Write = (*env)->GetMethodID(env, c_Writer, "write", "(Ljava/lang/String;)V");
+
+        // write string to java
+        //jstring jOut = (*env)->NewStringUTF(env, str);
+        //(*env)->CallObjectMethod(env, writer, m_Write, jOut);
+}
+
+char* getOutput() {
+        // Get python stderr variable
+        PyObject *sys = PyImport_ImportModule("sys");
+        PyObject *stdout = PyObject_GetAttrString(sys, "stdout");
+
+        // Get the string value for the stderr StringIO instance
+        PyObject *getValue = PyObject_GetAttrString(stdout, "getvalue");
+        PyObject *output = PyObject_CallObject(getValue, NULL);
+
+        char* str = PyString_AsString(output);
+        return str;
+
+        // initialize the Java Writer interface and methods
+        //jclass c_Writer= (*env)->FindClass(env, "java/io/Writer");
+        //jmethodID m_Write = (*env)->GetMethodID(env, c_Writer, "write", "(Ljava/lang/String;)V");
+
+        // write string to java
+        //jstring jOut = (*env)->NewStringUTF(env, str);
+        //(*env)->CallObjectMethod(env, writer, m_Write, jOut);
+}
+
 JNIEXPORT jobject
 
-JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, jobject obj, jstring code, jstring func, jobject options, jstring file) {
+JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, jobject obj, jstring code, jstring func, jobject options, jobject writer) {
 
     // Python variables
     PyObject *pArgs, *pValue, *pModule, *pFunc, *pGlobal, *pLocal, *pDict;
@@ -24,15 +100,18 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
     Py_Initialize();
 
     // Get the name of the output log file from the argument
-    char* jFile = (*env)->GetStringUTFChars(env, file, &iscopy);
+    //char* jFile = (*env)->GetStringUTFChars(env, file, &iscopy);
 
     // Redirect stdout and stderr to the file
-    PyObject *sys = PyImport_ImportModule("sys");
-    PyObject *out = PyFile_FromString(jFile, "w+");
-    PyObject_SetAttrString(sys, "stdout", out);
-    PyObject_SetAttrString(sys, "stderr", out);
+    //PyObject *sys = PyImport_ImportModule("sys");
+    //PyObject *out = PyFile_FromString(jFile, "w+");
+    //PyObject_SetAttrString(sys, "stdout", out);
+    //PyObject_SetAttrString(sys, "stderr", out);
 
-    FILE *output = PyFile_AsFile(out);
+  //  FILE *output = PyFile_AsFile(out);
+
+    // Redirects python stdout to StringIO object
+    initIO();
 
     // Create a new module object for the inline code
     pModule = PyImport_AddModule("__main__");
@@ -50,11 +129,11 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
 
     if (pValue == NULL) {
         if (PyErr_Occurred()) {
-            char message[256];
-            sprintf(message, "Python error while loading script, stderr logged to: %s", jFile);
-
             PyErr_Print();
-            return throwException(env, message);
+
+            // Write python stderr to string and throw exception
+            char* err = getErrors();
+            return throwException(env, err);
         }
         return 1;
     }
@@ -77,6 +156,9 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
 
         Py_DECREF(pArgs);
 
+        // Write python stdout to Java writer
+        writeStdOut(env, writer);
+
         // Process python return value
         if (pDict != NULL) {
 
@@ -97,13 +179,15 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
             fprintf(stderr, "Call failed\n");
 
             if (PyErr_Occurred()) {
-                char message[256];
-                sprintf(message, "Python error during function call, stderr logged to: %s", jFile);
 
                 PyErr_Print();
-                return throwException(env, message);
+
+                // Write python stderr to string and throw exception
+                char* err = getErrors();
+                return throwException(env, err);
             }
-            return 1;
+
+            return throwException(env, "Python error during function call");
         }
     } else {
         if (PyErr_Occurred())
@@ -117,12 +201,12 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, j
     Py_Finalize();
 
     // Write stdout to file
-    fclose(output);
+    //fclose(output);
 }
 
 JNIEXPORT jobject
 
-JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jobject obj, jstring name, jstring func, jobject options, jstring file) {
+JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jobject obj, jstring name, jstring func, jobject options, jobject writer) {
 
     // Python variables
     PyObject *pName, *pModule, *pDict, *pFunc;
@@ -157,18 +241,22 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
 
     //printf("name: %s, func: %s\n", jName, jFunc);
 
-    // Initialize the python interpreter and import the module
+    // Initialize the python interpreter
     Py_Initialize();
 
         // Get the name of the output log file from the argument
-        char* jFile = (*env)->GetStringUTFChars(env, file, &iscopy);
+        //char* jFile = (*env)->GetStringUTFChars(env, file, &iscopy);
 
         // Redirect stdout and stderr to the file
-        PyObject *sys = PyImport_ImportModule("sys");
-        PyObject *out = PyFile_FromString(jFile, "w+");
-        PyObject_SetAttrString(sys, "stdout", out);
-        PyObject_SetAttrString(sys, "stderr", out);
+        //PyObject *sys = PyImport_ImportModule("sys");
+        //PyObject *out = PyFile_FromString(jFile, "w+");
+        //PyObject_SetAttrString(sys, "stdout", out);
+        //PyObject_SetAttrString(sys, "stderr", out);
 
+    // Redirects python stdout to StringIO object
+    initIO();
+
+    // import the module
     pName = PyString_FromString(jName);
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
@@ -192,6 +280,9 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
 
             Py_DECREF(pArgs);
 
+            // Write python stdout to Java writer
+            writeStdOut(env, writer);
+
             // Process python return value
             if (pDict != NULL) {
 
@@ -212,16 +303,16 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
                   Py_DECREF(pModule);
                   PyErr_Print();
                   fprintf(stderr, "Call failed\n");
-
+                        return throwException(env, "test");
                     if (PyErr_Occurred()) {
-                        char message[256];
-                        sprintf(message, "Python error during function call, stderr logged to: %s", jFile);
-
                         PyErr_Print();
-                        return throwException(env, message);
+
+                        // Write python stderr to string and throw exception
+                        char* err = getErrors();
+                        return throwException(env, err);
                     }
 
-                  return 1;
+                    return throwException(env, "Python error during function call");
             }
         } else {
             if (PyErr_Occurred())
