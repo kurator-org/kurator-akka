@@ -80,6 +80,11 @@ char* getOutput() {
         //(*env)->CallObjectMethod(env, writer, m_Write, jOut);
 }
 
+jint throwException(JNIEnv *env, char *message) {
+    jclass c_Exception = (*env)->FindClass(env, "java/lang/RuntimeException");
+    return (*env)->ThrowNew(env, c_Exception, message);
+}
+
 JNIEXPORT jobject
 
 JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_eval(JNIEnv *env, jobject obj, jstring code, jstring func, jobject options, jobject writer) {
@@ -329,9 +334,4 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
 
 
     Py_Finalize();
-}
-
-jint throwException(JNIEnv *env, char *message) {
-    jclass c_Exception = (*env)->FindClass(env, "java/lang/RuntimeException");
-    return (*env)->ThrowNew(env, c_Exception, message);
 }

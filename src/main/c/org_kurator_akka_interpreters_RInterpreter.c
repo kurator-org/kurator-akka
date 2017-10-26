@@ -73,7 +73,7 @@ JNICALL Java_org_kurator_akka_interpreters_RInterpreter_run(JNIEnv *env, jobject
     printf("testing");
 
     // Release R environment
-    kill(getpid(), SIGINT);
+    //kill(getpid(), SIGINT); doesn't work on MacOS
 
     return 0;
 }
