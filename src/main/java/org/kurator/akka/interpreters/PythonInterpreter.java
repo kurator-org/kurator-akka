@@ -1,12 +1,18 @@
 package org.kurator.akka.interpreters;
 
+import org.apache.commons.io.IOUtils;
+import org.kurator.util.NativeUtil;
+
 import java.io.*;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PythonInterpreter {
+
     static {
-        System.loadLibrary("kurator"); // Load native library at runtime
+        NativeUtil.loadLibrary("kurator");
     }
 
     public final synchronized native Map<String, Object> run(String name, String func, HashMap<String, Object> options, Writer writer);

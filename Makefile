@@ -1,5 +1,6 @@
 VPATH=src/main/c
 BUILDDIR=build
+LIBDIR=src/main/resources/native
 
 OPTS=-shared -fPIC
 PROGRAMS=libkurator
@@ -21,9 +22,9 @@ all: $(PROGRAMS)
 $(BUILDDIR)/%.o: %.c
 	gcc -c $(JNIINC) $(CFLAGS) $(OPTS) $< -o $@
 libkurator: $(OBJECTS)
-	gcc $^ $(LDFLAGS) $(OPTS) -o lib/native/libkurator.dylib
+	gcc $^ $(LDFLAGS) $(OPTS) -o $(LIBDIR)/libkurator.dylib
 clean:
-	rm -f $(PROGRAMS) $(BUILDDIR)/*.lipo lib/native/libkurator.dylib
+	rm -f $(PROGRAMS) $(BUILDDIR)/*.lipo $(LIBDIR)/libkurator.dylib
 
 else
 
@@ -40,8 +41,8 @@ all: $(PROGRAMS)
 $(BUILDDIR)/%.o: %.c
 	gcc -c $(JNIINC) $(CFLAGS) $(OPTS) $< -o $@
 libkurator: $(OBJECTS)
-	gcc $^ $(LDFLAGS) $(OPTS) -o lib/native/libkurator.so
+	gcc $^ $(LDFLAGS) $(OPTS) -o $(LIBDIR)/libkurator.so
 clean:
-	rm -f $(PROGRAMS) $(BUILDDIR)/*.o lib/native/libkurator.so
+	rm -f $(PROGRAMS) $(BUILDDIR)/*.o $(LIBDIR)/libkurator.so
 
 endif
