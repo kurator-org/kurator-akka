@@ -1,13 +1,25 @@
 Kurator-Akka Framework
 ======================
 
-The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts source code for the **Kurator-Akka** workflow engine component of the Kurator workflow automation toolkit. This software toolkit is being developed as part of the [Kurator project](http://wiki.datakurator.net/web/Kurator) and is designed to make it easy to develop and run high-performance data cleaning workflows.
+The [kurator-akka](https://github.com/kurator-org/kurator-akka) repository hosts source code for the **Kurator-Akka** workflow engine component of the Kurator workflow automation toolkit. This software toolkit is being developed as part of the [Kurator project](http://wiki.datakurator.net/wiki/Kurator) and is designed to make it easy to develop and run high-performance data cleaning workflows.
 
 **Kurator-Akka** is based on the [Akka actor toolkit and runtime](http://akka.io).  It aims to accelerate development of new data cleaning actors and to facilitate development of new workflows assembled from these actors.  **Kurator-Akka** supports actors implemented either in Java or Python, and the framework shields actor developers from the complexities of using the Akka API directly.  Workflows are specified using a YAML-based language that defines how data flows between the actors at run time.
 
 The remainder of this README provides simple examples of actors and workflows that employ Kurator-Akka, describes how to run example workflows at the command line, and outlines the setup required to develop with or extend the **Kurator-Akka** source code.  Detailed user documentation will be provided elsewhere.
 
-The TDWG 2015 presentation [Data cleaning with the Kurator toolkit](http://www.slideshare.net/TimothyMcPhillips/data-cleaning-with-the-kurator-toolkit-bridging-the-gap-between-conventional-scripting-and-highperformance-workflow-automation) provides an overview of the Kurator project and tools described in this README.
+The TDWG 2015 presentation [Data cleaning with the Kurator toolkit](http://www.slideshare.net/TimothyMcPhillips/data-cleaning-with-the-kurator-toolkit-bridging-the-gap-between-conventional-scripting-and-highperformance-workflow-automation) provides an overview of the Kurator project and tools described in this README.  Also see the list of publications on the [Kurator project wiki](https://wiki.datakurator.net/wiki/Kurator#Publications).
+
+Citing Kurator-Akka
+-------------------
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1068311.svg)](https://doi.org/10.5281/zenodo.1068311)
+
+Obtaining Kurator-Akka
+----------------------
+
+An executable jar is available in the [current release](https://github.com/kurator-org/kurator-akka/releases/tag/v1.0.1)
+
+Also see the [Kurator-Web](http://wiki.datakurator.org/wiki/Kurator-Web_User_Documentation) application for running Kurator-Akka workflows through a web interface.
 
 Example actor and workflow
 --------------------------
