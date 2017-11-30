@@ -287,6 +287,18 @@ However, if you develop new Python actors that depend on 3rd-party packages not 
 
 * Note the location of the Jython installation directory created by the installer.
 
+#### Install dependencies for native actor support
+
+As an alternative to the actors that used the Java based Python interpreter Jython, native actor support is provided for embedded Python and R.
+
+On Linux, install the native dependencies for R and Python via:
+
+    sudo apt-get install r-base python python-dev
+    
+On MacOS, install the native dependencies via:
+
+    brew install python r
+
 #### Make installed Python packages available to Kurator
 
 Define the environment variable `JYTHONHOME` to indicate the path to the newly installed Jython 2.7.0 distribution. **Kurator-Akka** uses this variable to locate 3rd-party Python packages that specific actors depend upon.
@@ -315,6 +327,8 @@ To make your own Python code available to **Kurator-Akka** specify the directory
         onData: add_two_numbers
 
 Note that Python packages always require that a file named `__init__.py` be present in each directory comprising the package.  In the above example, the directories `$HOME/packages/math` and `$HOME/packages/math/operators` must each contain a file named `__init__.py`. These files may be empty.
+
+For native actor support set the `PYTHONPATH` environment variable to the same value.
 
 Instructions for Kurator-Akka workflow engine developers
 ---------------------------

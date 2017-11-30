@@ -34,8 +34,12 @@ public class NativeUtil {
         OutputStream dest = new FileOutputStream(lib);
 
         IOUtils.copy(src, dest);
-
-        System.load(lib.getAbsolutePath());
+        System.out.println("Loading native lib: " + lib.getAbsolutePath());
+        try {
+            System.load(lib.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private static void loadDarwin64(String libname) throws IOException {
