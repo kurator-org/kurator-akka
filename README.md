@@ -21,6 +21,14 @@ An executable jar is available in the [current release](https://github.com/kurat
 
 Also see the [Kurator-Web](http://wiki.datakurator.org/wiki/Kurator-Web_User_Documentation) application for running Kurator-Akka workflows through a web interface.
 
+Kurator-Akka is available as a dependency in maven central:
+
+    <dependency>
+       <groupId>org.datakurator</groupId>
+       <artifactId>kurator-akka</artifactId>
+       <version>1.0.1</version>
+    </dependency>
+
 Example actor and workflow
 --------------------------
 
