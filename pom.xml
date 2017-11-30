@@ -4,9 +4,10 @@
 
 	<groupId>org.datakurator</groupId>
 	<artifactId>kurator-akka</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>kurator-akka</name>
+	<description>Provenance-enabled workflow platform and toolkit to curate biodiversity data.</description>
     <url>http://wiki.datakurator.org/</url>
 
     <licenses>
