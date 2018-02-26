@@ -28,10 +28,10 @@ clean:
 
 else
 
-CFLAGS=-I/usr/share/R/include -I/usr/include/python2.7 -I/usr/include/x86_64-linux-gnu/python2.7 -fno-strict-aliasing -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes
-LDFLAGS=-L/usr/lib/R/lib -L/usr/lib/python2.7/config-x86_64-linux-gnu -L/usr/lib -lR -lpython2.7 -lpthread -ldl  -lutil -lm  -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+CFLAGS=-I/usr/share/R/include -I/usr/include/python2.7 -I/usr/include/config-i386-linux-gnu/python2.7 -m32 -fno-strict-aliasing -Wdate-time -D_FORTIFY_SOURCE=2 -g -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes
+LDFLAGS=-L/usr/lib/R/lib -L/usr/lib/python2.7/config-i386-linux-gnu -L/usr/lib -lR -lpython2.7 -lpthread -ldl  -lutil -lm  -m32 -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
 
-JNIINC=-I/usr/lib/jvm/java-8-oracle/include/ -I/usr/lib/jvm/java-8-oracle/include/linux
+JNIINC=-I/usr/lib/jvm/jdk1.8.0_161/include/ -I/usr/lib/jvm/jdk1.8.0_161/include/linux
 
 SOURCES = $(wildcard $(VPATH)/*.c)
 OBJECTS = $(patsubst $(VPATH)/%.c, $(BUILDDIR)/%.o, $(SOURCES))

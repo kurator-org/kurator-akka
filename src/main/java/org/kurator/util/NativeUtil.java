@@ -16,8 +16,10 @@ public class NativeUtil {
 
             if (SystemUtils.IS_OS_MAC && bit.equals("64")) {
                 loadDarwin64(libname);
-            } else if (SystemUtils.IS_OS_LINUX  && bit.equals("64")) {
+            } else if (SystemUtils.IS_OS_LINUX && bit.equals("64")) {
                 loadLinux64(libname);
+            } else if (SystemUtils.IS_OS_LINUX && bit.equals("32")) {
+                loadLinux32(libname);
             } else {
                 throw new RuntimeException("Operating system is unsupported by kuratorlib");
             }
@@ -30,7 +32,22 @@ public class NativeUtil {
     private static void loadLinux64(String libname) throws IOException {
         File lib = File.createTempFile("lib" + libname, ".so");
 
-        InputStream src = NativeUtil.class.getResourceAsStream("/native/lib" + libname + ".so");
+        InputStream src = NativeUtil.class.getResourceAsStream("/native/amd64/lib" + libname + ".so");
+        OutputStream dest = new FileOutputStream(lib);
+
+        IOUtils.copy(src, dest);
+        System.out.println("Loading native lib: " + lib.getAbsolutePath());
+        try {
+            System.load(lib.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void loadLinux32(String libname) throws IOException {
+        File lib = File.createTempFile("lib" + libname, ".so");
+
+        InputStream src = NativeUtil.class.getResourceAsStream("/native/i386/lib" + libname + ".so");
         OutputStream dest = new FileOutputStream(lib);
 
         IOUtils.copy(src, dest);
@@ -45,7 +62,7 @@ public class NativeUtil {
     private static void loadDarwin64(String libname) throws IOException {
         File lib = File.createTempFile("native", "lib" + libname + ".dylib");
 
-        InputStream src = NativeUtil.class.getResourceAsStream("/native/lib" + libname + ".dylib");
+        InputStream src = NativeUtil.class.getResourceAsStream("/native/amd64/lib" + libname + ".dylib");
         OutputStream dest = new FileOutputStream(lib);
 
         IOUtils.copy(src, dest);
