@@ -27,6 +27,8 @@ public class NativeUtil {
         } catch (IOException e) {
             throw new RuntimeException("Unable to load kurator native libraries.", e);
         }
+
+        System.out.println("Native library \"" + libname + "\" loaded successfully.");
     }
 
     private static void loadLinux64(String libname) throws IOException {

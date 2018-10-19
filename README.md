@@ -17,7 +17,7 @@ Citing Kurator-Akka
 Obtaining Kurator-Akka
 ----------------------
 
-An executable jar is available in the [current release](https://github.com/kurator-org/kurator-akka/releases/tag/v1.0.1)
+An executable jar is available in the [current release](https://github.com/kurator-org/kurator-akka/releases/latest)
 
 Also see the [Kurator-Web](http://wiki.datakurator.org/wiki/Kurator-Web_User_Documentation) application for running Kurator-Akka workflows through a web interface.
 
@@ -207,7 +207,7 @@ Instructions for installing Java may be found at [http://docs.oracle.com/javase/
 
 #### Download the Kurator-Akka jar
 
-**Kurator-Akka** is distributed as an executable jar (Java archive) file that can be invoked using the `java -jar` command. To download the most recent build of the latest **Kurator-Akka** code, navigate to the [Latest Successful Build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA/latestSuccessful), click on the *Artifacts* tab, and download the *executable jar* artifact for the *kurator-akka* job.  The downloaded file will be named `kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar`.
+**Kurator-Akka** is distributed as an executable jar (Java archive) file that can be invoked using the `java -jar` command. To download the most recent build of the latest **Kurator-Akka** code, navigate to the [Latest Release](https://github.com/kurator-org/kurator-akka/releases/latest) and click on the `kurator-akka-1.0.1-jar-with-dependencies.jar` link under the *Assets* tab to download the *executable jar* artifact for the *kurator-akka* job.
 
 #### Install Kurator-Akka on your system
 
@@ -357,7 +357,7 @@ The **Kurator-Akka** framework is built using Maven 3. Before building **Kurator
 
 JDK 7 and Maven 3 downloads and detailed installation instructions can be found at the following links:
 
-- [Instructions for installing and configuring JDK 1.7](http://docs.oracle.com/javase/7/docs/webnotes/install/) (Oracle Java Documentation)
+- [Instructions for installing and configuring JDK 1.8](lhttps://docs.oracle.com/javase/8/docs/technotes/guides/install/) (Oracle Java Documentation)
 - [Instructions for installing and configuring Maven 3](http://maven.apache.org/download.cgi) (Apache Maven Project)
 
 
@@ -390,7 +390,7 @@ Maven command | Description
 mvn clean     | Delete the target directory including all compiled classes.
 mvn compile   | Download required dependencies and compile source code in src/main/java.  Only those source files changes since the last compilation or clean are built.
 mvn test      | Compile the classes in src/test/java and run all tests found therein. Peforms *mvn compile* first.
-mvn package   | Package the compiled classes in target/classes and files found in src/main/resources in two jar files, **kurator-akka-0.3-SNAPSHOT.jar** and **kurator-akka-0.3-SNAPSHOT-jar-with-dependencies.jar**.  The latter also contains all jar dependencies. Performs *mvn compile* and *mvn test* first, and will not perform packaging step if any tests fail. Use the `-DskipTests` option to bypass tests.
+mvn package   | Package the compiled classes in target/classes and files found in src/main/resources in two jar files, **kurator-akka-1.0.1-SNAPSHOT.jar** and **kurator-akka-1.0.1-SNAPSHOT-jar-with-dependencies.jar**.  The latter also contains all jar dependencies. Performs *mvn compile* and *mvn test* first, and will not perform packaging step if any tests fail. Use the `-DskipTests` option to bypass tests.
 mvn javadoc:javadoc | Build Javadoc documentation. The `mvn package` command also builds Javadoc.
 
 #### Continuous integration with Bamboo
@@ -405,6 +405,20 @@ Last successful build | https://opensource.ncsa.illinois.edu/bamboo/browse/KURAT
 
 The link to the latest successful build is useful for obtaining the most recently built jar file without building it yourself.  Follow the link to the [last successful build](https://opensource.ncsa.illinois.edu/bamboo/browse/KURATOR-AKKA "last successful build"), click the Artifacts tab, then download the executable jar.
 
+#### Maintainer deployment: 
+
+To deploy a snapshot to the snapshotRepository:
+
+    mvn clean deploy
+
+To deploy a new release to maven central, set the version in pom.xml to a non-snapshot version, then deploy with the release profile (which adds package signing and deployment to release staging:
+
+    mvn clean deploy -P release
+
+After this, you will need to login to the sonatype oss repository hosting nexus instance, find the staged release in the staging repositories, and perform the release.  It should be possible (haven't verified this yet) to perform the release from the command line instead by running:
+
+    mvn nexus-staging:release -P release
+    
 <!---
 
 Development for Kurator-Akka

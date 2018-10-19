@@ -227,6 +227,15 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
     // RTLD_GLOBAL flag
     dlopen("libpython2.7.so", RTLD_LAZY | RTLD_GLOBAL);
 
+    // Check that the PYTHONPATH environment variable is set
+    const char* pythonpath = getenv("PYTHONPATH");
+
+    if (pythonpath != NULL) {
+        printf("PYTHONPATH=%s\n", pythonpath);
+    } else {
+        printf("Error: the PYTHONPATH environment variable is not set!");
+    }
+
     // initialize the Java Map interface and methods
     jclass c_Map = (*env)->FindClass(env, "java/util/HashMap");
 
@@ -269,6 +278,7 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
     // If the module loaded successfully get the python function and
     // process input parameters from java map
     if (pModule != NULL) {
+        fprintf(stdout, "Python module \"%s\" successfully loaded.\n", jName);
         pFunc = PyObject_GetAttrString(pModule, jFunc);
 
         if (pFunc && PyCallable_Check(pFunc)) {
@@ -308,7 +318,7 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
                   Py_DECREF(pModule);
                   PyErr_Print();
                   fprintf(stderr, "Call failed\n");
-                        return throwException(env, "test");
+
                     if (PyErr_Occurred()) {
                         PyErr_Print();
 
@@ -328,7 +338,7 @@ JNICALL Java_org_kurator_akka_interpreters_PythonInterpreter_run(JNIEnv *env, jo
         Py_DECREF(pModule);
     } else {
         PyErr_Print();
-        fprintf(stderr, "Failed to load \"%s\"\n", name);
+        fprintf(stderr, "Failed to load \"%s\", is the PYTHONPATH environment variable set? Could also be an import exception if pip install prerequisites have not been met.\n", jName);
         return 1;
     }
 
