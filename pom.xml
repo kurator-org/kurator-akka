@@ -136,13 +136,13 @@
 	   <dependency>
 	       <groupId>org.springframework</groupId>
 	       <artifactId>spring-core</artifactId>
-	       <version>3.1.2.RELEASE</version>
+	       <version>4.3.20.RELEASE</version>
 	   </dependency>
 
         <dependency>
 	       <groupId>org.springframework</groupId>
 	       <artifactId>spring-beans</artifactId>
-	       <version>3.1.2.RELEASE</version>
+	       <version>4.3.20.RELEASE</version>
 	   </dependency>
 
 		 <dependency>
@@ -154,20 +154,22 @@
 	   <dependency>
 	       <groupId>org.springframework</groupId>
 	       <artifactId>spring-context</artifactId>
-	       <version>3.1.2.RELEASE</version>
+	       <version>4.3.20.RELEASE</version>
 	   </dependency>
 
 	   <dependency>
 	       <groupId>org.springframework</groupId>
 	       <artifactId>spring-expression</artifactId>
-	       <version>3.1.2.RELEASE</version>
+	       <version>4.3.20.RELEASE</version>
 	   </dependency>
 
+<!-- 
 	   <dependency>
 	       <groupId>org.springframework</groupId>
 	       <artifactId>spring-asm</artifactId>
-	       <version>3.1.2.RELEASE</version>
+	       <version>4.3.20.RELEASE</version>
 	   </dependency>
+-->
 
 	   <dependency>
 	       <groupId>org.restflow</groupId>
