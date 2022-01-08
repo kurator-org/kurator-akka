@@ -97,16 +97,6 @@
         </repository>
     </distributionManagement -->
 
-    <!-- repositories>
-
-	   <repository>
-	       <id>org.restflow</id>
-	       <name>restflow.org maven repository</name>
-	       <url>http://restflow.org/mavenrepo</url>
-	   </repository>
-
-	</repositories -->
-
 	<dependencies>
 
 	   <dependency>
@@ -174,7 +164,7 @@
 	   <dependency>
 	       <groupId>org.restflow</groupId>
 	       <artifactId>YamlSpringLoader</artifactId>
-	       <version>3.1</version>
+	       <version>3.1.1-SNAPSHOT</version>
 	   </dependency>
 
         <dependency>
