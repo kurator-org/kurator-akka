@@ -383,6 +383,8 @@ Note that the final directory, `packages` contains all of the Python source file
 
 #### Building and testing with maven
 
+Note: The yaml-spring-loader dependency currently needs to be built from source from the kurator-org/yaml-spring-loader fork.  See that project in github, and install in your local maven repository before building Kurator-Akka.
+
 **Kurator-Akka** can be built and tested from the command line using the following commands:
 
 Maven command | Description
